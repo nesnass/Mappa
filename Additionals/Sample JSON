@@ -1,0 +1,38 @@
+
+
+// Create a feature for an existing user
+
+{
+	"userid" : 1,
+	"feature" : {
+		"geometry" : {
+			"coordinate_0" : 10.1,
+			"coordinate_1" : 25.5
+		},
+		"featureTags" : [
+			"red",
+			"green"
+		],
+		"descr_url" : "testurl",
+		"description" : "This is a test description",
+		"icon_url" : "url to icon",
+		"image_url_high_resolution"	: "high res url",
+		"image_url_standard_resolution"	: "standard res url",
+		"image_url_thumbnail"	: "thumbnail url",
+		"name" : "first feature",
+		"source_type" : "the source type"
+	}
+}
+
+
+// Create a new user
+
+{
+	"text" : "User number one"
+}
+
+// /userfeatures
+
+{
+	"userid" : 1
+}
