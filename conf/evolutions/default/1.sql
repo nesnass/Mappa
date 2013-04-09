@@ -30,6 +30,13 @@ create table s_user (
   constraint pk_s_user primary key (id))
 ;
 
+create table s3file (
+  id                        varchar(40) not null,
+  bucket                    varchar(255),
+  name                      varchar(255),
+  constraint pk_s3file primary key (id))
+;
+
 create table s_tag (
   id                        bigint not null,
   tag                       varchar(255),
@@ -75,6 +82,8 @@ drop table if exists s_feature cascade;
 drop table if exists s_feature_tag cascade;
 
 drop table if exists s_user cascade;
+
+drop table if exists s3file cascade;
 
 drop table if exists s_tag cascade;
 

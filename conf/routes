@@ -56,3 +56,7 @@ POST	/adduser		controllers.TestController.addUser()
 POST	/addfeature		controllers.TestController.addUserFeature()
 POST	/userfeatures	controllers.TestController.getUserFeatures()
 
+
+#### image post to S3 ####
+GET     /image                    	controllers.S3Controller.index()
+POST    /image                      controllers.S3Controller.upload()
