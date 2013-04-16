@@ -7,9 +7,10 @@ import java.util.UUID;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import play.Logger;
+// import play.Logger;
 import play.db.ebean.Model;
 import plugins.S3Plugin;
 
@@ -18,6 +19,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 
 
 @Entity
+@Table(name="s_s3file")
 public class S3File extends Model {
 
 	private static final long serialVersionUID = 1L;
@@ -43,7 +45,7 @@ public class S3File extends Model {
     @Override
     public void save() {
         if (S3Plugin.amazonS3 == null) {
-            Logger.error("Could not save because amazonS3 was null");
+  //          Logger.error("Could not save because amazonS3 was null");
             throw new RuntimeException("Could not save");
         }
         else {
@@ -60,7 +62,7 @@ public class S3File extends Model {
     @Override
     public void delete() {
         if (S3Plugin.amazonS3 == null) {
-            Logger.error("Could not delete because amazonS3 was null");
+//            Logger.error("Could not delete because amazonS3 was null");
             throw new RuntimeException("Could not delete");
         }
         else {

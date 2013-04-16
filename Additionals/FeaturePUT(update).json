@@ -1,0 +1,21 @@
+{
+    "id": "5166d226b760cb1b64f989e5",
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            102,
+            0.5
+        ]
+    },
+    "properties": {
+        "name": "ServerwillgeneratethenameofPOIbyparsingtheTEXTusingsomelogic",
+        "description": "textincludinglabelandhashtagsthatcanbethefirstsentenceorsomeotherlogicalsegment",
+        "author": "authornamefromfacebook",
+        "authorId": "authoruniqueIdfromfacebook",
+        "tags": "alistofstringseparatedbyspacewillbemadebyserverbyparsingthetext",
+        "descr_url": "createdbyserverwhichwillleadtoHTMLpageshowingthecontentsofPIO",
+        "icon_url": "mytesticonURL",
+        "source_type": "overlay"
+    }
+}

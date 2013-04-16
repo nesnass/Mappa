@@ -10,6 +10,7 @@ object ApplicationBuild extends Build {
   val appDependencies = Seq(
   	"postgresql" % "postgresql" % "9.1-901.jdbc4",
   	"com.amazonaws" % "aws-java-sdk" % "1.3.11",
+  	"net.sf.flexjson" % "flexjson" % "2.1",
     javaCore,
     javaJdbc,
     javaEbean

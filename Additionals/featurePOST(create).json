@@ -1,0 +1,20 @@
+{
+	"type": "Feature",
+	"id":"511cad2c0364f1bea54ba3ca",
+	"geometry":
+	{
+		"type": "Point",
+		"coordinates": [10.7167, 59.9427]
+	},
+	"properties":
+	{
+		"source_type": "overlay",
+		"user":
+		{
+			"id":"808270471",
+			"full_name":"Martin Havnør",
+			"location":[10.756731033325195,59.9238826969285]
+		},
+		"description": "This is #first #overlay POI."
+	}
+}

@@ -1,0 +1,52 @@
+Hi Martin, I have switched over postgrSQL for this project but have quite a few issues supplying you with the correct responses to JSON calls.
+Can send me a full listing of the routes the client NEEDS, including the JSON requests made and information you require in response?
+It may be easier to write new controllers than try to adapt the old ones, some of which are not working.
+
+For example, I can't find the correct JSON request to use for these:
+POST			/geo
+PUT				/geo
+DELETE			/geo/513dc8afb76005a96936b49f/12415     ?? Not working??
+GET				/geo/box/10.7067/59.9027/10.8167/59.9927     or    ?lng1=5&lat1=30&lng2=15&lat2=66
+
+Ideally, can we simplify to use only GET and POST requests, and use more appropriate routing such as /create, /update and /delete?
+We also seem to have mixed up modes for adding parameters to GET requests - are you preferring to use '/' or '? &' to separate parameters?
+
+For coordinate types - do they need to be supplied in an array?  can we supply as x/y/z or loc_1, loc_2, loc_3 key value pairs instead?
+There is also inconsistency between stored coordinates / location in geometry, mapper & user (strings or numbers) - should this be standardised?
+Mapper coordinated and geometry location always seem to be the same - are both needed?
+
+e.g.	"geometry" : {
+        	"type" : "Point",
+     		"coordinates" : [
+          		10.722621,
+          		59.940239
+        	]
+      	}
+      	
+		"mapper" : {
+			"location" : [
+				"10.716690",
+				"59.942646"
+			],
+			"id" : "100001978869423",
+			"full_name" : "Fahid Lone"
+		}
+
+		"user" : {
+			"location" : [
+            	"10.716690",
+            	"59.942646"
+			],
+			"id" : "269095286",
+			"full_name" : "Johannes"
+		}
+
+Also, decimal places are being dropped from the original POSTed data such as:
+	geometry 	-		"coordinates" : [ 10.739999771, 59.917999267]
+	user 		- 		"location" : [ 10.756731033325195, 59.9238826969285]
+
+
+ 
+ Please let me know what you think,
+ Best Regards,
+ Richard

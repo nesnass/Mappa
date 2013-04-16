@@ -8,21 +8,26 @@ create table s_feature (
   coordinate_0              float,
   coordinate_1              float,
   feature_user_id           bigint,
+  mapper_user_id            bigint,
+  feature_session_id        bigint,
   type                      varchar(255),
   created_time              timestamp,
   descr_url                 varchar(255),
   description               varchar(255),
+  mapper_description        varchar(255),
   icon_url                  varchar(255),
   image_url_high_resolution varchar(255),
   image_url_standard_resolution varchar(255),
   image_url_thumbnail       varchar(255),
   name                      varchar(255),
-  source_type               varchar(255),
+  source_type               integer,
+  constraint ck_s_feature_source_type check (source_type in (0,1)),
   constraint pk_s_feature primary key (id))
 ;
 
 create table s_user (
   id                        bigint not null,
+  facebook_id               bigint,
   full_name                 varchar(255),
   profile_picture           varchar(255),
   location_0                bigint,
@@ -30,11 +35,19 @@ create table s_user (
   constraint pk_s_user primary key (id))
 ;
 
-create table s3file (
+create table s_s3file (
   id                        varchar(40) not null,
   bucket                    varchar(255),
   name                      varchar(255),
-  constraint pk_s3file primary key (id))
+  constraint pk_s_s3file primary key (id))
+;
+
+create table s_session (
+  id                        bigint not null,
+  facebook_group_id         bigint,
+  title                     varchar(255),
+  description               varchar(255),
+  constraint pk_s_session primary key (id))
 ;
 
 create table s_tag (
@@ -60,10 +73,16 @@ create sequence s_feature_seq;
 
 create sequence s_user_seq;
 
+create sequence s_session_seq;
+
 create sequence s_tag_seq;
 
 alter table s_feature add constraint fk_s_feature_featureUser_1 foreign key (feature_user_id) references s_user (id);
 create index ix_s_feature_featureUser_1 on s_feature (feature_user_id);
+alter table s_feature add constraint fk_s_feature_mapperUser_2 foreign key (mapper_user_id) references s_user (id);
+create index ix_s_feature_mapperUser_2 on s_feature (mapper_user_id);
+alter table s_feature add constraint fk_s_feature_featureSession_3 foreign key (feature_session_id) references s_session (id);
+create index ix_s_feature_featureSession_3 on s_feature (feature_session_id);
 
 
 
@@ -83,7 +102,9 @@ drop table if exists s_feature_tag cascade;
 
 drop table if exists s_user cascade;
 
-drop table if exists s3file cascade;
+drop table if exists s_s3file cascade;
+
+drop table if exists s_session cascade;
 
 drop table if exists s_tag cascade;
 
@@ -92,6 +113,8 @@ drop table if exists s_tag_feature cascade;
 drop sequence if exists s_feature_seq;
 
 drop sequence if exists s_user_seq;
+
+drop sequence if exists s_session_seq;
 
 drop sequence if exists s_tag_seq;
 

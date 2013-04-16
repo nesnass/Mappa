@@ -1,0 +1,425 @@
+CREATE FEATURE
+--------------
+SEND a POST request by RESTclient as MULTIPART/form-data with file called "feature"
+Include with it another file called "picture"
+(No RAW, no request body)
+
+
+{
+	"type": "Feature",
+	"id":"511cad2c0364f1bea54ba3ca",
+	"geometry":
+				{
+				   "type": "Point",
+				   "coordinates": [10.7167, 59.9427]
+				},
+	"properties":
+				{
+					"source_type": "overlay",
+					"user":{
+								"id":"808270471",
+								"full_name":"Martin Havnør",
+								"location":[10.756731033325195,59.9238826969285]
+							},
+					"description": "This is #first #overlay POI."
+				}
+}
+
+
+
+RESPONSE:
+{
+	"id" : "5166d226b760cb1b64f989e5",
+	"geometry" : {
+		"type" : "Point",
+		"coordinates" : [
+			10.7167,
+			59.9427
+		]
+	},
+	"properties" : {
+		"images" : {
+			"thumbnail" : "http://intermedia-prod03.uio.no:9010/image/5166d226b760cb1b64f989ec",
+			"high_resolution" : "http://intermedia-prod03.uio.no:9010/image/5166d226b760cb1b64f989ea",
+			"standard_resolution" : "http://intermedia-prod03.uio.no:9010/image/5166d226b760cb1b64f989ee"
+		},
+		"created_time" : 1365692966,
+		"user" : {
+			"location" : [
+				10.756731033325195,
+				59.9238826969285
+			],
+			"id" : "808270471",
+			"full_name" : "Martin Havnør"
+		},
+		"source_type" : "overlay",
+		"descr_url" : "http://intermedia-prod03.uio.no:9010/content/5166d226b760cb1b64f989e5",
+		"icon_url" : "http://intermedia-prod03.uio.no:9010/assets/img/overlay.png",
+		"description" : "This is #first #overlay POI.",
+		"tags" : [
+			"overlay",
+			"first"
+		],
+		"name" : "This is #first #overlay POI"
+	},
+	"type" : "Feature"
+}
+
+UPDATE FEATURE
+--------------
+
+SEND a PUT request by RESTclient as as MULTIPART/form-data with file called "feature"
+OPTIONALLY include with it another file called "picture"
+(No RAW, no request body)
+
+{
+	"id": "5166d226b760cb1b64f989e5",
+	"type": "Feature",
+	"geometry": {
+		"type": "Point",
+		"coordinates": [
+			102,
+			0.5
+		]
+	},
+	"properties": {
+		"name": "ServerwillgeneratethenameofPOIbyparsingtheTEXTusingsomelogic",
+		"description": "textincludinglabelandhashtagsthatcanbethefirstsentenceorsomeotherlogicalsegment",
+		"author": "authornamefromfacebook",
+		"authorId": "authoruniqueIdfromfacebook",
+		"tags": "alistofstringseparatedbyspacewillbemadebyserverbyparsingthetext",
+		"descr_url": "createdbyserverwhichwillleadtoHTMLpageshowingthecontentsofPIO",
+		"icon_url": "mytesticonURL",
+		"source_type": "overlay"
+	}
+}
+
+RESPONSE:
+{
+  "id" : "5166d226b760cb1b64f989e5",
+  "geometry" : {
+	"type" : "Point",
+	"coordinates" : [
+	  10.7167,
+	  59.9427
+	]
+  },
+  "properties" : {
+	"images" : {
+	  "thumbnail" : "http://intermedia-prod03.uio.no:9010/image/5166d226b760cb1b64f989ec",
+	  "high_resolution" : "http://intermedia-prod03.uio.no:9010/image/5166d226b760cb1b64f989ea",
+	  "standard_resolution" : "http://intermedia-prod03.uio.no:9010/image/5166d226b760cb1b64f989ee"
+	},
+	"created_time" : 1365692966,
+	"user" : {
+	  "location" : [
+		10.756731033325195,
+		59.9238826969285
+	  ],
+	  "id" : "808270471",
+	  "full_name" : "Martin Havnør"
+	},
+	"source_type" : "overlay",
+	"descr_url" : "http://intermedia-prod03.uio.no:9010/content/5166d226b760cb1b64f989e5",
+	"icon_url" : "http://intermedia-prod03.uio.no:9010/assets/img/overlay.png",
+	"description" : "textincludinglabelandhashtagsthatcanbethefirstsentenceorsomeotherlogicalsegment",
+	"tags" : [
+	  "overlay",
+	  "first"
+	],
+	"name" : "textincludinglabelandhashtagsthatcanbethefirstsentenceorsomeotherlogicalsegment"
+  },
+  "type" : "Feature"
+}
+
+
+DELETE FEATURE
+--------------
+
+SEND a DELETE request by RESTclient as as application/JSON
+in form of http://(serverAddress)/geo/(featureID)/(FacebookUserID)
+http://intermedia-prod03.uio.no:9010/geo/5166d226b760cb1b64f989e5/808270471
+
+
+CERATE SESSION
+--------------
+
+Request:
+{
+    "properties":
+    {
+   	 "title":"A visit to Grønland",
+  	 "contextual_info":"coming #soon in #Oslo with whole lot of #features",
+  	 "boundingBox": [10.749092102050781,59.918204355780674,10.771064758300781,59.904090331089],
+  	"nPOIs" : 5,
+  	"icon":"",
+  	 "group":
+  		 {
+  			 "id":"",
+  			 "name":""
+  		 },
+  	"user":
+  		 {
+  			 "id":"",
+  			 "full_name": "",
+  			 "location":[]
+  		 }
+    }
+ 
+}
+
+{
+ 	"type": "Feature",
+ 	"geometry":
+             	{
+                	"type": "Point",
+                	"coordinates": [102.0, 0.5]
+             	},
+ 	"properties":
+             	{
+      		 "name" : "",
+                	"description": "Essentials on #SEO, #Communication, #SocialMedia, Technology, Money, and More via @BruceSallan",
+       		"author": "Fahied",
+       		"author_id": "123kjl2kj3212123k589049723",
+                	"tags": "",
+                	"descr_url": "http://description.url",
+        		"icon_url" : "http://icon.url",
+        		"source_type": "empty",
+        		"author_location":[12.00922,982211]
+             	}
+}
+
+RESPONSE:
+{
+	"id": "50c76841da060d9e719ab88e",
+	"properties": {
+    	"tags": [ "features", "Oslo", "soon"],
+    	"icon": "",
+    	"boundingBox": [
+        	10.749092102050781,
+        	59.918204355780674,
+        	10.771064758300781,
+        	59.904090331089 ],
+    	"title": "A visit to Grønland",
+    	"nPOIs": 5,
+    	"contextual_info": "coming #soon in #Oslo with whole lot of #features",
+    	"group": {
+ 		 "id": "",
+        	           	 "name": ""
+    		},
+    	"user": {
+        		"id": "",
+        		"full_name": "",
+        	"location": [] }
+	},
+	"features": []
+}
+
+
+
+
+GET REQUEST RESULTS:
+
+/geo
+
+
+{
+  "type" : "FeatureCollection",
+  "features" : [
+    {
+      "id" : "513dc8afb76005a96936b49f",
+      "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+          10.710167,
+          59.946
+        ]
+      },
+      "properties" : {
+        "mapper" : {
+          "location" : [
+            "10.716726",
+            "59.942662"
+          ],
+          "id" : "100001978869423",
+          "full_name" : "Fahid Lone"
+        },
+        "images" : {
+          "thumbnail" : "http://distilleryimage0.s3.amazonaws.com/66e36a3a88d111e2b6fe22000a9f12db_5.jpg",
+          "standard_resolution" : "http://distilleryimage0.s3.amazonaws.com/66e36a3a88d111e2b6fe22000a9f12db_7.jpg"
+        },
+        "created_time" : 1363003567,
+        "source_type" : "mapped_instagram",
+        "user" : {
+          "location" : [
+            "10.716726",
+            "59.942662"
+          ],
+          "id" : "12415",
+          "full_name" : "Christian Pettersen"
+        },
+        "mapper_description" : "#mapthis #testing stairs",
+        "icon_url" : "http://intermedia-prod03.uio.no:9010/assets/img/mInsta.png",
+        "seesion_id" : "none",
+        "description" : "#stairs",
+        "tags" : [
+          "mapthis",
+          "testing"
+        ],
+        "name" : "#mapthis #testing stairs"
+      },
+      "type" : "Feature"
+    },
+    {
+      "id" : "513dc8e5b76005a96936b4d2",
+      "geometry" : {
+    	.................etc...>
+      
+      
+/search/:hashTag
+
+
+{
+  "type" : "FeatureCollection",
+  "features" : [
+    {
+      "id" : "513dc8e5b76005a96936b4d2",
+      "geometry" : {
+    	.................etc...>
+      
+      
+/user/:userID
+
+{
+  "type" : "FeatureCollection",
+  "features" : [
+    {
+      "id" : "513dc8afb76005a96936b49f",
+      "geometry" : {
+    	.................etc...>
+      
+      
+/geo/:id
+
+{
+  "id" : "513dc8afb76005a96936b49f",
+  "geometry" : {
+    "type" : "Point",
+    "coordinates" : [
+      10.710167,
+      59.946
+    ]
+  },
+  "properties" : {
+    "mapper" : {
+      "location" : [
+        "10.716726",
+        "59.942662"
+      ],
+      "id" : "100001978869423",
+      "full_name" : "Fahid Lone"
+    },
+    "images" : {
+      "thumbnail" : "http://distilleryimage0.s3.amazonaws.com/66e36a3a88d111e2b6fe22000a9f12db_5.jpg",
+      "standard_resolution" : "http://distilleryimage0.s3.amazonaws.com/66e36a3a88d111e2b6fe22000a9f12db_7.jpg"
+    },
+    "created_time" : 1363003567,
+    "source_type" : "mapped_instagram",
+    "user" : {
+      "location" : [
+        "10.716726",
+        "59.942662"
+      ],
+      "id" : "12415",
+      "full_name" : "Christian Pettersen"
+    },
+    "mapper_description" : "#mapthis #testing stairs",
+    "icon_url" : "http://intermedia-prod03.uio.no:9010/assets/img/mInsta.png",
+    "seesion_id" : "none",
+    "description" : "#stairs",
+    "tags" : [
+      "mapthis",
+      "testing"
+    ],
+    "name" : "#mapthis #testing stairs"
+  },
+  "type" : "Feature"
+}
+
+
+/geo/box/
+
+
+
+
+/geo/radius/:lng/:lat/:distanceInMeters
+
+{
+  "type" : "FeatureCollection",
+  "features" : [
+    {
+      "id" : "5141c74cb76005a969375ef3",
+      "geometry" : {
+    	.................etc...>
+      
+    
+
+/geo/recent/:lng/:lat
+
+{
+  "type" : "FeatureCollection",
+  "features" : [
+    {
+      "id" : "5166d226b760cb1b64f989e5",
+      "geometry" : {
+    	.................etc...>
+      
+    
+
+
+/image/:id
+
+(image binary)  From Morphia plugin - GRIDFSDBFile - converted to byte array - sent in Result after marking content type
+:id is the key used to store in MongoDB
+
+
+/content/:id
+
+(HTML) including  feature - "description"   parsed for tags with TwitterHelper - and an image icon??
+		
+
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <title>Feature Information</title>
+        <link rel="stylesheet" media="screen" href="/assets/stylesheets/instagram.css">
+        <link rel="shortcut icon" type="image/png" href="/assets/images/favicon.png">
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js" type="text/javascript"></script>
+        <meta name = "viewport" content = "width = device-width">
+    </head>
+    <body>
+        
+
+
+	 <div id="image-description">
+	 
+	 <td>
+  			<img alt="User" src="/assets/img/user.png" width=20 height=20 style="vertical-align: middle;">
+  			<a href="fb://profile/289433466"><strong>danya_veselo</strong></a>
+
+	</td>
+	 <br>
+	 <br>
+	 
+	 #бабуля #блять #сука #ебтвоюмать #мурманск #россия <a href=http://intermedia-prod03.uio.no:9010/search/russia >#russia</a> <a href=http://intermedia-prod03.uio.no:9010/search/mmsk >#mmsk</a> <a href=http://intermedia-prod03.uio.no:9010/search/fashion >#fashion</a> <a href=http://intermedia-prod03.uio.no:9010/search/lady >#lady</a> <a href=http://intermedia-prod03.uio.no:9010/search/woman >#woman</a> <a href=http://intermedia-prod03.uio.no:9010/search/beautiful >#beautiful</a> <a href=http://intermedia-prod03.uio.no:9010/search/swag >#swag</a> Мурманская мода что сказать</div>
+	
+
+      
+    </body>
+</html>
+
+
+/instagram/:id
+
+(at this time this call is only a stub)

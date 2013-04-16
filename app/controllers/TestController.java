@@ -17,7 +17,12 @@ import play.mvc.Controller;
 import play.mvc.Result;
 
 import models.*;
+import models.geometry.Geometry;
 
+// http://flexjson.sourceforge.net/
+	
+	
+	
 /**
  * @author Richard Nesnass
  */
@@ -61,7 +66,7 @@ public class TestController extends Controller {
 		if(user != null)
 		{
 			List<Feature> fList = Feature.find.where().eq("featureUser", user).findList();
-			Geometry g = fList.get(0).geometry;
+			Geometry g = fList.get(0).featureGeometry;
 			return ok(user.toString() + "List length: " + fList.size() + "First Item name: " + fList.get(0).description + "Geom: " + g.coordinate_0);
 		}
 		else {
@@ -91,6 +96,12 @@ public class TestController extends Controller {
 			newFeature = mapper.readValue(node.get("feature"), Feature.class);
 			// Set the user reference
 			newFeature.featureUser = user;
+			// Set the reverse Tag reference
+			Iterator<Tag> it = newFeature.featureTags.iterator();
+			while(it.hasNext())
+			{
+				it.next().tagFeatures.add(newFeature);
+			}
 			// Add the feature to the user
 			user.userFeatures.add(newFeature);
 			// Save the feature in DB, the feature and tag save will cascade from user due to mapping settings

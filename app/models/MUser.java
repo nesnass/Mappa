@@ -1,5 +1,6 @@
 package models;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
 import play.data.validation.Constraints;
@@ -20,6 +21,8 @@ public class MUser extends Model
 	@GeneratedValue
 	public long id;
 	
+	public long facebook_id;
+	
 	@Constraints.MaxLength(255)
 	public String full_name;
 	
@@ -31,7 +34,7 @@ public class MUser extends Model
 	public long location_1;
 	
 	@OneToMany(mappedBy="featureUser", cascade=CascadeType.ALL)
-	public List<Feature> userFeatures;
+	public List<Feature> userFeatures = new ArrayList<Feature>();
 	
 	public MUser() {
 		// TODO Auto-generated constructor stub
@@ -42,9 +45,14 @@ public class MUser extends Model
 		this.full_name = full_name;
 	}
 	
-	public MUser(String full_name, String profile_picture) {	
+	public MUser(long fbid, String full_name) {	
 		this();
+		this.facebook_id = fbid;
 		this.full_name = full_name;
+	}
+	
+	public MUser(long fbid, String full_name, String profile_picture) {	
+		this(fbid, full_name);
 		this.profile_picture = profile_picture;
 	}
 	
@@ -57,6 +65,19 @@ public class MUser extends Model
 	public String toString()
 	{
 		return this.full_name + " #features: " + userFeatures.size();
+	}
+	
+	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
+	public String toJson()
+	{
+		String jsonString = 
+				
+			"{ \"location\" : [" + String.valueOf(this.location_0) +
+							"," + String.valueOf(this.location_1) +
+						"],\"id\" : \"" + String.valueOf(this.facebook_id) +
+						"\",\"full_name\" : \"" + this.full_name + "\"}";
+
+		return jsonString;
 	}
 
 }

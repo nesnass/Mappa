@@ -2,59 +2,87 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET    		 	/													controllers.Application.index()
 
-# Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+######   Proposed new calls
 
-# Geo Features
-#POST			/geo												controllers.Features.createGeoFeature()
+#GET	/users/:FBuserID
+
+#GET	/features/:featureID
+#GET	/features/all
+#GET	/features/tag/:hashTag
+#(#GET	/features/user/:FBuserID)?
+#GET	/features/box/:lat1/:lon1/:lat2/:lon2
+#GET	/features/radius/:lat/:lon/:distanceInMeters
+#GET	/features/recent/:lat/:lon
+#POST	/features/create
+#POST	/features/update
+#POST	/features/delete
+
+#GET	/images/:imageID
+
+#(sessions to be further discussed)
+#GET	/sessions/:sessionID
+#GET	/sessions/all
+#GET	/sessions/user/:FBuserID
+#POST	/sessions/create
+
+
+#####   Test calls for SQL conversion
+
+GET		/userlist													controllers.TestController.allusers()
+GET		/taglist													controllers.TestController.alltags()
+POST	/adduser													controllers.TestController.addUser()
+POST	/addfeature													controllers.TestController.addUserFeature()
+POST	/userfeatures												controllers.TestController.getUserFeatures()
+GET     /s3image													controllers.S3Controller.index()
+POST    /s3image													controllers.S3Controller.upload()
+
+
+#####	Home page
+GET    	/															controllers.Application.index()
+
+
+#####	Map static resources from the /public folder to the /assets URL path
+GET     /assets/*file               								controllers.Assets.at(path="/public", file)
+
+
+#####	Geo Features
+GET				/user/:userID										controllers.Features.fetchGeoFeaturesByUser(userID:String)
+GET				/search/:hashTag			 						controllers.Features.fetchGeoFeaturesByTag(hashTag:String)
+POST			/geo												controllers.Features.createGeoFeature()
 #PUT			/geo												controllers.Features.updateGeoFeature()
 #DELETE			/geo												controllers.Features.deleteGeoFeature(id:String, user_id:String)
-#GET			/geo												controllers.Features.fetchAllGeoFeautres()
-#GET			/search/:hashTag									controllers.HashTagManager.fetchGeoFeaturesByTag(hashTag:String)
-#GET			/user/:userID										controllers.Users.fetchGeoFeaturesByUser(userID:String)
-#GET			/geo/:id											controllers.Features.featureById(id:String)
-
-
-#GET			/geo/box/											controllers.Features.geoFeaturesInBoundingBox(lng1:String, lat1:String, lng2:String, lat2:String)
+GET			/geo												controllers.Features.fetchAllGeoFeautres()
+GET			/geo/:id											controllers.Features.featureById(id:String)
+GET			/geo/box/											controllers.Features.geoFeaturesInBoundingBox(lng1:Double, lat1:Double, lng2:Double, lat2:Double)
 #GET			/geo/radius/:lng/:lat/:distanceInMeters				controllers.Features.getPOIsInRadius(lng:String, lat:String, distanceInMeters:String)
 #GET			/geo/recent/:lng/:lat								controllers.Features.geoMostRecentFeatures(lng:String, lat:String)
 
 
-# Geo Content
+#####	Geo Content
 #GET			/image/:id											controllers.Features.showImage(id:String)
 #GET			/content/:id										controllers.Contents.contentOfFeature(id:String)
 #GET			/instagram/:id										controllers.Contents.contentOfInstaPOI(id:String)
 
 
-
-##### Mapping Sessions ######
-# Add Session
-#POST     		/session/new          						    	controllers.Sessions.create()
-#																	create a new session with admin_id
-
-#POST     		/session                 						 	controllers.Sessions.save()
-#GET			/session/:id										controllers.Sessions.fetchProjectById(id:String)
-#DELETE			/session/:id/:user_id								controllers.Sessions.delete(id:String, user_id:String)
-
-#GET			/session/:listing/:group_id							return a listing of groups that have been MAPPA associated
-
 ##### External Content
 #GET			/external											controllers.InstagramParser.getPOIs(lon1:String, lat1:String, lon2:String, lat2:String)
 
 
+##### Mapping Sessions ######
+# Add Session														create a new session with admin_id
+#POST     		/session/new          						    	controllers.Sessions.create()
+	
+#POST     		/session                 						 	controllers.Sessions.save()
+#GET			/session/:id										controllers.Sessions.fetchProjectById(id:String)
+#DELETE			/session/:id/:user_id								controllers.Sessions.delete(id:String, user_id:String)
+#GET			/session/:listing/:group_id							return a listing of groups that have been MAPPA associated
 
 
 
-#####   Test calls for SQL conversion #######
 
-GET		/userlist		controllers.TestController.allusers()
-GET		/taglist		controllers.TestController.alltags()
-POST	/adduser		controllers.TestController.addUser()
-POST	/addfeature		controllers.TestController.addUserFeature()
-POST	/userfeatures	controllers.TestController.getUserFeatures()
+
+
 
 
 #### image post to S3 ####

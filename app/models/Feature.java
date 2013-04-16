@@ -1,9 +1,14 @@
 package models;
 
-
+import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import javax.persistence.*;
+import org.codehaus.jackson.JsonNode;
+import external.MyConstants;
+import models.geometry.Geometry;
 import play.data.validation.*;
 import play.db.ebean.Model;
 
@@ -13,22 +18,28 @@ import play.db.ebean.Model;
 
 @Entity
 @Table(name="s_feature")
-public class Feature extends Model
+public class Feature extends Model implements Comparator<Feature>
 {
 	private static final long serialVersionUID = 6285870362122377542L;
 	
 	@Id
 	@GeneratedValue
-	private long id;
+	public long id;
 
 	@Embedded()
-	public Geometry geometry;
-	
+	public Geometry featureGeometry;
+
 	@ManyToOne()
 	public MUser featureUser;
 	
+	@ManyToOne()
+	public MUser mapperUser;
+
+	@ManyToOne()
+	public Session featureSession;
+
 	@ManyToMany(cascade=CascadeType.ALL)
-	public List<Tag> featureTags;
+	public Set<Tag> featureTags = new HashSet<Tag>();
 
 	@Constraints.MaxLength(30)
 	public String type = "Feature";
@@ -37,29 +48,31 @@ public class Feature extends Model
 	public Date created_time;
 	
 	@Constraints.MaxLength(255)
-	public String descr_url;
+	public String descr_url = "";
 	
 	@Constraints.MaxLength(255)
-	public String description;
+	public String description = "";
 	
 	@Constraints.MaxLength(255)
-	public String icon_url;
-	
-	@Constraints.MaxLength(255)
-	public String image_url_high_resolution;
-	
-	@Constraints.MaxLength(255)
-	public String image_url_standard_resolution;
-	
-	@Constraints.MaxLength(255)
-	public String image_url_thumbnail;
+	public String mapper_description = "";
 
 	@Constraints.MaxLength(255)
-	public String name;
+	public String icon_url = "";
+	
+	@Constraints.MaxLength(255)
+	public String image_url_high_resolution = "";
+	
+	@Constraints.MaxLength(255)
+	public String image_url_standard_resolution = "";
+	
+	@Constraints.MaxLength(255)
+	public String image_url_thumbnail = "";
+
+	@Constraints.MaxLength(255)
+	public String name = "";
 	
 	@Constraints.MaxLength(30)
-	public String source_type;
-	
+	public MyConstants.Strings source_type = MyConstants.Strings.OVERLAY;
 
 	public Feature() {
 		created_time = new Date();
@@ -68,13 +81,154 @@ public class Feature extends Model
 	
 	public Feature(Geometry geometry) {
 		this();
-		this.geometry = geometry;
+		this.featureGeometry = geometry;
 	}
+	
+	// Create a new feature given a JSON node
+	public Feature(JsonNode featureNode) {
+		this();
+		
+		// Set regular parameters
+		Geometry newGeometry = new Geometry(featureNode.get("geometry"));
+		this.featureGeometry = newGeometry;
+		this.type = featureNode.get("type").asText();
+		this.description = featureNode.get("properties").get("description").asText();
 
+		String source = featureNode.get("properties").get("source_type").asText();
+		if (source.equalsIgnoreCase(MyConstants.Strings.OVERLAY.toString()))
+			this.source_type = MyConstants.Strings.OVERLAY;
+		else if (source.equalsIgnoreCase(MyConstants.Strings.MAPPED_INSTAGRAM.toString()))
+			this.source_type = MyConstants.Strings.MAPPED_INSTAGRAM;
+		
+		// Set source dependent parameters
+		switch(this.source_type)
+		{
+			case OVERLAY :
+				break;
+			
+			case MAPPED_INSTAGRAM:
+				// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
+				this.name = featureNode.get("properties").path("name").getTextValue();
+				this.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
+				this.icon_url = MyConstants.SERVER_NAME_T + "/assets/img/mInsta.png";
+				break;
+		}
+		
+		// Set the Tag references, if any tags exist
+
+			Iterator<JsonNode> tagsIterator = featureNode .get("properties").path("tags").iterator();
+			
+			while(tagsIterator.hasNext())
+			{
+				addTag(tagsIterator.next().getTextValue());
+			}
+			
+	/*		
+			JsonParser tagParser = tagsNode.traverse();
+			tagParser.nextValue();
+			while(tagParser.hasCurrentToken())
+			{
+				if(tagParser.getCurrentToken(). != null)
+					addTag(tagParser.nextTextValue());
+				else
+					tagParser.clearCurrentToken();
+			}
+		}
+		catch (JsonParseException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		catch (IOException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		// Ebean.save(featureTags);
+	}
+	
+	public void addTag(String theTag)
+	{
+		Tag newTag = Tag.find.where().eq("tag", theTag).findUnique();
+		if(newTag == null)
+			newTag = new Tag(theTag);
+
+		this.featureTags.add(newTag);
+		newTag.tagFeatures.add(this);
+		//newTag.save();
+	}
+	
 	public static Model.Finder<String, Feature> find = new Model.Finder<String, Feature>(String.class, Feature.class);
 	
 	public String toString()
 	{
-		return this.name;
+		return name;
+	}
+	
+	// Retrieve the icon URL 
+	public String getIconURL() {
+		if(this.source_type == MyConstants.Strings.OVERLAY)
+			return MyConstants.SERVER_NAME_T + "/assets/img/overlay.png";
+		else if(this.source_type == MyConstants.Strings.MAPPED_INSTAGRAM)
+			return MyConstants.SERVER_NAME_T + "/assets/img/mInsta.png";
+		else return "";
+	}
+	
+	// Retrieve the description URL
+	public String getDescriptionURL() {
+		return MyConstants.SERVER_NAME_T + "/content/" + this.id;
+	}
+	
+	// Uses pythagoras to calculate the distance apart in terms of coordinates 
+	public double getDistance(Feature other) {
+		final double dx = this.featureGeometry.coordinate_0-other.featureGeometry.coordinate_0; 
+        final double dy = this.featureGeometry.coordinate_1-other.featureGeometry.coordinate_1;
+        return Math.sqrt(dx*dx + dy*dy);
+	}
+
+	@Override
+	public int compare(Feature arg0, Feature arg1) {
+		final double distanceDelta = getDistance(arg0) - getDistance(arg1); 
+        return distanceDelta < 0 ? -1 : 1; 
+	}
+	
+	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
+	public String toJson()
+	{
+		// Get the listing of tags for this feature
+		String tagJson = "[";
+		Iterator<Tag> it = featureTags.iterator();
+		while(it.hasNext())
+		{
+			tagJson += "\"" + it.next().tag + "\"";
+			if(it.hasNext())
+				tagJson+= ",";
+		}
+		tagJson +="]";
+		
+		String jsonString = 
+				
+			"{" +
+					"\"id\" : \"" + String.valueOf(this.id) + "\"," +
+					"\"geometry\" : {" +
+										"\"type\" : \"" + this.featureGeometry.type + "\"," +
+										"\"coordinates\" : [" + String.valueOf(this.featureGeometry.coordinate_0) +
+					"," + String.valueOf(this.featureGeometry.coordinate_1) + 
+				"]},\"properties\" : {" +
+					"\"images\" : { \"thumbnail\" : \"" + this.image_url_thumbnail +
+									"\",\"standard_resolution\" : \"" + this.image_url_standard_resolution +
+					"\"},\"created_time\" : \"" + this.created_time.toString() +
+					"\",\"source_type\" : \"" + this.source_type +
+					"\",\"icon_url\" : \"" + this.getIconURL() +
+					"\",\"desc_url\" : \"" + this.getDescriptionURL() +
+					"\",\"description\" : \"" + this.description +
+					"\",\"name\" : \"" + this.name +
+					"\",\"user\" : " + this.featureUser.toJson() +
+					",\"tags\" : " + tagJson +
+				"}" +
+			"}";
+
+		return jsonString;
 	}
 }

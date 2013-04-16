@@ -1,9 +1,11 @@
 package models;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import play.db.ebean.*;
 import javax.persistence.*;
+
 import play.data.validation.Constraints;
 
 /**
@@ -18,14 +20,14 @@ public class Tag extends Model
 	
 	@Id
 	@GeneratedValue
-	protected long id;
+	public long id;
 
 	@Constraints.MaxLength(50)
 	@Column(unique=true)
 	public String tag;
 
-	@ManyToMany()
-	public Set<Feature> tagFeatures;
+	@ManyToMany(cascade=CascadeType.ALL)
+	public Set<Feature> tagFeatures = new HashSet<Feature>();
 
 	public Tag()
 	{
@@ -43,9 +45,9 @@ public class Tag extends Model
     public static List<Tag> all() {
     	return find.all();
     }
-
+    
     public static void delete(long id) {
         find.ref(id).delete();
     }
-  
+
 }
