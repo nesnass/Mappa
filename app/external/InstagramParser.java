@@ -62,26 +62,15 @@ public class InstagramParser {
 	
 	
 	
-	public static List<Feature> searchRecentInstaFeatures(double lng, double lat) throws Exception
+	public static List<Feature> searchRecentInstaFeatures(double lat, double lng) throws Exception
 	{
 		long unixTime = System.currentTimeMillis() / 1000L;
 		
 		String url = "https://api.instagram.com/v1/media/search?" +
 				"max_timestamp="+unixTime +"&"+
 				"client_id=a80dd450be84452a91527609a4eae97b"
-				+"&lat="+lat+"&lng="+lng
-				//+"&distance=2000"
-				;
-		
-		/*
+				+"&lat="+lat+"&lng="+lng;
 
-				HashMap<String, String> params = new HashMap<String, String>();
-		params.put(Param.LAT, String.valueOf(center[0]));
-		params.put(Param.LNG, String.valueOf(center[1]));
-		params.put(Param.DIST, String.valueOf(radius_outer_circle_of_reactangle));
-		params.put(Param.CLIENTID, "a80dd450be84452a91527609a4eae97b");
-		 * */
-		
 		String file = isRequestSuccessful(url);
 		if (file != null) {
 			ObjectMapper mapper = new ObjectMapper();
@@ -107,7 +96,7 @@ public class InstagramParser {
 	
 	
 	
-	public static List<Feature> searchInstaByRadius(double lng1, double lat1,double radius) 
+	public static List<Feature> searchInstaByRadius(double lng1, double lat1, double radius) 
 	{
 		String describeService = "https://api.instagram.com/v1/media/search";
 
@@ -157,12 +146,7 @@ public class InstagramParser {
 
 		return new ArrayList<Feature>();
 	}
-		
-	
-	
-	
-	
-	
+
 	
 	public static List<Feature> searchInstaPOIsByBBox(double lng1, double lat1, double lng2, double lat2) 
 	{
@@ -214,37 +198,6 @@ public class InstagramParser {
 
 		return new ArrayList<Feature>();
 	}
-		
-		//: need to optimize for speed
-//		return async(
-//			      WS.url(url).get().map(
-//			        new Function<WS.Response, Result>() {
-//			          public Result apply(WS.Response response) {
-//			            return ok(response.asJson());
-//			          }
-//			        }
-//			      )
-//			    ); 
-		
-		//return redirect(url);
-		//return ok(url.toString());
-		//List<Feature> geoJSON = new Arr
-		
-		// : add validation if the response type is not 200 then skip the
-		// rest process
-		
-
-		
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	public static List<Feature> onResponseReceived(JsonNode json)
 	{
@@ -265,23 +218,7 @@ public class InstagramParser {
 		
 		return features;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 	public static List<Feature> searchInstaPOIsByTag(String tag) throws Exception
 	{
@@ -307,23 +244,6 @@ public class InstagramParser {
 		return new ArrayList<Feature>();
 
 	}
-	
-	
-	
-	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
 
 	/**
@@ -355,8 +275,8 @@ public class InstagramParser {
 		HashMap<String, Object> properties = new HashMap<String, Object>();
 		
 		
-		properties.put("descr_url", MyConstants.SERVER_NAME_T+"/instagram/"+id);
-		properties.put("icon_url", MyConstants.SERVER_NAME_T+"/assets/img/"+"instagram.png");
+		properties.put("descr_url", MyConstants.FEATURE_SERVER_NAME_PORT+"/instagram/"+id);
+		properties.put("icon_url", MyConstants.FEATURE_SERVER_NAME_PORT+"/assets/img/"+"instagram.png");
 
 		//TODO: TEST of this is the time when this insta feed was created??
 		Long timestampLong = jsonNode.get("created_time").asLong();
@@ -405,40 +325,12 @@ public class InstagramParser {
 		JsonNode user = jsonNode.findValue("user");
 		properties.put("user", user);
 		
-	//	feature.setProperties(properties);
-		
-		//Save instagram features to local db
-		/*if (Feature.find().byId(id) == null) {
-			feature.insert();
-		}*/
-		
-		
 		return feature;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
-	public static String buildRequest(String describeService, double lng1,
-			double lat1, double lng2, double lat2) throws UnsupportedEncodingException 
+	public static String buildRequest(String describeService, double lng1, double lat1, double lng2, double lat2) throws UnsupportedEncodingException 
 	{
-		
 		double center[] = new double[2];
 		center[0] = (lat1 + lat2) / 2;
 		center[1] = (lng1 + lng2) / 2;
@@ -450,7 +342,6 @@ public class InstagramParser {
 		params.put(Param.LNG, String.valueOf(center[1]));
 		params.put(Param.DIST, String.valueOf(radius_outer_circle_of_reactangle));
 		params.put(Param.CLIENTID, "a80dd450be84452a91527609a4eae97b");
-
 		
 		// construct URL
 		StringBuffer paramsBuffer = new StringBuffer();
@@ -475,19 +366,13 @@ public class InstagramParser {
 		url.append(describeService);
 		url.append(paramsBuffer);
 		
-		
 		return url.toString();
 	}
 	
-	
-	
-	
+
 	public static String buildRequestByRadius(String describeService, double lng,
 			double lat, double radius) throws UnsupportedEncodingException 
 	{
-		
-		
-		
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put(Param.LAT, String.valueOf(lat));
 		params.put(Param.LNG, String.valueOf(lng));
@@ -523,14 +408,6 @@ public class InstagramParser {
 	}
 	
 	
-	
-	
-
-	
-	
-	
-	
-	
 	/**
 	 * Calculates the area of the extent
 	 * 
@@ -547,14 +424,6 @@ public class InstagramParser {
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * Calculates the width of the extent
 	 * 
@@ -565,7 +434,6 @@ public class InstagramParser {
 	}
 
 	
-	
 	/**
 	 * Calculates the height of the extent
 	 * 
@@ -574,10 +442,6 @@ public class InstagramParser {
 	public  double getHeight(double maxY, double minY) {
 		return Math.abs(maxY - minY);
 	}
-	
-	
-	
-	
 
 	
 	/**
@@ -588,12 +452,7 @@ public class InstagramParser {
 	public double area(double maxX, double minX,double maxY, double minY) {
 		return getWidth(maxX,minX) * getHeight(maxY,minY);
 	}
-	
-	
-	
-	
-	
-	
+
 
 	/**
 	 * Calls
@@ -619,8 +478,5 @@ public class InstagramParser {
 		}
 		
 	}
-	
-	
-	
-	
+
 }

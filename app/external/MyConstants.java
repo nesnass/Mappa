@@ -45,13 +45,27 @@ import java.io.OutputStream;
 
 public class MyConstants {
 
-	public enum Strings {
+	public enum FeatureStrings {
 	    OVERLAY("overlay"),
 	    MAPPED_INSTAGRAM("mapped_instagram");
-
 	    private final String text;
 
-	    private Strings(final String text)
+	    private FeatureStrings(final String text)
+	    {
+	        this.text = text;
+	    }
+	    @Override
+	    public String toString()
+	    {
+	        return text;
+	    }
+	}
+	public enum S3Strings {
+	    SIZE_ORIGINAL("size_original"),
+	    SIZE_THUMBNAIL("size_thumbnail");
+	    private final String text;
+
+	    private S3Strings(final String text)
 	    {
 	        this.text = text;
 	    }
@@ -63,7 +77,10 @@ public class MyConstants {
 	}
 	
 	
-	public final static String SERVER_NAME_T = "http://intermedia-prod03.uio.no:9010";
+	
+	
+	public final static String FEATURE_SERVER_NAME_PORT = "http://intermedia-prod03.uio.no:9010";
+	public final static String AMAZON_SERVER_NAME_PORT = "https://s3.amazonaws.com/";
 	public final static String LAYERS_VERSION = "v0.2.2";
 	public static String ROOT_DIR = ".";
 	public final static String APP_DIR = "gvSIG";

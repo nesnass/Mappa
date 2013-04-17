@@ -3,6 +3,8 @@ package controllers;
 import java.util.List;
 import java.util.UUID;
 
+import external.MyConstants;
+
 import models.S3File;
 import play.db.ebean.Model;
 import play.libs.Json;
@@ -22,7 +24,7 @@ public class S3Controller extends Controller {
         Http.MultipartFormData.FilePart uploadFilePart = body.getFile("upload");
         if (uploadFilePart != null) {
             S3File s3File = new S3File();
-            s3File.name = uploadFilePart.getFilename();
+            s3File.type = MyConstants.S3Strings.SIZE_ORIGINAL.toString();
             s3File.file = uploadFilePart.getFile();
             s3File.save();
             return ok(Json.toJson(s3File));
@@ -31,4 +33,5 @@ public class S3Controller extends Controller {
             return badRequest("File upload error");
         }
     }
+ 
 }

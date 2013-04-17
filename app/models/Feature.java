@@ -72,7 +72,7 @@ public class Feature extends Model implements Comparator<Feature>
 	public String name = "";
 	
 	@Constraints.MaxLength(30)
-	public MyConstants.Strings source_type = MyConstants.Strings.OVERLAY;
+	public MyConstants.FeatureStrings source_type = MyConstants.FeatureStrings.OVERLAY;
 
 	public Feature() {
 		created_time = new Date();
@@ -95,10 +95,10 @@ public class Feature extends Model implements Comparator<Feature>
 		this.description = featureNode.get("properties").get("description").asText();
 
 		String source = featureNode.get("properties").get("source_type").asText();
-		if (source.equalsIgnoreCase(MyConstants.Strings.OVERLAY.toString()))
-			this.source_type = MyConstants.Strings.OVERLAY;
-		else if (source.equalsIgnoreCase(MyConstants.Strings.MAPPED_INSTAGRAM.toString()))
-			this.source_type = MyConstants.Strings.MAPPED_INSTAGRAM;
+		if (source.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
+			this.source_type = MyConstants.FeatureStrings.OVERLAY;
+		else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
+			this.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM;
 		
 		// Set source dependent parameters
 		switch(this.source_type)
@@ -110,42 +110,19 @@ public class Feature extends Model implements Comparator<Feature>
 				// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 				this.name = featureNode.get("properties").path("name").getTextValue();
 				this.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
-				this.icon_url = MyConstants.SERVER_NAME_T + "/assets/img/mInsta.png";
+				this.icon_url = MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+				
+				// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
+				
 				break;
 		}
 		
 		// Set the Tag references, if any tags exist
-
-			Iterator<JsonNode> tagsIterator = featureNode .get("properties").path("tags").iterator();
-			
-			while(tagsIterator.hasNext())
-			{
-				addTag(tagsIterator.next().getTextValue());
-			}
-			
-	/*		
-			JsonParser tagParser = tagsNode.traverse();
-			tagParser.nextValue();
-			while(tagParser.hasCurrentToken())
-			{
-				if(tagParser.getCurrentToken(). != null)
-					addTag(tagParser.nextTextValue());
-				else
-					tagParser.clearCurrentToken();
-			}
-		}
-		catch (JsonParseException e)
+		Iterator<JsonNode> tagsIterator = featureNode .get("properties").path("tags").iterator();
+		while(tagsIterator.hasNext())
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			addTag(tagsIterator.next().getTextValue());
 		}
-		catch (IOException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		// Ebean.save(featureTags);
 	}
 	
 	public void addTag(String theTag)
@@ -168,16 +145,16 @@ public class Feature extends Model implements Comparator<Feature>
 	
 	// Retrieve the icon URL 
 	public String getIconURL() {
-		if(this.source_type == MyConstants.Strings.OVERLAY)
-			return MyConstants.SERVER_NAME_T + "/assets/img/overlay.png";
-		else if(this.source_type == MyConstants.Strings.MAPPED_INSTAGRAM)
-			return MyConstants.SERVER_NAME_T + "/assets/img/mInsta.png";
+		if(this.source_type == MyConstants.FeatureStrings.OVERLAY)
+			return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/overlay.png";
+		else if(this.source_type == MyConstants.FeatureStrings.MAPPED_INSTAGRAM)
+			return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
 		else return "";
 	}
 	
 	// Retrieve the description URL
 	public String getDescriptionURL() {
-		return MyConstants.SERVER_NAME_T + "/content/" + this.id;
+		return MyConstants.FEATURE_SERVER_NAME_PORT + "/content/" + this.id;
 	}
 	
 	// Uses pythagoras to calculate the distance apart in terms of coordinates 
@@ -223,8 +200,9 @@ public class Feature extends Model implements Comparator<Feature>
 					"\",\"icon_url\" : \"" + this.getIconURL() +
 					"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 					"\",\"description\" : \"" + this.description +
-					"\",\"name\" : \"" + this.name +
-					"\",\"user\" : " + this.featureUser.toJson() +
+					"\",\"name\" : \"" + this.name;
+
+			jsonString+=		"\",\"user\" : " + this.featureUser.toJson() +
 					",\"tags\" : " + tagJson +
 				"}" +
 			"}";

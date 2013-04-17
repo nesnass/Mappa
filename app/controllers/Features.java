@@ -3,8 +3,11 @@ package controllers;
 //http://flexjson.sourceforge.net/
 import static play.libs.Json.toJson;
 import helpers.FeatureCollection;
+import helpers.GeoCalculations;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,10 +15,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
+import org.imgscalr.Scalr;
+
 import com.avaje.ebean.Ebean;
 
 import external.InstagramParser;
@@ -27,19 +34,17 @@ import play.mvc.Http.MultipartFormData.FilePart;
 import models.*;
 import models.geometry.Geometry;
 
-
-
 /**
  * @author Richard Nesnass
  */
 public class Features extends Controller
 {
 	private static int MAX_FEATURES_TO_GET_IN_BOUNDING_BOX = 18;
-	private static ObjectMapper mapper = new ObjectMapper();
-//	private static JSONSerializer serializer = new JSONSerializer();
+	private static int MOST_RECENT_FEATURES_TO_GET = 3;
 
+	
 	// GET /user/:userId
-	public static Result fetchGeoFeaturesByUser(String userID)
+	public static Result getGeoFeaturesByUser(String userID)
 	{
 		MUser user = MUser.find.where().eq("facebook_id", Long.valueOf(userID)).findUnique();
 		if (user == null) {
@@ -49,30 +54,29 @@ public class Features extends Controller
 		
 		FeatureCollection features = new FeatureCollection(user.userFeatures);
 		return ok(features.toJson());
-		//return ok(serializer.include("features").exclude("*.class").serialize(features));
 	}
 	
+	
 	// GET /search/:hashTag
-	public static Result fetchGeoFeaturesByTag(String hashTag)
+	public static Result getGeoFeaturesByTag(String hashTag)
 	{
 		Tag foundTag = Tag.find.fetch("tagFeatures").where().eq("tag", hashTag).findUnique();
 		FeatureCollection featureCollection = new FeatureCollection(foundTag.tagFeatures);
 		return ok(featureCollection.toJson());
-		// Include the features linked to this tag, but not the user details or the 'class' key
-		//return ok(serializer.include("tagFeatures").exclude("*.featureUser").exclude("*.class").serialize(foundTag));
 	}
 	
+	
 	// GET /geo
-	public static Result fetchAllGeoFeautres()
+	public static Result getAllGeoFeautres()
 	{
 		List<Feature> featureList = Feature.find.all();
 		FeatureCollection featureCollection = new FeatureCollection(featureList);
-		//return ok(serializer.include("tagFeatures").include("features").exclude("*.featureUser").exclude("*.class").serialize(featureCollection));
 		return ok(featureCollection.toJson());
 	}
 	
+	
 	//  GET /geo/:id
-	public static Result featureById(String id) {
+	public static Result getFeatureById(String id) {
 		Feature feature = Feature.find.byId(id);
 		if (feature == null) {
 			return ok("POI Not found");
@@ -80,38 +84,110 @@ public class Features extends Controller
 		return ok(feature.toJson());
 	}
 	
-	// Return a list of the maxItem closest features to the given source
-	public static Iterable<Feature> getClosest(final Feature source, final List<Feature> others, int maxItems) {
+	
+	// Return a list of the maxItem closest Features to the given source Feature
+	private static List<Feature> sortAndLimitClosestFeaturesToSource(final Feature source, final List<Feature> others, int maxItems) {
         Collections.sort(others, source);
         return others.subList(0, Math.min(maxItems, others.size()));
     }
 	
-	// GET /geo/box/
-	public static Result geoFeaturesInBoundingBox(double lng1, double lat1, double lng2, double lat2) throws Exception
-	{	
-		List<Feature> allFeaturesWithinBounds = Ebean.find(Feature.class)
-			.where()
-			.filterMany("featureGeometry")
-			.between("coordinate_0", lng1, lng2)
-			.between("coordinate_1", lat1, lat2)
-			.findList();
+	
+	// Given bounding coordinates, return all MAPPA Features within
+	private static List<Feature> getFeaturesClosestToSource(double lat1, double lng1, double lat2, double lng2)
+	{
+		// First .between coordinate should be smaller than the second, swap if necessary
+		double longHolder = lng1;
+		double latHolder = lat1;
+		if(lng1 > lng2)
+		{
+			lng1 = lng2;
+			lng2 = longHolder;
+		}
+		if(lat1 > lat2)
+		{
+			lat1 = lat2;
+			lat2 = latHolder;
+		}
 		
-		// Create a reference to the center of the bounding box
-		Geometry sourceGeometry = new Geometry((lng2-lng1)/2+lng1, (lat2-lat1)/2+lat1);
+		List<Feature> allFeaturesWithinBounds = Feature.find.where()
+				.between("featureGeometry.coordinate_0", lng1, lng2)
+				.between("featureGeometry.coordinate_1", lat1, lat2)
+				.findList();
+
+		if(allFeaturesWithinBounds.size() == 0)
+			return allFeaturesWithinBounds;
+		// Create a reference to the center of the bounding box by getting a midpoint
+		double midpoint[] = GeoCalculations.midpointCoordsFromStartEndCoords(lat1, lng1, lat2, lng2);
+		Geometry sourceGeometry = new Geometry(midpoint[1], midpoint[0]);
 		Feature source = new Feature(sourceGeometry);
-		
+
 		// Retrieve the list of closest features to the source, add to it the Instagram found closest also
-		ArrayList<Feature> closestToSource = (ArrayList<Feature>) getClosest(source, allFeaturesWithinBounds, MAX_FEATURES_TO_GET_IN_BOUNDING_BOX);
+		return sortAndLimitClosestFeaturesToSource(source, allFeaturesWithinBounds, MAX_FEATURES_TO_GET_IN_BOUNDING_BOX);
+	}
+
+	
+	// GET /geo/box/
+	// ******* Needs further testing to confirm reliable results ********
+	public static Result getGeoFeaturesInBoundingBox(double lng1, double lat1, double lng2, double lat2)
+	{	
+		List<Feature> closestToSource = getFeaturesClosestToSource(lat1, lng1, lat2, lng2);
 		List<Feature> instaPOIs = InstagramParser.searchInstaPOIsByBBox(lng1, lat1, lng2, lat2);
-		closestToSource.addAll(instaPOIs);
+	//	closestToSource.addAll(instaPOIs);
 		FeatureCollection collection = new FeatureCollection(closestToSource);
 		return ok(collection.toJson());
 	}
 	
+	
+	// GET /geo/radius/:lng/:lat/:radiusInMeters
+	// *********  There is no 'near' call within the EBean implementation, so we call search by forming a bounding box first, 
+	// *********  then search within it using circular radius
+	public static Result getFeaturesInRadius(double lng, double lat, int radius)
+	{
+		double lowBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 315, radius);    	// Top left corner
+		double highBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 135, radius);		// Bottom right corner
+		List<Feature> featuresInRadius = getFeaturesClosestToSource(lowBound[0], lowBound[1], highBound[0], highBound[1]);
+		
+		// ********* For more precise results, this box set should now be searched for a circular radius set within
+		
+		List<Feature> instaPOIs;
+		try {
+			instaPOIs = InstagramParser.searchInstaByRadius(lng, lat, radius);
+//			featuresInRadius.addAll(instaPOIs);
+		}
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		FeatureCollection collection = new FeatureCollection(featuresInRadius);
+		return ok(collection.toJson());
+	}
+	
+	
+	// GET /geo/recent/:lng/:lat
+	public static Result getMostRecentGeoFeatures(double lng, double lat)
+	{
+		// ******** Thinking this should do a radius search first for the given lat / lng, then display the most recent? ********
+		
+		// Find all features Limited to nearest 18
+		List<Feature> features = Feature.find.where().orderBy("created_time desc").setMaxRows(MOST_RECENT_FEATURES_TO_GET).findList();
+		
+		List<Feature> instaPOIs;
+		try {
+			instaPOIs = InstagramParser.searchRecentInstaFeatures(lat, lng);
+//			features.addAll(instaPOIs);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		FeatureCollection collection = new FeatureCollection(features);
+		return ok(collection.toJson());
+	}
+	
+	
 	// POST /geo
 	public static Result createGeoFeature()
 	{
-
+		ObjectMapper mapper = new ObjectMapper();
 		FilePart featureFilePart;
 		BufferedReader fileReader;
 		long facebook_id = 0;
@@ -154,11 +230,16 @@ public class Features extends Controller
 			// Add the feature to the user
 			user.userFeatures.add(newFeature);
 
-			if(source_type.equalsIgnoreCase(MyConstants.Strings.OVERLAY.toString()))
+			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
 			{
-				;
+				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
+				{
+					FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
+					newFeature.image_url_standard_resolution = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL);
+					newFeature.image_url_thumbnail = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL);
+				}
 			}
-			else if(source_type.equalsIgnoreCase("mapped_instagram"))
+			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			{
 				long mapper_id = 0;
 				mapper_id = featureNode.get("properties").get("mapper").get("id").asLong();
@@ -198,5 +279,34 @@ public class Features extends Controller
 		
 		
 		return ok(newFeature.toJson());
+	}
+	
+	
+	// Save image to Amazon S3 as original or thumbnail, return the url
+	private static String uploadFeatureImages(File f, MyConstants.S3Strings size) {
+		S3File s3File = new S3File();
+		
+		if(size == MyConstants.S3Strings.SIZE_ORIGINAL)
+		{
+			s3File.type = MyConstants.S3Strings.SIZE_ORIGINAL.toString();
+			s3File.file = f;	
+		}
+		else if(size == MyConstants.S3Strings.SIZE_THUMBNAIL)
+		{
+			try {
+				BufferedImage image = ImageIO.read(f);
+				image = Scalr.resize(image, 150);
+				File tmpFile = new File("thumbnail");
+				ImageIO.write(image, "jpg", tmpFile);
+				s3File.type = MyConstants.S3Strings.SIZE_THUMBNAIL.toString();
+				s3File.file = tmpFile;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+		s3File.save();
+		return s3File.getUrlAsString();
 	}
 }

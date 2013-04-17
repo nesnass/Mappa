@@ -38,7 +38,7 @@ create table s_user (
 create table s_s3file (
   id                        varchar(40) not null,
   bucket                    varchar(255),
-  name                      varchar(255),
+  type                      varchar(255),
   constraint pk_s_s3file primary key (id))
 ;
 

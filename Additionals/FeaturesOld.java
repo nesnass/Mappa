@@ -104,9 +104,9 @@ public class Features extends Controller {
 					HashTagManager.saveFeatureRefInHashTable(tags, geoFeature);
 				}
 				
-				properties.put("icon_url", Constants.SERVER_NAME_T + "/assets/img/overlay.png");
+				properties.put("icon_url", Constants.FEATURE_SERVER_NAME_PORT + "/assets/img/overlay.png");
 				// HTML Content url for the Feature
-				properties.put("descr_url", Constants.SERVER_NAME_T + "/content/" + geoFeature.id);
+				properties.put("descr_url", Constants.FEATURE_SERVER_NAME_PORT + "/content/" + geoFeature.id);
 				
 				// Save Feature reference for particular user
 				@SuppressWarnings("unchecked")
@@ -155,7 +155,7 @@ public class Features extends Controller {
 				HashTagManager.saveFeatureRefInHashTable(tags, geoFeature);
 			}
 			
-				properties.put("icon_url", Constants.SERVER_NAME_T + "/assets/img/mInsta.png");
+				properties.put("icon_url", Constants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png");
 				
 				// Save Feature reference for particular user
 				 @SuppressWarnings("unchecked")
@@ -365,7 +365,7 @@ public class Features extends Controller {
 
 		//saves the full-size image
 		high_resolution = saveImageFile(filePart.getFile(), filePart.getContentType());
-		images.put("high_resolution", Constants.SERVER_NAME_T + "/image/" + high_resolution);
+		images.put("high_resolution", Constants.FEATURE_SERVER_NAME_PORT + "/image/" + high_resolution);
 		
 
 		//saves the 150px width image
@@ -375,7 +375,7 @@ public class Features extends Controller {
 		ImageIO.write(image, "jpg", tmpFile);
 
 		thumbnail = saveImageFile(tmpFile, filePart.getContentType());
-		images.put("thumbnail", Constants.SERVER_NAME_T + "/image/" + thumbnail);
+		images.put("thumbnail", Constants.FEATURE_SERVER_NAME_PORT + "/image/" + thumbnail);
 
 		//saves the 612px width image
 		image = ImageIO.read(filePart.getFile());
@@ -384,7 +384,7 @@ public class Features extends Controller {
 		ImageIO.write(image, "jpg", tmpFile);
 
 		standard_resolution = saveImageFile(tmpFile, filePart.getContentType());
-		images.put("standard_resolution", Constants.SERVER_NAME_T + "/image/" + standard_resolution);
+		images.put("standard_resolution", Constants.FEATURE_SERVER_NAME_PORT + "/image/" + standard_resolution);
 
 		properties.put("images", images);
 		return properties;
@@ -460,18 +460,18 @@ public class Features extends Controller {
 			standard_resolution = saveImageFile(filePart.getFile(),
 					filePart.getContentType());
 			storedFeature.properties.put("standard_resolution",
-					Constants.SERVER_NAME_T + "/image/" + standard_resolution);
+					Constants.FEATURE_SERVER_NAME_PORT + "/image/" + standard_resolution);
 
 			// String thumbnail
 			// =convertToInstagramImage(filePart.getFile(),filePart.getContentType());
-			// storedFeature.properties.put("thumbnail", Constants.SERVER_NAME_T
+			// storedFeature.properties.put("thumbnail", Constants.FEATURE_SERVER_NAME_PORT
 			// + "/image/" + thumbnail);
 		}
 
 		storedFeature.properties.put("source_type", "overlay");
 
 		// HTML Content url for the Feature
-		storedFeature.properties.put("icon_url", Constants.SERVER_NAME_T
+		storedFeature.properties.put("icon_url", Constants.FEATURE_SERVER_NAME_PORT
 				+ "/assets/img/" + "overlay.png");
 
 		// add timestamp

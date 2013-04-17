@@ -17,6 +17,8 @@ import plugins.S3Plugin;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
+import external.MyConstants;
+
 
 @Entity
 @Table(name="s_s3file")
@@ -29,23 +31,26 @@ public class S3File extends Model {
 
     private String bucket;
 
-    public String name;
+    public String type;
 
     @Transient
     public File file;
 
     public URL getUrl() throws MalformedURLException {
-        return new URL("https://s3.amazonaws.com/" + bucket + "/" + getActualFileName());
+        return new URL(MyConstants.AMAZON_SERVER_NAME_PORT + bucket + "/" + getActualFileName());
+    }
+    
+    public String getUrlAsString() {
+    	return MyConstants.AMAZON_SERVER_NAME_PORT + bucket + "/" + getActualFileName();
     }
 
     private String getActualFileName() {
-        return id + "/" + name;
+        return id + "/" + type;
     }
 
     @Override
     public void save() {
         if (S3Plugin.amazonS3 == null) {
-  //          Logger.error("Could not save because amazonS3 was null");
             throw new RuntimeException("Could not save");
         }
         else {
@@ -62,7 +67,6 @@ public class S3File extends Model {
     @Override
     public void delete() {
         if (S3Plugin.amazonS3 == null) {
-//            Logger.error("Could not delete because amazonS3 was null");
             throw new RuntimeException("Could not delete");
         }
         else {

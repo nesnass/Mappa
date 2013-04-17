@@ -9,10 +9,8 @@ import models.Feature;
 
 
 /**
- * @author Muhammad Fahied
+ * @author Muhammad Fahied & Richard Nesnass
  */
-
-
 
 public class FeatureCollection {
 	public  String type = "FeatureCollection";

@@ -47,16 +47,16 @@ GET     /assets/*file               								controllers.Assets.at(path="/public"
 
 
 #####	Geo Features
-GET				/user/:userID										controllers.Features.fetchGeoFeaturesByUser(userID:String)
-GET				/search/:hashTag			 						controllers.Features.fetchGeoFeaturesByTag(hashTag:String)
 POST			/geo												controllers.Features.createGeoFeature()
 #PUT			/geo												controllers.Features.updateGeoFeature()
 #DELETE			/geo												controllers.Features.deleteGeoFeature(id:String, user_id:String)
-GET			/geo												controllers.Features.fetchAllGeoFeautres()
-GET			/geo/:id											controllers.Features.featureById(id:String)
-GET			/geo/box/											controllers.Features.geoFeaturesInBoundingBox(lng1:Double, lat1:Double, lng2:Double, lat2:Double)
-#GET			/geo/radius/:lng/:lat/:distanceInMeters				controllers.Features.getPOIsInRadius(lng:String, lat:String, distanceInMeters:String)
-#GET			/geo/recent/:lng/:lat								controllers.Features.geoMostRecentFeatures(lng:String, lat:String)
+GET				/user/:userID										controllers.Features.getGeoFeaturesByUser(userID:String)
+GET				/search/:hashTag			 						controllers.Features.getGeoFeaturesByTag(hashTag:String)
+GET				/geo												controllers.Features.getAllGeoFeautres()
+GET				/geo/:id											controllers.Features.getFeatureById(id:String)
+GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:Double, lat1:Double, lng2:Double, lat2:Double)
+GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:Double, lat:Double, radiusInMeters:Int)
+GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeatures(lng:Double, lat:Double)
 
 
 #####	Geo Content
