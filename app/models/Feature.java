@@ -37,6 +37,12 @@ public class Feature extends Model implements Comparator<Feature>
 
 	@ManyToOne()
 	public Session featureSession;
+	
+	@OneToOne(cascade=CascadeType.ALL)
+	public S3File imageStandardResolution;
+	
+	@OneToOne(cascade=CascadeType.ALL)
+	public S3File imageThumbnail;
 
 	@ManyToMany(cascade=CascadeType.ALL)
 	public Set<Tag> featureTags = new HashSet<Tag>();
@@ -58,15 +64,6 @@ public class Feature extends Model implements Comparator<Feature>
 
 	@Constraints.MaxLength(255)
 	public String icon_url = "";
-	
-	@Constraints.MaxLength(255)
-	public String image_url_high_resolution = "";
-	
-	@Constraints.MaxLength(255)
-	public String image_url_standard_resolution = "";
-	
-	@Constraints.MaxLength(255)
-	public String image_url_thumbnail = "";
 
 	@Constraints.MaxLength(255)
 	public String name = "";
@@ -87,10 +84,16 @@ public class Feature extends Model implements Comparator<Feature>
 	// Create a new feature given a JSON node
 	public Feature(JsonNode featureNode) {
 		this();
-		
+		setProperties(featureNode);
+	}
+	
+	public void setProperties(JsonNode featureNode)
+	{
 		// Set regular parameters
-		Geometry newGeometry = new Geometry(featureNode.get("geometry"));
-		this.featureGeometry = newGeometry;
+		if(this.featureGeometry == null)
+			this.featureGeometry = new Geometry(featureNode.get("geometry"));
+		else
+			this.featureGeometry.setProperties(featureNode.get("geometry"));
 		this.type = featureNode.get("type").asText();
 		this.description = featureNode.get("properties").get("description").asText();
 
@@ -99,7 +102,7 @@ public class Feature extends Model implements Comparator<Feature>
 			this.source_type = MyConstants.FeatureStrings.OVERLAY;
 		else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			this.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM;
-		
+		this.name = featureNode.get("properties").path("name").getTextValue();
 		// Set source dependent parameters
 		switch(this.source_type)
 		{
@@ -108,7 +111,6 @@ public class Feature extends Model implements Comparator<Feature>
 			
 			case MAPPED_INSTAGRAM:
 				// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
-				this.name = featureNode.get("properties").path("name").getTextValue();
 				this.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
 				this.icon_url = MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
 				
@@ -118,7 +120,7 @@ public class Feature extends Model implements Comparator<Feature>
 		}
 		
 		// Set the Tag references, if any tags exist
-		Iterator<JsonNode> tagsIterator = featureNode .get("properties").path("tags").iterator();
+		Iterator<JsonNode> tagsIterator = featureNode.get("properties").path("tags").iterator();
 		while(tagsIterator.hasNext())
 		{
 			addTag(tagsIterator.next().getTextValue());
@@ -136,7 +138,15 @@ public class Feature extends Model implements Comparator<Feature>
 		//newTag.save();
 	}
 	
-	public static Model.Finder<String, Feature> find = new Model.Finder<String, Feature>(String.class, Feature.class);
+	public void deleteImages()
+	{
+		this.imageStandardResolution.delete();
+		this.imageThumbnail.delete();
+		imageStandardResolution.delete();
+		imageThumbnail.delete();
+	}
+	
+	public static Model.Finder<Long, Feature> find = new Model.Finder<Long, Feature>(Long.class, Feature.class);
 	
 	public String toString()
 	{
@@ -193,15 +203,15 @@ public class Feature extends Model implements Comparator<Feature>
 										"\"coordinates\" : [" + String.valueOf(this.featureGeometry.coordinate_0) +
 					"," + String.valueOf(this.featureGeometry.coordinate_1) + 
 				"]},\"properties\" : {" +
-					"\"images\" : { \"thumbnail\" : \"" + this.image_url_thumbnail +
-									"\",\"standard_resolution\" : \"" + this.image_url_standard_resolution +
+					"\"images\" : { \"thumbnail\" : \"" + this.imageThumbnail.getUrlAsString() +
+									"\",\"standard_resolution\" : \"" + this.imageStandardResolution.getUrlAsString() +
 					"\"},\"created_time\" : \"" + this.created_time.toString() +
 					"\",\"source_type\" : \"" + this.source_type +
 					"\",\"icon_url\" : \"" + this.getIconURL() +
 					"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 					"\",\"description\" : \"" + this.description +
 					"\",\"name\" : \"" + this.name;
-
+			jsonString+=		"\",\"session\" : " + this.featureSession.toJson();
 			jsonString+=		"\",\"user\" : " + this.featureUser.toJson() +
 					",\"tags\" : " + tagJson +
 				"}" +

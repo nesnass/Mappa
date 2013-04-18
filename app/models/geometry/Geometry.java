@@ -43,6 +43,12 @@ public class Geometry extends Model
 	}
 	public Geometry(JsonNode geometry)
 	{
+		this();
+		setProperties(geometry);
+	}
+	
+	public void setProperties(JsonNode geometry)
+	{
 		coordinate_0 = geometry.get("coordinates").get(0).asDouble();
 		coordinate_1 = geometry.get("coordinates").get(1).asDouble();
 		type = geometry.get("type").asText();

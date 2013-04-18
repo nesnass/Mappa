@@ -10,15 +10,14 @@ create table s_feature (
   feature_user_id           bigint,
   mapper_user_id            bigint,
   feature_session_id        bigint,
+  image_standard_resolution_id bigint,
+  image_thumbnail_id        bigint,
   type                      varchar(255),
   created_time              timestamp,
   descr_url                 varchar(255),
   description               varchar(255),
   mapper_description        varchar(255),
   icon_url                  varchar(255),
-  image_url_high_resolution varchar(255),
-  image_url_standard_resolution varchar(255),
-  image_url_thumbnail       varchar(255),
   name                      varchar(255),
   source_type               integer,
   constraint ck_s_feature_source_type check (source_type in (0,1)),
@@ -36,7 +35,8 @@ create table s_user (
 ;
 
 create table s_s3file (
-  id                        varchar(40) not null,
+  id                        bigint not null,
+  uuid                      varchar(40),
   bucket                    varchar(255),
   type                      varchar(255),
   constraint pk_s_s3file primary key (id))
@@ -73,6 +73,8 @@ create sequence s_feature_seq;
 
 create sequence s_user_seq;
 
+create sequence s_s3file_seq;
+
 create sequence s_session_seq;
 
 create sequence s_tag_seq;
@@ -83,6 +85,10 @@ alter table s_feature add constraint fk_s_feature_mapperUser_2 foreign key (mapp
 create index ix_s_feature_mapperUser_2 on s_feature (mapper_user_id);
 alter table s_feature add constraint fk_s_feature_featureSession_3 foreign key (feature_session_id) references s_session (id);
 create index ix_s_feature_featureSession_3 on s_feature (feature_session_id);
+alter table s_feature add constraint fk_s_feature_imageStandardReso_4 foreign key (image_standard_resolution_id) references s_s3file (id);
+create index ix_s_feature_imageStandardReso_4 on s_feature (image_standard_resolution_id);
+alter table s_feature add constraint fk_s_feature_imageThumbnail_5 foreign key (image_thumbnail_id) references s_s3file (id);
+create index ix_s_feature_imageThumbnail_5 on s_feature (image_thumbnail_id);
 
 
 
@@ -113,6 +119,8 @@ drop table if exists s_tag_feature cascade;
 drop sequence if exists s_feature_seq;
 
 drop sequence if exists s_user_seq;
+
+drop sequence if exists s_s3file_seq;
 
 drop sequence if exists s_session_seq;
 

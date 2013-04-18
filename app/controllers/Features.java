@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
@@ -42,7 +43,6 @@ public class Features extends Controller
 	private static int MAX_FEATURES_TO_GET_IN_BOUNDING_BOX = 18;
 	private static int MOST_RECENT_FEATURES_TO_GET = 3;
 
-	
 	// GET /user/:userId
 	public static Result getGeoFeaturesByUser(String userID)
 	{
@@ -51,7 +51,6 @@ public class Features extends Controller
 			List<String> empty = new ArrayList<String>();
 			return ok(toJson(empty));
 		}
-		
 		FeatureCollection features = new FeatureCollection(user.userFeatures);
 		return ok(features.toJson());
 	}
@@ -76,7 +75,7 @@ public class Features extends Controller
 	
 	
 	//  GET /geo/:id
-	public static Result getFeatureById(String id) {
+	public static Result getFeatureById(long id) {
 		Feature feature = Feature.find.byId(id);
 		if (feature == null) {
 			return ok("POI Not found");
@@ -139,12 +138,13 @@ public class Features extends Controller
 	
 	
 	// GET /geo/radius/:lng/:lat/:radiusInMeters
-	// *********  There is no 'near' call within the EBean implementation, so we call search by forming a bounding box first, 
+	// *********  There is no 'near' call within the EBean implementation, so we call search by forming an outer-bounding box, 
 	// *********  then search within it using circular radius
 	public static Result getFeaturesInRadius(double lng, double lat, int radius)
 	{
-		double lowBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 315, radius);    	// Top left corner
-		double highBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 135, radius);		// Bottom right corner
+		double outerBoxHypetnuse = Math.sqrt((radius*radius)*2);
+		double lowBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 315, outerBoxHypetnuse);    	// Top left corner
+		double highBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 135, outerBoxHypetnuse);		// Bottom right corner
 		List<Feature> featuresInRadius = getFeaturesClosestToSource(lowBound[0], lowBound[1], highBound[0], highBound[1]);
 		
 		// ********* For more precise results, this box set should now be searched for a circular radius set within
@@ -183,8 +183,68 @@ public class Features extends Controller
 		return ok(collection.toJson());
 	}
 	
-	
+	// PUT /geo
+	// Update an existing geo feature
+	public static Result updateGeoFeature()
+	{
+		ObjectMapper mapper = new ObjectMapper();
+		FilePart jsonFilePart;
+		BufferedReader fileReader;
+		JsonNode featureNode = null;
+		Feature updatedFeature = null;
+		String source_type = "";
+		
+		try {
+			jsonFilePart = ctx().request().body().asMultipartFormData().getFile("feature");
+			fileReader = new BufferedReader(new FileReader(jsonFilePart.getFile()));
+			featureNode = mapper.readTree(fileReader);
+			source_type = featureNode.get("properties").get("source_type").asText();
+			long fid = featureNode.get("id").asLong();
+			updatedFeature = Feature.find.byId(fid);
+
+			if(updatedFeature == null)
+			{
+				ObjectNode result = Json.newObject();
+				result.put("status", "KO");
+				result.put("message", "Feature does not exist");
+			    return badRequest(result);
+			}
+				
+			// Update the properties
+			updatedFeature.setProperties(featureNode);
+			
+		} catch (FileNotFoundException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (JsonProcessingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
+		{
+			if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
+			{
+				FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
+				
+				// Assuming a feature always has an image attached
+				updatedFeature.deleteImages();
+				updatedFeature.imageStandardResolution = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
+				updatedFeature.imageThumbnail = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolution.getUuid());
+			}
+		}
+		else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
+		{
+			;
+		}
+		Ebean.save(updatedFeature);
+		return ok();
+	}
+
 	// POST /geo
+	// Create a new geo feature
 	public static Result createGeoFeature()
 	{
 		ObjectMapper mapper = new ObjectMapper();
@@ -235,8 +295,8 @@ public class Features extends Controller
 				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
 				{
 					FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
-					newFeature.image_url_standard_resolution = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL);
-					newFeature.image_url_thumbnail = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL);
+					newFeature.imageStandardResolution = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
+					newFeature.imageThumbnail = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, newFeature.imageStandardResolution.getUuid());
 				}
 			}
 			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
@@ -282,21 +342,22 @@ public class Features extends Controller
 	}
 	
 	
+	
 	// Save image to Amazon S3 as original or thumbnail, return the url
-	private static String uploadFeatureImages(File f, MyConstants.S3Strings size) {
+	private static S3File uploadFeatureImages(File f, MyConstants.S3Strings size, UUID uuid) {
 		S3File s3File = new S3File();
 		
 		if(size == MyConstants.S3Strings.SIZE_ORIGINAL)
 		{
 			s3File.type = MyConstants.S3Strings.SIZE_ORIGINAL.toString();
-			s3File.file = f;	
+			s3File.file = f;
 		}
 		else if(size == MyConstants.S3Strings.SIZE_THUMBNAIL)
 		{
 			try {
 				BufferedImage image = ImageIO.read(f);
 				image = Scalr.resize(image, 150);
-				File tmpFile = new File("thumbnail");
+				File tmpFile = new File(".jpg");
 				ImageIO.write(image, "jpg", tmpFile);
 				s3File.type = MyConstants.S3Strings.SIZE_THUMBNAIL.toString();
 				s3File.file = tmpFile;
@@ -305,8 +366,9 @@ public class Features extends Controller
 				e.printStackTrace();
 			}
 		}
-
+		if(uuid != null)
+			s3File.setUuid(uuid);
 		s3File.save();
-		return s3File.getUrlAsString();
+		return s3File;
 	}
 }

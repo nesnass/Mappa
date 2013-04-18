@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.UUID;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -15,10 +16,10 @@ import play.db.ebean.Model;
 import plugins.S3Plugin;
 
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
 import external.MyConstants;
-
 
 @Entity
 @Table(name="s_s3file")
@@ -27,15 +28,23 @@ public class S3File extends Model {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-    public UUID id;
+	@GeneratedValue
+	public long id;
 
-    private String bucket;
+	public UUID uuid;
+
+	private String bucket;
 
     public String type;
 
     @Transient
     public File file;
 
+    public S3File()
+    {
+    	uuid = UUID.randomUUID();
+    }
+    
     public URL getUrl() throws MalformedURLException {
         return new URL(MyConstants.AMAZON_SERVER_NAME_PORT + bucket + "/" + getActualFileName());
     }
@@ -45,9 +54,17 @@ public class S3File extends Model {
     }
 
     private String getActualFileName() {
-        return id + "/" + type;
+        return uuid + "/" + type;
     }
 
+    public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+	
     @Override
     public void save() {
         if (S3Plugin.amazonS3 == null) {
@@ -58,8 +75,11 @@ public class S3File extends Model {
             
             super.save(); // assigns an id
 
+            ObjectMetadata omd = new ObjectMetadata();
+            omd.setContentType("image/jpeg"); // set MIME type as jpg image
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, getActualFileName(), file);
             putObjectRequest.withCannedAcl(CannedAccessControlList.PublicRead); // public for all
+            putObjectRequest.withMetadata(omd); 
             S3Plugin.amazonS3.putObject(putObjectRequest); // upload file
         }
     }
@@ -71,7 +91,7 @@ public class S3File extends Model {
         }
         else {
             S3Plugin.amazonS3.deleteObject(bucket, getActualFileName());
-            super.delete();
+      //      super.delete();
         }
     }
 

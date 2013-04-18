@@ -1,5 +1,6 @@
 package helpers;
 
+// http://www.movable-type.co.uk/scripts/latlong.html
 public class GeoCalculations {
     public static final double R = 6372.8; // In kilometers
     

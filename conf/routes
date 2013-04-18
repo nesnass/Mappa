@@ -48,12 +48,12 @@ GET     /assets/*file               								controllers.Assets.at(path="/public"
 
 #####	Geo Features
 POST			/geo												controllers.Features.createGeoFeature()
-#PUT			/geo												controllers.Features.updateGeoFeature()
+PUT				/geo												controllers.Features.updateGeoFeature()
 #DELETE			/geo												controllers.Features.deleteGeoFeature(id:String, user_id:String)
 GET				/user/:userID										controllers.Features.getGeoFeaturesByUser(userID:String)
 GET				/search/:hashTag			 						controllers.Features.getGeoFeaturesByTag(hashTag:String)
 GET				/geo												controllers.Features.getAllGeoFeautres()
-GET				/geo/:id											controllers.Features.getFeatureById(id:String)
+GET				/geo/:id											controllers.Features.getFeatureById(id:Long)
 GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:Double, lat1:Double, lng2:Double, lat2:Double)
 GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:Double, lat:Double, radiusInMeters:Int)
 GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeatures(lng:Double, lat:Double)
@@ -71,12 +71,12 @@ GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeature
 
 ##### Mapping Sessions ######
 # Add Session														create a new session with admin_id
-#POST     		/session/new          						    	controllers.Sessions.create()
-	
+POST     		/session/new          						    	controllers.Sessions.create()
+GET				/session/:id										controllers.Sessions.getSessionById(id:Long)
+
 #POST     		/session                 						 	controllers.Sessions.save()
-#GET			/session/:id										controllers.Sessions.fetchProjectById(id:String)
 #DELETE			/session/:id/:user_id								controllers.Sessions.delete(id:String, user_id:String)
-#GET			/session/:listing/:group_id							return a listing of groups that have been MAPPA associated
+#GET				/session/:listing/:group_id							return a listing of groups that have been MAPPA associated
 
 
 
@@ -86,5 +86,5 @@ GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeature
 
 
 #### image post to S3 ####
-GET     /image                    	controllers.S3Controller.index()
-POST    /image                      controllers.S3Controller.upload()
+#GET     /image                    	controllers.S3Controller.index()
+#POST    /image                      controllers.S3Controller.upload()

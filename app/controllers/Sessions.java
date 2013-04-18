@@ -1,21 +1,6 @@
 package controllers;
 
-//http://flexjson.sourceforge.net/
-import java.io.IOException;
-import java.util.Iterator;
-
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.node.ObjectNode;
-
-import com.avaje.ebean.Ebean;
-
-import flexjson.JSONDeserializer;
-import flexjson.JSONSerializer;
-
-import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Controller;
 import models.*;
@@ -24,13 +9,25 @@ import models.*;
  * @author Richard Nesnass
  */
 public class Sessions extends Controller
-{
-	public static Result fetchGeoFeaturesByTag(String hashTag)
+{	
+	// POST /session/new
+	// Create a new session, return the session id
+	public static Result create()
 	{
-		JSONSerializer serializer = new JSONSerializer();
-		Tag foundTag = Tag.find.where().eq("tag", hashTag).findUnique();
-		// Include the features linked to this tag, but not the user details or the 'class' key
-		return ok(serializer.include("tagFeatures").exclude("*.featureUser").exclude("*.class").serialize(foundTag));
+		JsonNode node = ctx().request().body().asJson();
+		Session newSession = new Session(node);
+		newSession.save();
+		return ok(newSession.toJson());
 	}
+	
+	//  GET /session/:id
+	public static Result getSessionById(long id) {
+		Session session = Session.find.byId(id);
+		if (session == null) {
+			return ok("POI Not found");
+		}
+		return ok(session.toJson());
+	}
+	
 	
 }
