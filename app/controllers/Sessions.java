@@ -24,7 +24,7 @@ public class Sessions extends Controller
 	public static Result getSessionById(long id) {
 		Session session = Session.find.byId(id);
 		if (session == null) {
-			return ok("POI Not found");
+			return ok("Session Not found");
 		}
 		return ok(session.toJson());
 	}

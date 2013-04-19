@@ -60,9 +60,9 @@ GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeature
 
 
 #####	Geo Content
-#GET			/image/:id											controllers.Features.showImage(id:String)
-#GET			/content/:id										controllers.Contents.contentOfFeature(id:String)
-#GET			/instagram/:id										controllers.Contents.contentOfInstaPOI(id:String)
+#GET			/image/:id											controllers.Features.showImage(id:Long)
+GET				/content/:id										controllers.Contents.contentOfFeature(id:Long)
+#GET			/instagram/:id										controllers.Contents.contentOfInstaPOI(id:Long)
 
 
 ##### External Content
@@ -76,7 +76,7 @@ GET				/session/:id										controllers.Sessions.getSessionById(id:Long)
 
 #POST     		/session                 						 	controllers.Sessions.save()
 #DELETE			/session/:id/:user_id								controllers.Sessions.delete(id:String, user_id:String)
-#GET				/session/:listing/:group_id							return a listing of groups that have been MAPPA associated
+#GET			/session/:listing/:group_id							return a listing of groups that have been MAPPA associated
 
 
 

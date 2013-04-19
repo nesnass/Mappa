@@ -3,7 +3,7 @@ package controllers;
 import java.util.List;
 import java.util.UUID;
 
-import external.MyConstants;
+import helpers.MyConstants;
 
 import models.S3File;
 import play.db.ebean.Model;

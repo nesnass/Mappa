@@ -26,8 +26,8 @@ import org.imgscalr.Scalr;
 
 import com.avaje.ebean.Ebean;
 
-import external.InstagramParser;
-import external.MyConstants;
+import helpers.MyConstants;
+import parsers.InstagramParser;
 import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Controller;
@@ -92,7 +92,7 @@ public class Features extends Controller
 	
 	
 	// Given bounding coordinates, return all MAPPA Features within
-	private static List<Feature> getFeaturesClosestToSource(double lat1, double lng1, double lat2, double lng2)
+	private static List<Feature> getFeaturesClosestToSource(double lat1, double lng1, double lat2, double lng2, double[] midpoint)
 	{
 		// First .between coordinate should be smaller than the second, swap if necessary
 		double longHolder = lng1;
@@ -115,8 +115,7 @@ public class Features extends Controller
 
 		if(allFeaturesWithinBounds.size() == 0)
 			return allFeaturesWithinBounds;
-		// Create a reference to the center of the bounding box by getting a midpoint
-		double midpoint[] = GeoCalculations.midpointCoordsFromStartEndCoords(lat1, lng1, lat2, lng2);
+		
 		Geometry sourceGeometry = new Geometry(midpoint[1], midpoint[0]);
 		Feature source = new Feature(sourceGeometry);
 
@@ -129,9 +128,14 @@ public class Features extends Controller
 	// ******* Needs further testing to confirm reliable results ********
 	public static Result getGeoFeaturesInBoundingBox(double lng1, double lat1, double lng2, double lat2)
 	{	
-		List<Feature> closestToSource = getFeaturesClosestToSource(lat1, lng1, lat2, lng2);
-		List<Feature> instaPOIs = InstagramParser.searchInstaPOIsByBBox(lng1, lat1, lng2, lat2);
-	//	closestToSource.addAll(instaPOIs);
+		// Create a reference to the center of the bounding box by getting a midpoint
+		double midpoint[] = GeoCalculations.midpointCoordsFromStartEndCoords(lat1, lng1, lat2, lng2);
+		// Calculate the radius for a circle containing the bounding box
+		int radius = (int) Math.round(GeoCalculations.haversine(lat1, lng1, lat2, lng2))*500; // Radius from diameter, in meters
+
+		List<Feature> closestToSource = getFeaturesClosestToSource(lat1, lng1, lat2, lng2, midpoint);
+		List<Feature> instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.BOUNDING_BOX, midpoint[0], midpoint[1], radius);
+		closestToSource.addAll(instaPOIs);
 		FeatureCollection collection = new FeatureCollection(closestToSource);
 		return ok(collection.toJson());
 	}
@@ -145,14 +149,19 @@ public class Features extends Controller
 		double outerBoxHypetnuse = Math.sqrt((radius*radius)*2);
 		double lowBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 315, outerBoxHypetnuse);    	// Top left corner
 		double highBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 135, outerBoxHypetnuse);		// Bottom right corner
-		List<Feature> featuresInRadius = getFeaturesClosestToSource(lowBound[0], lowBound[1], highBound[0], highBound[1]);
+		
+		// Create a reference to the center of the bounding box by getting a midpoint
+		double midpoint[] = GeoCalculations.midpointCoordsFromStartEndCoords(lowBound[0], lowBound[1], highBound[0], highBound[1]);
+		
+		List<Feature> featuresInRadius = getFeaturesClosestToSource(lowBound[0], lowBound[1], highBound[0], highBound[1], midpoint);
 		
 		// ********* For more precise results, this box set should now be searched for a circular radius set within
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.searchInstaByRadius(lng, lat, radius);
-//			featuresInRadius.addAll(instaPOIs);
+			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, radius);
+			featuresInRadius.addAll(instaPOIs);
+			// *************   Should this list be sorted by distance?
 		}
 		catch (Exception e) {
 			// TODO Auto-generated catch block
@@ -173,8 +182,8 @@ public class Features extends Controller
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.searchRecentInstaFeatures(lat, lng);
-//			features.addAll(instaPOIs);
+			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RECENT, lat, lng, MyConstants.DEFAULT_INSTAGRAM_DISTANCE);
+			features.addAll(instaPOIs);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -231,8 +240,8 @@ public class Features extends Controller
 				
 				// Assuming a feature always has an image attached
 				updatedFeature.deleteImages();
-				updatedFeature.imageStandardResolution = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
-				updatedFeature.imageThumbnail = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolution.getUuid());
+				updatedFeature.setImageStandardResolutionFile(uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null));
+				updatedFeature.setImageThumbnailFile(uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolutionFile.getUuid()));
 			}
 		}
 		else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
@@ -295,8 +304,8 @@ public class Features extends Controller
 				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
 				{
 					FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
-					newFeature.imageStandardResolution = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
-					newFeature.imageThumbnail = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, newFeature.imageStandardResolution.getUuid());
+					newFeature.setImageStandardResolutionFile(uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null));
+					newFeature.setImageThumbnailFile(uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, newFeature.imageStandardResolutionFile.getUuid()));
 				}
 			}
 			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
@@ -305,7 +314,7 @@ public class Features extends Controller
 				mapper_id = featureNode.get("properties").get("mapper").get("id").asLong();
 				MUser mapperUser = MUser.find.where().eq("facebook_id", mapper_id).findUnique();
 				
-				// User is the facebook user. does not exist in DB, then create it
+				// User is the Facebook user. does not exist in DB, then create it
 				if(mapperUser == null && mapper_id != 0)
 				{
 					mapperUser = new MUser(mapper_id, featureNode.get("properties").get("mapper").get("full_name").asText());

@@ -19,7 +19,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 
-import external.MyConstants;
+import helpers.MyConstants;
 
 @Entity
 @Table(name="s_s3file")

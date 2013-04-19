@@ -1,24 +1,21 @@
 package helpers;
 
-// http://www.movable-type.co.uk/scripts/latlong.html
+// Adapted from JavaScript:  http://www.movable-type.co.uk/scripts/latlong.html
 public class GeoCalculations {
-    public static final double R = 6372.8; // In kilometers
+    public static final double R = 6371; // In kilometers
     
     // Returns distance from one point to the other
-    // http://rosettacode.org/wiki/Haversine_formula#Java
     public static double haversine(double lat1, double lon1, double lat2, double lon2) {
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         lat1 = Math.toRadians(lat1);
         lat2 = Math.toRadians(lat2);
- 
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
-        double c = 2 * Math.asin(Math.sqrt(a));
-        return R * c;
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        return R * c; // distance in kilometers
     }
     
     // Returns in degrees - lat2 and lon2 away from lat1 and lon1 given distance and bearing
-    //  http://www.movable-type.co.uk/scripts/latlong.html
     // supply: radius in meters, all else in degrees
     public static double[] destinationCoordsFromDistance(double latOrigin, double lonOrigin, double bearing, double distance) {  // distance in kilometers
     	distance = distance/1000;
@@ -40,7 +37,6 @@ public class GeoCalculations {
     	lon1 = Math.toRadians(lon1);
     	lat2 = Math.toRadians(lat2);
     	lon2 = Math.toRadians(lon2);
-
     	double Bx = Math.cos(lat2) * Math.cos(dLon);
     	double By = Math.cos(lat2) * Math.sin(dLon);
     	destination[0] = Math.toDegrees( Math.atan2(Math.sin(lat1)+Math.sin(lat2), Math.sqrt( (Math.cos(lat1)+Bx)*(Math.cos(lat1)+Bx) + By*By ) ) ); 

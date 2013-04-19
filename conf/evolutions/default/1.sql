@@ -7,11 +7,14 @@ create table s_feature (
   id                        bigint not null,
   coordinate_0              float,
   coordinate_1              float,
+  coordinate_2              float,
   feature_user_id           bigint,
   mapper_user_id            bigint,
   feature_session_id        bigint,
-  image_standard_resolution_id bigint,
-  image_thumbnail_id        bigint,
+  image_standard_resolution_file_id bigint,
+  image_thumbnail_file_id   bigint,
+  image_standard_resolution_url varchar(255),
+  image_thumbnail_url       varchar(255),
   type                      varchar(255),
   created_time              timestamp,
   descr_url                 varchar(255),
@@ -20,7 +23,7 @@ create table s_feature (
   icon_url                  varchar(255),
   name                      varchar(255),
   source_type               integer,
-  constraint ck_s_feature_source_type check (source_type in (0,1)),
+  constraint ck_s_feature_source_type check (source_type in (0,1,2)),
   constraint pk_s_feature primary key (id))
 ;
 
@@ -85,10 +88,10 @@ alter table s_feature add constraint fk_s_feature_mapperUser_2 foreign key (mapp
 create index ix_s_feature_mapperUser_2 on s_feature (mapper_user_id);
 alter table s_feature add constraint fk_s_feature_featureSession_3 foreign key (feature_session_id) references s_session (id);
 create index ix_s_feature_featureSession_3 on s_feature (feature_session_id);
-alter table s_feature add constraint fk_s_feature_imageStandardReso_4 foreign key (image_standard_resolution_id) references s_s3file (id);
-create index ix_s_feature_imageStandardReso_4 on s_feature (image_standard_resolution_id);
-alter table s_feature add constraint fk_s_feature_imageThumbnail_5 foreign key (image_thumbnail_id) references s_s3file (id);
-create index ix_s_feature_imageThumbnail_5 on s_feature (image_thumbnail_id);
+alter table s_feature add constraint fk_s_feature_imageStandardReso_4 foreign key (image_standard_resolution_file_id) references s_s3file (id);
+create index ix_s_feature_imageStandardReso_4 on s_feature (image_standard_resolution_file_id);
+alter table s_feature add constraint fk_s_feature_imageThumbnailFil_5 foreign key (image_thumbnail_file_id) references s_s3file (id);
+create index ix_s_feature_imageThumbnailFil_5 on s_feature (image_thumbnail_file_id);
 
 
 
