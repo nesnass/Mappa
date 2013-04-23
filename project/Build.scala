@@ -11,6 +11,7 @@ object ApplicationBuild extends Build {
   	"postgresql" % "postgresql" % "9.1-901.jdbc4",
   	"com.amazonaws" % "aws-java-sdk" % "1.3.11",
   	"net.sf.flexjson" % "flexjson" % "2.1",
+  	"com.sachinhandiekar" % "jInstagram" % "1.0.1",
     javaCore,
     javaJdbc,
     javaEbean
