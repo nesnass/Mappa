@@ -12,6 +12,7 @@ object ApplicationBuild extends Build {
   	"com.amazonaws" % "aws-java-sdk" % "1.3.11",
   	"net.sf.flexjson" % "flexjson" % "2.1",
   	"com.sachinhandiekar" % "jInstagram" % "1.0.1",
+  	"org.imgscalr" % "imgscalr-lib" % "4.2",
     javaCore,
     javaJdbc,
     javaEbean
