@@ -55,7 +55,7 @@ GET				/search/:hashTag			 						controllers.Features.getGeoFeaturesByTag(hashTa
 GET				/geo												controllers.Features.getAllGeoFeautres()
 GET				/geo/:id											controllers.Features.getFeatureById(id:Long)
 GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:Double, lat1:Double, lng2:Double, lat2:Double)
-GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:Double, lat:Double, radiusInMeters:Int)
+GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:Double, lat:Double, radiusInMeters:Double)
 GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeatures(lng:Double, lat:Double)
 
 

@@ -15,6 +15,7 @@ import helpers.GeoCalculations;
 import helpers.MyConstants;
 import models.geometry.Geometry;
 import parsers.TwitterParser;
+import play.Logger;
 import play.data.validation.*;
 import play.db.ebean.Model;
 
@@ -96,7 +97,12 @@ public class Feature extends Model implements Comparator<Feature>
 	// Construct a new feature given a JSON node
 	public Feature(JsonNode featureNode) {
 		this();
-		setProperties(featureNode);
+		try {
+			setProperties(featureNode);
+		}
+		catch(NullPointerException e) {
+			Logger.info("NullPointerException. featureNode:" + featureNode.toString());
+		}
 	}
 	
 	// Setup by JsonNode object

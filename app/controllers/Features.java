@@ -144,7 +144,7 @@ public class Features extends Controller
 	// GET /geo/radius/:lng/:lat/:radiusInMeters
 	// *********  There is no 'near' call within the EBean implementation, so we call search by forming an outer-bounding box, 
 	// *********  then search within it using circular radius
-	public static Result getFeaturesInRadius(double lng, double lat, int radius)
+	public static Result getFeaturesInRadius(double lng, double lat, double radius)
 	{
 		double outerBoxHypetnuse = Math.sqrt((radius*radius)*2);
 		double lowBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 315, outerBoxHypetnuse);    	// Top left corner
@@ -159,7 +159,7 @@ public class Features extends Controller
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, radius);
+			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius));
 			featuresInRadius.addAll(instaPOIs);
 			// *************   Should this list be sorted by distance?
 		}
