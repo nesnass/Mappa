@@ -24,10 +24,10 @@ public class Session extends Model
 	public long facebook_group_id;
 	
 	@Constraints.MaxLength(255)
-	public String title;
+	public String stitle;
 	
 	@Constraints.MaxLength(255)
-	public String description;
+	public String sdescription;	
 	
 	public static Model.Finder<Long, Session> find = new Model.Finder<Long, Session>(Long.class, Session.class);
 
@@ -44,8 +44,8 @@ public class Session extends Model
 	public void setProperties(JsonNode session)
 	{
 		facebook_group_id = session.get("facebook_group_id").asLong();
-		title = session.get("title").asText();
-		description = session.get("description").asText();
+		stitle = session.get("title").asText();
+		sdescription = session.get("description").asText();
 	}
 	
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
@@ -55,8 +55,8 @@ public class Session extends Model
 				
 			"{ 	\"id\" : \"" + String.valueOf(this.id) +
 				"\",\"facebook_group_id\" : \"" + this.facebook_group_id +
-				"\",\"title\" : \"" + this.title +
-				"\",\"description\" : \"" + this.description + "\"}";
+				"\",\"title\" : \"" + this.stitle +
+				"\",\"description\" : \"" + this.sdescription + "\"}";
 
 		return jsonString;
 	}

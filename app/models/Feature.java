@@ -15,7 +15,6 @@ import helpers.GeoCalculations;
 import helpers.MyConstants;
 import models.geometry.Geometry;
 import parsers.TwitterParser;
-import play.Logger;
 import play.data.validation.*;
 import play.db.ebean.Model;
 
@@ -103,76 +102,72 @@ public class Feature extends Model implements Comparator<Feature>
 	// Setup by JsonNode object
 	public void setProperties(JsonNode featureNode)
 	{
-		try {
-			// Set relations
-			if(this.featureGeometry == null)
-				this.featureGeometry = new Geometry(featureNode.get("geometry"));
-			else
-				this.featureGeometry.setProperties(featureNode.get("geometry"));
-			this.featureSession = Session.find.byId(featureNode.get("properties").get("session_id").asLong());
-			
-			// *************  Session should always be supplied in the JSON. This case should be removed when sessions are enabled
-			if(this.featureSession == null) {
-				Session newSession = new Session();
-				
-				newSession.facebook_group_id = 0;
-				newSession.title = "Test Session Title";
-				newSession.description = "Test session Description";
-				newSession.save();
-				
-				this.featureSession = newSession;
-			}
-					
-			// Set regular parameters
-			this.type = featureNode.get("type").asText();
-			this.description = featureNode.get("properties").get("description").asText();
+		// Set relations
+		if(this.featureGeometry == null)
+			this.featureGeometry = new Geometry(featureNode.get("geometry"));
+		else
+			this.featureGeometry.setProperties(featureNode.get("geometry"));
+		this.featureSession = Session.find.byId(featureNode.get("properties").get("session_id").asLong());
 
-			String source = featureNode.get("properties").get("source_type").asText();
-			if (source.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
-				this.source_type = MyConstants.FeatureStrings.OVERLAY;
-			else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-				this.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM;
-			this.name = featureNode.get("properties").path("name").getTextValue();
+		// *************  Session should always be supplied in the JSON. This case should be removed when sessions are enabled
+		if(this.featureSession == null) {
+			Session newSession = new Session();
 
-			Set<String> foundTags = new HashSet<String>();
-			// Set source dependent parameters
-			switch(this.source_type)
-			{
-			case OVERLAY :
-				foundTags = TwitterParser.searchHashTags(this.description);
-				break;
+			newSession.facebook_group_id = 0;
+			newSession.stitle = "Test Session Title";
+			newSession.sdescription = "Test session Description";
+			newSession.save();
 
-			case INSTAGRAM:
-				break;
-
-			case MAPPED_INSTAGRAM:
-				// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
-				this.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
-				this.icon_url = MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
-				foundTags = TwitterParser.searchHashTags(this.mapper_description);
-
-				// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
-
-				break;
-			}
-
-			// Set the Tag references, if any tags exist
-			// Look through the description for tags
-			Iterator<JsonNode> tagsIteratorFromNode = featureNode.get("properties").path("tags").iterator();
-			while(tagsIteratorFromNode.hasNext())
-			{
-				foundTags.add(tagsIteratorFromNode.next().getTextValue());
-			}
-			// Add unique and non-existing tags to the database
-			Iterator<String> tagsIteratorAllTags = foundTags.iterator();
-			while(tagsIteratorAllTags.hasNext())
-			{
-				addTag(tagsIteratorAllTags.next());
-			}
+			this.featureSession = newSession;
 		}
-		catch(NullPointerException e) {
-			Logger.info("NullPointerException. featureNode:" + featureNode.toString() + e.getMessage());
+
+		// Set regular parameters
+		this.type = featureNode.get("type").asText();
+		this.description = featureNode.get("properties").get("description").asText();
+
+		String source = featureNode.get("properties").get("source_type").asText();
+		if (source.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
+			this.source_type = MyConstants.FeatureStrings.OVERLAY;
+		else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
+			this.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM;
+		this.name = featureNode.get("properties").path("name").getTextValue();
+
+		Set<String> foundTags = new HashSet<String>();
+		// Set source dependent parameters
+		switch(this.source_type)
+		{
+		case OVERLAY :
+			foundTags = TwitterParser.searchHashTags(this.description);
+			break;
+
+		case INSTAGRAM:
+			break;
+
+		case MAPPED_INSTAGRAM:
+			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
+			this.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
+			this.icon_url = MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+			foundTags = TwitterParser.searchHashTags(this.mapper_description);
+
+			// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
+
+			break;
 		}
+
+		// Set the Tag references, if any tags exist
+		// Look through the description for tags
+		Iterator<JsonNode> tagsIteratorFromNode = featureNode.get("properties").path("tags").iterator();
+		while(tagsIteratorFromNode.hasNext())
+		{
+			foundTags.add(tagsIteratorFromNode.next().getTextValue());
+		}
+		// Add unique and non-existing tags to the database
+		Iterator<String> tagsIteratorAllTags = foundTags.iterator();
+		while(tagsIteratorAllTags.hasNext())
+		{
+			addTag(tagsIteratorAllTags.next());
+		}
+
 	}
 	
 	// Setup by jInstagram MediaFeedData object
@@ -312,7 +307,7 @@ public class Feature extends Model implements Comparator<Feature>
 							"\",\"description\" : \"" + this.description +
 							"\",\"name\" : \"" + this.name;
 		jsonString +=
-							"\",\"session\" : " + this.featureSession.toJson();
+							"\",\"session\" : " + this.featureSession == null ? "No Session Found" : this.featureSession.toJson();
 		jsonString +=					",\"user\" : " + this.featureUser.toJson() +
 							",\"tags\" : " + tagJson +
 					"}" +

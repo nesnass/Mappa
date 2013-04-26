@@ -28,6 +28,7 @@ import com.avaje.ebean.Ebean;
 
 import helpers.MyConstants;
 import parsers.InstagramParser;
+import play.Logger;
 import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Controller;
@@ -108,7 +109,7 @@ public class Features extends Controller
 			lat2 = latHolder;
 		}
 		
-		List<Feature> allFeaturesWithinBounds = Feature.find.where()
+		List<Feature> allFeaturesWithinBounds = Feature.find.fetch("featureSession").where()
 				.between("featureGeometry.coordinate_0", lng1, lng2)
 				.between("featureGeometry.coordinate_1", lat1, lat2)
 				.findList();
@@ -168,6 +169,7 @@ public class Features extends Controller
 			e.printStackTrace();
 		}
 		FeatureCollection collection = new FeatureCollection(featuresInRadius);
+		Logger.info("FeaturesInRadius:" + collection.toJson());
 		return ok(collection.toJson());
 	}
 	
@@ -189,6 +191,7 @@ public class Features extends Controller
 			e.printStackTrace();
 		}
 		FeatureCollection collection = new FeatureCollection(features);
+		Logger.info("FeaturesInRadius:" + collection.toJson());
 		return ok(collection.toJson());
 	}
 	

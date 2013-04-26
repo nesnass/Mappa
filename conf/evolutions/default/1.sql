@@ -48,8 +48,8 @@ create table s_s3file (
 create table s_session (
   id                        bigint not null,
   facebook_group_id         bigint,
-  title                     varchar(255),
-  description               varchar(255),
+  stitle                    varchar(255),
+  sdescription              varchar(255),
   constraint pk_s_session primary key (id))
 ;
 
