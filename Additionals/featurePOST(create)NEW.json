@@ -1,0 +1,23 @@
+{
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            "10.723391",
+            "59.940279"
+        ]
+    },
+    "type": "Feature",
+    "properties": {
+        "description": "No image test",
+        "session_id": "none",
+        "user": {
+            "id": "878220018",
+            "location": [
+                "10.716684",
+                "59.942749"
+            ],
+            "full_name": "Richard Nesnass"
+        },
+        "source_type": "overlay"
+    }
+}
