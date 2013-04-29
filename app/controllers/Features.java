@@ -41,8 +41,7 @@ import models.geometry.Geometry;
  */
 public class Features extends Controller
 {
-	private static int MAX_FEATURES_TO_GET_IN_BOUNDING_BOX = 18;
-	private static int MOST_RECENT_FEATURES_TO_GET = 3;
+
 
 	// GET /user/:userId
 	public static Result getGeoFeaturesByUser(String userID)
@@ -121,7 +120,7 @@ public class Features extends Controller
 		Feature source = new Feature(sourceGeometry);
 
 		// Retrieve the list of closest features to the source, add to it the Instagram found closest also
-		return sortAndLimitClosestFeaturesToSource(source, allFeaturesWithinBounds, MAX_FEATURES_TO_GET_IN_BOUNDING_BOX);
+		return sortAndLimitClosestFeaturesToSource(source, allFeaturesWithinBounds, MyConstants.MAX_FEATURES_TO_GET_IN_BOUNDING_BOX);
 	}
 
 	
@@ -147,7 +146,7 @@ public class Features extends Controller
 	// *********  then search within it using circular radius
 	public static Result getFeaturesInRadius(double lng, double lat, double radius)
 	{
-		double outerBoxHypetnuse = Math.sqrt((radius*radius)*2);
+		double outerBoxHypetnuse = Math.sqrt(((radius*MyConstants.RADIUS_MULTIPLIER)*(radius*MyConstants.RADIUS_MULTIPLIER))*2);
 		double lowBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 315, outerBoxHypetnuse);    	// Top left corner
 		double highBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 135, outerBoxHypetnuse);		// Bottom right corner
 		
@@ -160,7 +159,7 @@ public class Features extends Controller
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius));
+			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER));
 			featuresInRadius.addAll(instaPOIs);
 			// *************   Should this list be sorted by distance?
 		}
@@ -180,7 +179,7 @@ public class Features extends Controller
 		// ******** Thinking this should do a radius search first for the given lat / lng, then display the most recent? ********
 		
 		// Find all features Limited to nearest 18
-		List<Feature> features = Feature.find.where().orderBy("created_time desc").setMaxRows(MOST_RECENT_FEATURES_TO_GET).findList();
+		List<Feature> features = Feature.find.where().orderBy("created_time desc").setMaxRows(MyConstants.MOST_RECENT_FEATURES_TO_GET).findList();
 		
 		List<Feature> instaPOIs;
 		try {

@@ -42,4 +42,7 @@ public class MyConstants
 	public final static String INSTAGRAM_CLIENT_ID = "a80dd450be84452a91527609a4eae97b";
 	
 	public final static int DEFAULT_INSTAGRAM_DISTANCE = 1000;
+	public final static int MAX_FEATURES_TO_GET_IN_BOUNDING_BOX = 18;
+	public final static int MOST_RECENT_FEATURES_TO_GET = 3;
+	public final static int RADIUS_MULTIPLIER = 10;  // Used to obtain more or less results, for testing purposes
 }
