@@ -300,12 +300,13 @@ public class Feature extends Model implements Comparator<Feature>
 									"\"thumbnail\" : \"" + this.imageThumbnailURL +
 									"\",\"standard_resolution\" : \"" + this.imageStandardResolutionURL +
 							"\"}"+ 
-							",\"created_time\" : \"" + this.created_time.toString() +
+							",\"created_time\" : \"" + String.valueOf(this.created_time.getTime()) +
 							"\",\"source_type\" : \"" + this.source_type +
 							"\",\"icon_url\" : \"" + this.getIconURL() +
 							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 							"\",\"description\" : \"" + this.description +
-						//	"\",\"name\" : \"" + this.name +
+							"\",\"name\" : \"" + "" +    // Is this supplied when a feature is created?
+							"\",\"session_id\" : \"" + String.valueOf(this.featureSession.id) +   // This should be removed and session sub key referred to instead
 							"\",\"session\" : " + this.featureSession.toJson() +
 							",\"user\" : " + this.featureUser.toJson() +
 							",\"tags\" : " + tagJson +
