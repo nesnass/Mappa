@@ -290,6 +290,7 @@ public class Feature extends Model implements Comparator<Feature>
 		String jsonString = 
 			"{" +
 					"\"id\" : \"" + String.valueOf(this.id) + "\"," +
+					"\"type\" : \"Feature\"," +
 					"\"geometry\" : {" +
 							"\"type\" : \"" + this.featureGeometry.type + "\"," +
 							"\"coordinates\" : [" + String.valueOf(this.featureGeometry.coordinate_0) +
@@ -298,6 +299,7 @@ public class Feature extends Model implements Comparator<Feature>
 					",\"properties\" : {" +
 							"\"images\" : {" + 
 									"\"thumbnail\" : \"" + this.imageThumbnailURL +
+									"\",\"high_resolution\" : \"" + this.imageStandardResolutionURL +
 									"\",\"standard_resolution\" : \"" + this.imageStandardResolutionURL +
 							"\"}"+ 
 							",\"created_time\" : \"" + String.valueOf(this.created_time.getTime()) +
@@ -305,8 +307,8 @@ public class Feature extends Model implements Comparator<Feature>
 							"\",\"icon_url\" : \"" + this.getIconURL() +
 							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 							"\",\"description\" : \"" + this.description +
-							"\",\"name\" : \"" + "" +    // Is this supplied when a feature is created?
-							"\",\"session_id\" : \"" + String.valueOf(this.featureSession.id) +   // This should be removed and session sub key referred to instead
+							"\",\"name\" : \"" + "(name stub)" +    // Is this supplied when a feature is created?
+							"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id) +   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
 							"\",\"session\" : " + this.featureSession.toJson() +
 							",\"user\" : " + this.featureUser.toJson() +
 							",\"tags\" : " + tagJson +
