@@ -130,7 +130,7 @@ public class Feature extends Model implements Comparator<Feature>
 			this.source_type = MyConstants.FeatureStrings.OVERLAY;
 		else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			this.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM;
-		this.name = featureNode.get("properties").path("name").getTextValue();
+		//this.name = featureNode.get("properties").path("name").getTextValue();
 
 		Set<String> foundTags = new HashSet<String>();
 		// Set source dependent parameters
