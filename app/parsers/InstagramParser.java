@@ -77,13 +77,16 @@ public class InstagramParser
 	public static List<Feature> getFeaturesFromFeed(MediaFeed feed)
 	{
 		List<Feature> featureList = new ArrayList<Feature>();
-		List<MediaFeedData> feeds = feed.getData();
-		Iterator<MediaFeedData> feedIterator = feeds.iterator();
-		while(feedIterator.hasNext())
+		if(feed != null)
 		{
-			Feature f = new Feature();
-			f.setProperties(feedIterator.next());
-			featureList.add(f);
+			List<MediaFeedData> feeds = feed.getData();
+			Iterator<MediaFeedData> feedIterator = feeds.iterator();
+			while(feedIterator.hasNext())
+			{
+				Feature f = new Feature();
+				f.setProperties(feedIterator.next());
+				featureList.add(f);
+			}
 		}
 		return featureList;
 	}

@@ -305,10 +305,9 @@ public class Feature extends Model implements Comparator<Feature>
 							"\",\"icon_url\" : \"" + this.getIconURL() +
 							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 							"\",\"description\" : \"" + this.description +
-							"\",\"name\" : \"" + this.name;
-		jsonString +=
-							"\",\"session\" : " + this.featureSession == null ? "No Session Found" : this.featureSession.toJson();
-		jsonString +=					",\"user\" : " + this.featureUser.toJson() +
+						//	"\",\"name\" : \"" + this.name +
+							"\",\"session\" : " + this.featureSession.toJson() +
+							",\"user\" : " + this.featureUser.toJson() +
 							",\"tags\" : " + tagJson +
 					"}" +
 			"}";
