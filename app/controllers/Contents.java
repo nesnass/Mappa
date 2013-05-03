@@ -1,5 +1,6 @@
 package controllers;
 
+import parsers.InstagramParser;
 import parsers.TwitterParser;
 import models.Feature;
 import models.MUser;
@@ -18,7 +19,7 @@ public class Contents extends Controller
 			return ok("This POI does not exist anymore.");
 		} else {
 
-			String decString = feature.description;
+	/*		String decString = feature.description;
 
 			decString = decString.replaceAll("^\"|\"$", "");
 			String description = TwitterParser.parse(decString, "Overlay");
@@ -38,47 +39,17 @@ public class Contents extends Controller
 				user.id = feature.featureUser.facebook_id;
 				user.full_name = feature.featureUser.full_name;	
 			}
-			return ok();
+		*/	return ok();
 		}
 	}
 	
 	
-//	public static Result contentOfInstaPOI(String id)
-//	{
-//		Feature feature;
-//		try {
-//			feature = InstagramParser.getInstaByMediaId(id);
-//			return ok(toJson(feature));
-			
-//			String decString = feature.properties.get("description").toString();
-//			decString = decString.replaceAll("^\"|\"$", "");
-//			String description = TwitterHelper.parse(decString, "Instagram");
-//			
-//			String image = "";
-//			User user = new User();
-//			
-//			if (feature.properties.get("standard_resolution") != null) {
-//				image  = "<div id=\"image-holder\"> " +
-//	                    "<img src="+feature.properties.get("standard_resolution").toString()+" alt=\"Smiley face\"  width=\"612\" height=\"612\" > " +
-//	                    "</div> " ;
-//			}
-//			
-//			if (feature.properties.get("user") != null) {
-//				
-//				JsonNode userNode = toJson(feature.properties.get("user"));
-//				user.id =userNode.get("id").asText();
-//				user.full_name = userNode.get("full_name").asText();;
-//				
-//			}
-//
-//			Html content = new Html(image + description);
-//
-//			return ok(index.render(user, content));
-//		} catch (Exception e) {
-//			return ok("This POI does not exist anymore.");
-//		}
-		
-//	}
+	public static Result contentOfInstaPOI(String id)
+	{
+		Feature feature;
+		feature = InstagramParser.getInstaByMediaId(id);
+		return ok(feature.toJson());	
+	}
 	
 
 

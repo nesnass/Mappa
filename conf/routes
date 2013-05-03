@@ -62,7 +62,7 @@ GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeature
 #####	Geo Content
 #GET			/image/:id											controllers.Features.showImage(id:Long)
 GET				/content/:id										controllers.Contents.contentOfFeature(id:Long)
-#GET			/instagram/:id										controllers.Contents.contentOfInstaPOI(id:Long)
+GET				/instagram/:id										controllers.Contents.contentOfInstaPOI(id:String)
 
 
 ##### External Content

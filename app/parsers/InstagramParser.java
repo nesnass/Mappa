@@ -9,9 +9,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jinstagram.Instagram;
+import org.jinstagram.entity.media.MediaInfoFeed;
 import org.jinstagram.entity.users.feed.MediaFeed;
 import org.jinstagram.entity.users.feed.MediaFeedData;
 import org.jinstagram.exceptions.InstagramException;
+
+import play.Logger;
 
 public class InstagramParser
 {
@@ -51,7 +54,7 @@ public class InstagramParser
 	{
 		Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
 		MediaFeed feed = null;
-		try {
+/*		try {
 			switch (queryType)
 			{
 			case RADIUS:
@@ -65,12 +68,14 @@ public class InstagramParser
 				feed = instagram.searchMedia(latitude, longitude, new Date(), null, radius);
 				break;
 			}
-			
+		
 		} catch (InstagramException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			Logger.info("InstagramException: " + e.getMessage() + " " + e.getCause());
 		}
-		return getFeaturesFromFeed(feed);
+*/
+			return getFeaturesFromFeed(feed);
 	}
 	
 	// Process the feed retrieved
@@ -91,6 +96,27 @@ public class InstagramParser
 		return featureList;
 	}
 
+	public static Feature getInstaByMediaId(String id) 
+	{
+		Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
+		MediaInfoFeed feed = null;
+		try {
+			feed = instagram.getMediaInfo(id);
+		}
+		catch (InstagramException e)
+		{
+		// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if(feed != null)
+		{
+			Feature f = new Feature();
+			MediaFeedData feeddata = feed.getData();
+			f.setProperties(feeddata);
+			return f;
+		}
+		return null;
+	}
 	// ********************************************************************************
 
 }

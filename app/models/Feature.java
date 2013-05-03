@@ -291,8 +291,8 @@ public class Feature extends Model implements Comparator<Feature>
 			"{" +
 					"\"id\" : \"" + String.valueOf(this.id) + "\"," +
 					"\"type\" : \"Feature\"," +
-					"\"geometry\" : {" +
-							"\"type\" : \"" + this.featureGeometry.type + "\"," +
+					"\"geometry\" : {";
+		jsonString += 		"\"type\" : \"" + this.featureGeometry.type + "\"," +
 							"\"coordinates\" : [" + String.valueOf(this.featureGeometry.coordinate_0) +
 												"," + String.valueOf(this.featureGeometry.coordinate_1) + 
 							"]}" +
@@ -301,17 +301,17 @@ public class Feature extends Model implements Comparator<Feature>
 									"\"thumbnail\" : \"" + this.imageThumbnailURL +
 									"\",\"high_resolution\" : \"" + this.imageStandardResolutionURL +
 									"\",\"standard_resolution\" : \"" + this.imageStandardResolutionURL +
-							"\"}"+ 
-							",\"created_time\" : \"" + String.valueOf(this.created_time.getTime()) +
-							"\",\"source_type\" : \"" + this.source_type +
+							"\"}"; 
+		jsonString += 		",\"created_time\" : \"" + String.valueOf(this.created_time.getTime());
+		jsonString += 		"\",\"source_type\" : \"" + this.source_type +
 							"\",\"icon_url\" : \"" + this.getIconURL() +
 							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 							"\",\"description\" : \"" + this.description +
-							"\",\"name\" : \"" + "(name stub)" +    // Is this supplied when a feature is created?
-							"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id) +   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
-							"\",\"session\" : " + this.featureSession.toJson() +
-							",\"user\" : " + this.featureUser.toJson() +
-							",\"tags\" : " + tagJson +
+							"\",\"name\" : \"" + "(name stub)";    // Is this supplied when a feature is created?
+		jsonString += 					"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id);   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
+		jsonString += 					"\",\"session\" : " + this.featureSession.toJson();
+		jsonString += 					",\"user\" : " + this.featureUser.toJson();
+		jsonString += 					",\"tags\" : " + tagJson +
 					"}" +
 			"}";
 
