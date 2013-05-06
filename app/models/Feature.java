@@ -19,7 +19,7 @@ import play.data.validation.*;
 import play.db.ebean.Model;
 
 /**
- * @author Richard Nesnass
+ * @author Richard Nesnass - AUS
  */
 
 @Entity
@@ -308,7 +308,7 @@ public class Feature extends Model implements Comparator<Feature>
 							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 							"\",\"description\" : \"" + this.description +
 							"\",\"name\" : \"" + "(name stub)";    // Is this supplied when a feature is created?
-		jsonString += 					"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id);   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
+	//	jsonString += 					"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id);   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
 		jsonString += 					"\",\"session\" : " + this.featureSession.toJson();
 		jsonString += 					",\"user\" : " + this.featureUser.toJson();
 		jsonString += 					",\"tags\" : " + tagJson +
