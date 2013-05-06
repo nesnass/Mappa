@@ -32,6 +32,8 @@ public class Feature extends Model implements Comparator<Feature>
 	@GeneratedValue
 	public long id;
 
+	public String alternate_id;
+	
 	@Embedded()
 	public Geometry featureGeometry;
 
@@ -179,6 +181,7 @@ public class Feature extends Model implements Comparator<Feature>
 		else
 			this.featureGeometry.setProperties(jInstagramMedia.getLocation());
 		this.type = "INSTAGRAM";
+		this.alternate_id = jInstagramMedia.getId();
 		this.description = jInstagramMedia.getCaption().getText();
 		this.source_type = MyConstants.FeatureStrings.INSTAGRAM;
 		this.imageThumbnailURL = jInstagramMedia.getImages().getThumbnail().getImageUrl();
@@ -287,10 +290,13 @@ public class Feature extends Model implements Comparator<Feature>
 		}
 		tagJson +="]";
 		//another change
-		String jsonString = 
-			"{" +
-					"\"id\" : \"" + String.valueOf(this.id) + "\"," +
-					"\"type\" : \"Feature\"," +
+		String jsonString = "{";
+		
+		if(this.source_type == MyConstants.FeatureStrings.INSTAGRAM)
+			jsonString+="\"id\" : \"" + this.alternate_id + "\",";
+		else
+			jsonString+="\"id\" : \"" + String.valueOf(this.id) + "\",";
+		jsonString+="\"type\" : \"Feature\"," +
 					"\"geometry\" : {";
 		jsonString += 		"\"type\" : \"" + this.featureGeometry.type + "\"," +
 							"\"coordinates\" : [" + String.valueOf(this.featureGeometry.coordinate_0) +
@@ -307,9 +313,11 @@ public class Feature extends Model implements Comparator<Feature>
 							"\",\"icon_url\" : \"" + this.getIconURL() +
 							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 							"\",\"description\" : \"" + this.description +
-							"\",\"name\" : \"" + "(name stub)";    // Is this supplied when a feature is created?
+							"\",\"name\" : \"" + "(name stub)\"";    // Is this supplied when a feature is created?
 //		jsonString += 					"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id);   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
+if(this.featureSession != null)
 		jsonString += 					"\",\"session\" : " + this.featureSession.toJson();
+if(this.featureUser != null)
 		jsonString += 					",\"user\" : " + this.featureUser.toJson();
 		jsonString += 					",\"tags\" : " + tagJson +
 					"}" +

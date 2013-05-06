@@ -159,7 +159,7 @@ public class Features extends Controller
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER*100));
+			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lat, lng, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER));
 			featuresInRadius.addAll(instaPOIs);
 			// *************   Should this list be sorted by distance?
 		}

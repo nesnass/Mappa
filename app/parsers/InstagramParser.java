@@ -54,7 +54,7 @@ public class InstagramParser
 	{
 		Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
 		MediaFeed feed = null;
-/*		try {
+		try {
 			switch (queryType)
 			{
 			case RADIUS:
@@ -74,7 +74,7 @@ public class InstagramParser
 			e.printStackTrace();
 			Logger.info("InstagramException: " + e.getMessage() + " " + e.getCause());
 		}
-*/
+
 			return getFeaturesFromFeed(feed);
 	}
 	
