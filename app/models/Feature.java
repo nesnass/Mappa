@@ -302,8 +302,8 @@ public class Feature extends Model implements Comparator<Feature>
 									"\",\"high_resolution\" : \"" + this.imageStandardResolutionURL +
 									"\",\"standard_resolution\" : \"" + this.imageStandardResolutionURL +
 							"\"}"; 
-		jsonString += 		",\"created_time\" : \"" + String.valueOf(this.created_time.getTime());
-		jsonString += 		"\",\"source_type\" : \"" + this.source_type +
+		jsonString += 		",\"created_time\" : " + String.valueOf(this.created_time.getTime()/1000);
+		jsonString += 		",\"source_type\" : \"" + this.source_type +
 							"\",\"icon_url\" : \"" + this.getIconURL() +
 							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 							"\",\"description\" : \"" + this.description +
