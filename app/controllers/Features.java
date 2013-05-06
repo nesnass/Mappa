@@ -222,6 +222,7 @@ public class Features extends Controller
 			}
 				
 			// Update the properties
+			// extract properties from node and then set
 			updatedFeature.setProperties(featureNode);
 			
 		} catch (FileNotFoundException e1) {
