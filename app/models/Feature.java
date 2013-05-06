@@ -302,13 +302,13 @@ public class Feature extends Model implements Comparator<Feature>
 									"\",\"high_resolution\" : \"" + this.imageStandardResolutionURL +
 									"\",\"standard_resolution\" : \"" + this.imageStandardResolutionURL +
 							"\"}"; 
-		jsonString += 		",\"created_time\" : \"" + String.valueOf(this.created_time.getTime());
-		jsonString += 		"\",\"source_type\" : \"" + this.source_type +
+		jsonString += 		",\"created_time\" : " + String.valueOf(this.created_time.getTime()/1000);
+		jsonString += 		",\"source_type\" : \"" + this.source_type +
 							"\",\"icon_url\" : \"" + this.getIconURL() +
 							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
 							"\",\"description\" : \"" + this.description +
 							"\",\"name\" : \"" + "(name stub)";    // Is this supplied when a feature is created?
-		jsonString += 					"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id);   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
+//		jsonString += 					"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id);   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
 		jsonString += 					"\",\"session\" : " + this.featureSession.toJson();
 		jsonString += 					",\"user\" : " + this.featureUser.toJson();
 		jsonString += 					",\"tags\" : " + tagJson +
