@@ -2,6 +2,7 @@
 
 create table s_feature (
   id                        bigint not null,
+  alternate_id              varchar(255),
   coordinate_0              float,
   coordinate_1              float,
   coordinate_2              float,
