@@ -286,7 +286,7 @@ public class Feature extends Model implements Comparator<Feature>
 				tagJson+= ",";
 		}
 		tagJson +="]";
-		
+		//another change
 		String jsonString = 
 			"{" +
 					"\"id\" : \"" + String.valueOf(this.id) + "\"," +
