@@ -68,7 +68,7 @@ public class TestController extends Controller {
 		{
 			List<Feature> fList = Feature.find.where().eq("featureUser", user).findList();
 			Point g = fList.get(0).featureGeometry;
-			return ok(user.toString() + "List length: " + fList.size() + "First Item name: " + fList.get(0).description + "Geom: " + g.lng);
+			return ok(user.toString() + "List length: " + fList.size() + "First Item name: " + fList.get(0).description + "Geom: " + g.getLng());
 		}
 		else {
 			result.put("status", "KO");

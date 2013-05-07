@@ -224,7 +224,7 @@ public class Features extends Controller
 				
 			// Update the properties
 			// extract properties from node and then set
-			updatedFeature.setProperties(featureNode);
+			updatedFeature.assignProperties(featureNode);
 			
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
@@ -244,8 +244,8 @@ public class Features extends Controller
 				
 				// Assuming a feature always has an image attached
 				updatedFeature.deleteImages();
-				updatedFeature.setImageStandardResolutionFile(uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null));
-				updatedFeature.setImageThumbnailFile(uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolutionFile.getUuid()));
+				updatedFeature.imageStandardResolutionFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
+				updatedFeature.imageThumbnailFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolutionFile.getUuid());
 			}
 		}
 		else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
@@ -308,8 +308,8 @@ public class Features extends Controller
 				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
 				{
 					FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
-					newFeature.setImageStandardResolutionFile(uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null));
-					newFeature.setImageThumbnailFile(uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, newFeature.imageStandardResolutionFile.getUuid()));
+					newFeature.imageStandardResolutionFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
+					newFeature.imageThumbnailFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, newFeature.imageStandardResolutionFile.getUuid());
 				}
 			}
 			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
@@ -327,7 +327,7 @@ public class Features extends Controller
 				}
 
 				// Set the mapperUser reference
-				newFeature.mapperUser = mapperUser;
+				newFeature.featureMapper = mapperUser;
 				Ebean.save(mapperUser);
 			}
 

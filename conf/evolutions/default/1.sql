@@ -1,14 +1,16 @@
+# --- Created by Ebean DDL
+# To stop Ebean DDL generation, remove this comment and start using Evolutions
+
 # --- !Ups
 
 create table s_feature (
   id                        bigint not null,
-  alternate_id              varchar(255),
-  coordinate_0              float,
-  coordinate_1              float,
-  coordinate_2              float,
   feature_user_id           bigint,
-  mapper_user_id            bigint,
+  feature_mapper_id         bigint,
   feature_session_id        bigint,
+  gtype                     varchar(255),
+  lng                       float,
+  lat                       float,
   image_standard_resolution_file_id bigint,
   image_thumbnail_file_id   bigint,
   image_standard_resolution_url varchar(255),
@@ -82,8 +84,8 @@ create sequence s_tag_seq;
 
 alter table s_feature add constraint fk_s_feature_featureUser_1 foreign key (feature_user_id) references s_user (id);
 create index ix_s_feature_featureUser_1 on s_feature (feature_user_id);
-alter table s_feature add constraint fk_s_feature_mapperUser_2 foreign key (mapper_user_id) references s_user (id);
-create index ix_s_feature_mapperUser_2 on s_feature (mapper_user_id);
+alter table s_feature add constraint fk_s_feature_featureMapper_2 foreign key (feature_mapper_id) references s_user (id);
+create index ix_s_feature_featureMapper_2 on s_feature (feature_mapper_id);
 alter table s_feature add constraint fk_s_feature_featureSession_3 foreign key (feature_session_id) references s_session (id);
 create index ix_s_feature_featureSession_3 on s_feature (feature_session_id);
 alter table s_feature add constraint fk_s_feature_imageStandardReso_4 foreign key (image_standard_resolution_file_id) references s_s3file (id);

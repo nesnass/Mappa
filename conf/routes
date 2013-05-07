@@ -29,13 +29,13 @@
 
 #####   Test calls for SQL conversion
 
-GET		/userlist													controllers.TestController.allusers()
-GET		/taglist													controllers.TestController.alltags()
-POST	/adduser													controllers.TestController.addUser()
-POST	/addfeature													controllers.TestController.addUserFeature()
-POST	/userfeatures												controllers.TestController.getUserFeatures()
-GET     /s3image													controllers.S3Controller.index()
-POST    /s3image													controllers.S3Controller.upload()
+#GET		/userlist													controllers.TestController.allusers()
+#GET		/taglist													controllers.TestController.alltags()
+#POST	/adduser													controllers.TestController.addUser()
+#POST	/addfeature													controllers.TestController.addUserFeature()
+#POST	/userfeatures												controllers.TestController.getUserFeatures()
+#GET     /s3image													controllers.S3Controller.index()
+#POST    /s3image													controllers.S3Controller.upload()
 
 
 #####	Home page

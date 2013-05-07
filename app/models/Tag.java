@@ -20,7 +20,7 @@ public class Tag extends Model
 	
 	@Id
 	@GeneratedValue
-	public long id;
+	private long id;
 
 	@Constraints.MaxLength(50)
 	@Column(unique=true)

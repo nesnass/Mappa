@@ -8,9 +8,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import javax.persistence.*;
+
 import org.codehaus.jackson.JsonNode;
 import org.jinstagram.entity.users.feed.MediaFeedData;
 
+import flexjson.JSONSerializer;
 import helpers.GeoCalculations;
 import helpers.MyConstants;
 import models.geometry.Geometry;
@@ -33,17 +35,20 @@ public class Feature extends Model implements Comparator<Feature>
 	@GeneratedValue
 	public long id;
 
-	@Embedded()
-	public Point featureGeometry;
-
 	@ManyToOne()
 	public MUser featureUser;
 	
 	@ManyToOne()
-	public MUser mapperUser;
+	public MUser featureMapper;
 
 	@ManyToOne()
 	public Session featureSession;
+	
+	@ManyToMany(cascade=CascadeType.ALL)
+	public Set<Tag> featureTags = new HashSet<Tag>();
+	
+	@Embedded()
+	public Point geometry;
 	
 	@OneToOne(cascade=CascadeType.ALL)
 	public S3File imageStandardResolutionFile;
@@ -51,71 +56,88 @@ public class Feature extends Model implements Comparator<Feature>
 	@OneToOne(cascade=CascadeType.ALL)
 	public S3File imageThumbnailFile;
 
-	@Constraints.MaxLength(255)
-	public String imageStandardResolutionURL = "";
-	
-	@Constraints.MaxLength(255)
-	public String imageThumbnailURL = "";
-	
-	@ManyToMany(cascade=CascadeType.ALL)
-	public Set<Tag> featureTags = new HashSet<Tag>();
+	@Embedded()
+	public Properties properties;
 
-	@Constraints.MaxLength(30)
-	public String type = "Feature";
-	
-	@Temporal(TemporalType.TIMESTAMP)
-	public Date created_time;
-	
-	@Constraints.MaxLength(255)
-	public String descr_url = "";
-	
-	@Constraints.MaxLength(255)
-	public String description = "";
-	
-	@Constraints.MaxLength(255)
-	public String mapper_description = "";
+	@Embeddable
+	public class Properties {
 
-	@Constraints.MaxLength(255)
-	public String icon_url = "";
+		@Transient
+		public MUser user = featureUser;
 
-	@Constraints.MaxLength(255)
-	public String name = "";
+		@Transient
+		public MUser mapper = featureMapper;
 
-	@Constraints.MaxLength(30)
-	public MyConstants.FeatureStrings source_type = MyConstants.FeatureStrings.OVERLAY;
+		@Transient
+		public Session session = featureSession;
+
+		@Transient
+		public Set<Tag> tags = featureTags;
+
+		@Constraints.MaxLength(255)
+		public String imageStandardResolutionURL = "";
+		
+		@Constraints.MaxLength(255)
+		public String imageThumbnailURL = "";
+
+		@Constraints.MaxLength(30)
+		public String type = "Feature";
+		
+		@Temporal(TemporalType.TIMESTAMP)
+		public Date created_time;
+		
+		@Constraints.MaxLength(255)
+		public String descr_url = "";
+		
+		@Constraints.MaxLength(255)
+		public String description = "";
+		
+		@Constraints.MaxLength(255)
+		public String mapper_description = "";
+
+		@Constraints.MaxLength(255)
+		public String icon_url = "";
+
+		@Constraints.MaxLength(255)
+		public String name = "";
+
+		@Constraints.MaxLength(30)
+		public MyConstants.FeatureStrings source_type = MyConstants.FeatureStrings.OVERLAY;
+	}
 
 	public Feature() {
-		created_time = new Date();
+		properties = this.new Properties();
+		properties.created_time = new Date();
 	}
 	
 	// Construct a new feature given Geometry
 	public Feature(Point point) {
 		this();
-		this.featureGeometry = point;
+		geometry = point;
 	}
 	
 	// Construct a new feature given a JSON node
 	public Feature(JsonNode featureNode) {
 		this();
-		setProperties(featureNode);
+		assignProperties(featureNode);
 	}
 	
 	// Setup by JsonNode object
-	public void setProperties(JsonNode featureNode)
+	public void assignProperties(JsonNode featureNode)
 	{
 		// Set relations
-		if(this.featureGeometry == null)
+		if(geometry == null)
 		{
 			//this.featureGeometry = new Geometry(featureNode.get("geometry"));
 			
-			this.featureGeometry = new Point(featureNode.get("geometry"));
+			geometry = new Point(featureNode.get("geometry"));
 		}
 		else
-			this.featureGeometry.setProperties(featureNode.get("geometry"));
-		this.featureSession = Session.find.byId(featureNode.get("properties").get("session_id").asLong());
+			geometry.assignProperties(featureNode.get("geometry"));
+		featureSession = Session.find.byId(featureNode.get("properties").path("session_id").asLong());
 
 		// *************  Session should always be supplied in the JSON. This case should be removed when sessions are enabled
-		if(this.featureSession == null) {
+		if(featureSession == null) {
 			Session newSession = new Session();
 
 			newSession.facebook_group_id = 0;
@@ -123,26 +145,26 @@ public class Feature extends Model implements Comparator<Feature>
 			newSession.sdescription = "Test session Description";
 			newSession.save();
 
-			this.featureSession = newSession;
+			featureSession = newSession;
 		}
 
 		// Set regular parameters
-		this.type = featureNode.get("type").asText();
-		this.description = featureNode.get("properties").get("description").asText();
+		properties.type = featureNode.get("type").asText();
+		properties.description = featureNode.get("properties").get("description").asText();
 
 		String source = featureNode.get("properties").get("source_type").asText();
 		if (source.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
-			this.source_type = MyConstants.FeatureStrings.OVERLAY;
+			properties.source_type = MyConstants.FeatureStrings.OVERLAY;
 		else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-			this.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM;
+			properties.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM;
 		//this.name = featureNode.get("properties").path("name").getTextValue();
 
 		Set<String> foundTags = new HashSet<String>();
 		// Set source dependent parameters
-		switch(this.source_type)
+		switch(properties.source_type)
 		{
 		case OVERLAY :
-			foundTags = TwitterParser.searchHashTags(this.description);
+			foundTags = TwitterParser.searchHashTags(properties.description);
 			break;
 
 		case INSTAGRAM:
@@ -150,9 +172,9 @@ public class Feature extends Model implements Comparator<Feature>
 
 		case MAPPED_INSTAGRAM:
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
-			this.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
-			this.icon_url = MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
-			foundTags = TwitterParser.searchHashTags(this.mapper_description);
+			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
+			properties.icon_url = MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+			foundTags = TwitterParser.searchHashTags(properties.mapper_description);
 
 			// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
 
@@ -176,21 +198,21 @@ public class Feature extends Model implements Comparator<Feature>
 	}
 	
 	// Setup by jInstagram MediaFeedData object
-	public void setProperties(MediaFeedData jInstagramMedia)
+	public void assignProperties(MediaFeedData jInstagramMedia)
 	{
 		// Set regular parameters
-		if(this.featureGeometry == null)
-			this.featureGeometry = new Point(jInstagramMedia.getLocation());
+		if(geometry == null)
+			geometry = new Point(jInstagramMedia.getLocation());
 		else
-			this.featureGeometry.setProperties(jInstagramMedia.getLocation());
-		this.type = "INSTAGRAM";
-		this.description = jInstagramMedia.getCaption().getText();
-		this.source_type = MyConstants.FeatureStrings.INSTAGRAM;
-		this.imageThumbnailURL = jInstagramMedia.getImages().getThumbnail().getImageUrl();
-		this.imageStandardResolutionURL = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
+			geometry.assignProperties(jInstagramMedia.getLocation());
+		properties.type = "INSTAGRAM";
+		properties.description = jInstagramMedia.getCaption().getText();
+		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM;
+		properties.imageThumbnailURL = jInstagramMedia.getImages().getThumbnail().getImageUrl();
+		properties.imageStandardResolutionURL = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
 		SimpleDateFormat sdf = new SimpleDateFormat();
 		try {
-			this.created_time.setTime(sdf.parse(jInstagramMedia.getCreatedTime()).getTime());
+			properties.created_time.setTime(sdf.parse(jInstagramMedia.getCreatedTime()).getTime());
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -209,17 +231,17 @@ public class Feature extends Model implements Comparator<Feature>
 		if(newTag == null)
 			newTag = new Tag(theTag);
 
-		this.featureTags.add(newTag);
+		featureTags.add(newTag);
 		newTag.tagFeatures.add(this);
 		//newTag.save();
 	}
 	
 	public void deleteImages()
 	{
-		this.imageStandardResolutionFile.delete();
-		this.imageThumbnailFile.delete();
-		this.imageStandardResolutionURL = "";
-		this.imageThumbnailURL = "";
+		imageStandardResolutionFile.delete();
+		imageThumbnailFile.delete();
+		properties.imageStandardResolutionURL = "";
+		properties.imageThumbnailURL = "";
 		imageStandardResolutionFile.delete();
 		imageThumbnailFile.delete();
 	}
@@ -228,26 +250,16 @@ public class Feature extends Model implements Comparator<Feature>
 	
 	public String toString()
 	{
-		return name;
-	}
-	
-	public void setImageStandardResolutionFile(S3File imageStandardResolutionFile) {
-		this.imageStandardResolutionFile = imageStandardResolutionFile;
-		this.imageStandardResolutionURL = imageStandardResolutionFile.getUrlAsString();
-	}
-	
-	public void setImageThumbnailFile(S3File imageThumbnailFile) {
-		this.imageThumbnailFile = imageThumbnailFile;
-		this.imageThumbnailURL = imageThumbnailFile.getUrlAsString();
+		return properties.name;
 	}
 	
 	// Retrieve the icon URL 
 	public String getIconURL() {
-		if(this.source_type == MyConstants.FeatureStrings.OVERLAY)
+		if(properties.source_type == MyConstants.FeatureStrings.OVERLAY)
 			return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/overlay.png";
-		else if(this.source_type == MyConstants.FeatureStrings.MAPPED_INSTAGRAM)
+		else if(properties.source_type == MyConstants.FeatureStrings.MAPPED_INSTAGRAM)
 			return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
-		else if(this.source_type == MyConstants.FeatureStrings.INSTAGRAM)
+		else if(properties.source_type == MyConstants.FeatureStrings.INSTAGRAM)
 			return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
 		else return "";
 	}
@@ -259,16 +271,16 @@ public class Feature extends Model implements Comparator<Feature>
 	
 	// Uses Pythagoras to calculate the distance apart in terms of coordinates 
 	public double getDistance(Feature other) {
-		final double dx = this.featureGeometry.lng-other.featureGeometry.lng; 
-        final double dy = this.featureGeometry.lat-other.featureGeometry.lat;
+		final double dx = geometry.getLng()-other.geometry.getLng(); 
+        final double dy = geometry.getLat()-other.geometry.getLat();
         return Math.sqrt(dx*dx + dy*dy);
 	}
 	
 	// Uses Haversine formula to calculate the distance apart in terms of coordinates 
 	public double getHaversineDistance(Feature other)
 	{
-		return GeoCalculations.haversine(this.featureGeometry.lat, this.featureGeometry.lng,
-										other.featureGeometry.lat, other.featureGeometry.lng);
+		return GeoCalculations.haversine(geometry.getLat(), geometry.getLng(),
+										other.geometry.getLat(), other.geometry.getLng());
 	}
 
 	// Currently using Haversine formula for comparison
@@ -281,7 +293,11 @@ public class Feature extends Model implements Comparator<Feature>
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
 	public String toJson()
 	{
-		// Get the listing of tags for this feature
+		JSONSerializer serializer = new JSONSerializer();
+        return serializer.exclude("*.class").include("coordinates").exclude("lat").exclude("lng").exclude("imageStandardResolutionFile").exclude("imageThumbnailFile").serialize( this );
+        
+        
+/*		// Get the listing of tags for this feature
 		String tagJson = "[";
 		Iterator<Tag> it = featureTags.iterator();
 		while(it.hasNext())
@@ -297,7 +313,7 @@ public class Feature extends Model implements Comparator<Feature>
 					"\"id\" : \"" + String.valueOf(this.id) + "\"," +
 					"\"type\" : \"Feature\"," +
 					"\"geometry\" : {";
-		jsonString += 		"\"type\" : \"" + this.featureGeometry.type + "\"," +
+		jsonString += 		"\"type\" : \"" + this.featureGeometry.gtype + "\"," +
 							"\"coordinates\" : [" + String.valueOf(this.featureGeometry.lng) +
 												"," + String.valueOf(this.featureGeometry.lat) + 
 							"]}" +
@@ -321,5 +337,6 @@ public class Feature extends Model implements Comparator<Feature>
 			"}";
 
 		return jsonString;
+		*/
 	}
 }

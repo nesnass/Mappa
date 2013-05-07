@@ -89,7 +89,7 @@ public class InstagramParser
 			while(feedIterator.hasNext())
 			{
 				Feature f = new Feature();
-				f.setProperties(feedIterator.next());
+				f.assignProperties(feedIterator.next());
 				featureList.add(f);
 			}
 		}
@@ -112,7 +112,7 @@ public class InstagramParser
 		{
 			Feature f = new Feature();
 			MediaFeedData feeddata = feed.getData();
-			f.setProperties(feeddata);
+			f.assignProperties(feeddata);
 			return f;
 		}
 		return null;
