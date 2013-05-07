@@ -35,6 +35,7 @@ import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData.FilePart;
 import models.*;
 import models.geometry.Geometry;
+import models.geometry.Point;
 
 /**
  * @author Richard Nesnass
@@ -116,7 +117,7 @@ public class Features extends Controller
 		if(allFeaturesWithinBounds.size() == 0)
 			return allFeaturesWithinBounds;
 		
-		Geometry sourceGeometry = new Geometry(midpoint[1], midpoint[0]);
+		Point sourceGeometry = new Point(midpoint[1], midpoint[0]);
 		Feature source = new Feature(sourceGeometry);
 
 		// Retrieve the list of closest features to the source, add to it the Instagram found closest also
@@ -159,7 +160,7 @@ public class Features extends Controller
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lat, lng, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER));
+			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER*100));
 			featuresInRadius.addAll(instaPOIs);
 			// *************   Should this list be sorted by distance?
 		}
