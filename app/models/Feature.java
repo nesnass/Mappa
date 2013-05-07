@@ -14,6 +14,7 @@ import org.jinstagram.entity.users.feed.MediaFeedData;
 import helpers.GeoCalculations;
 import helpers.MyConstants;
 import models.geometry.Geometry;
+import models.geometry.Point;
 import parsers.TwitterParser;
 import play.data.validation.*;
 import play.db.ebean.Model;
@@ -33,7 +34,7 @@ public class Feature extends Model implements Comparator<Feature>
 	public long id;
 
 	@Embedded()
-	public Geometry featureGeometry;
+	public Point featureGeometry;
 
 	@ManyToOne()
 	public MUser featureUser;
@@ -88,9 +89,9 @@ public class Feature extends Model implements Comparator<Feature>
 	}
 	
 	// Construct a new feature given Geometry
-	public Feature(Geometry geometry) {
+	public Feature(Point point) {
 		this();
-		this.featureGeometry = geometry;
+		this.featureGeometry = point;
 	}
 	
 	// Construct a new feature given a JSON node
@@ -104,7 +105,11 @@ public class Feature extends Model implements Comparator<Feature>
 	{
 		// Set relations
 		if(this.featureGeometry == null)
-			this.featureGeometry = new Geometry(featureNode.get("geometry"));
+		{
+			//this.featureGeometry = new Geometry(featureNode.get("geometry"));
+			
+			this.featureGeometry = new Point(featureNode.get("geometry"));
+		}
 		else
 			this.featureGeometry.setProperties(featureNode.get("geometry"));
 		this.featureSession = Session.find.byId(featureNode.get("properties").get("session_id").asLong());
@@ -175,7 +180,7 @@ public class Feature extends Model implements Comparator<Feature>
 	{
 		// Set regular parameters
 		if(this.featureGeometry == null)
-			this.featureGeometry = new Geometry(jInstagramMedia.getLocation());
+			this.featureGeometry = new Point(jInstagramMedia.getLocation());
 		else
 			this.featureGeometry.setProperties(jInstagramMedia.getLocation());
 		this.type = "INSTAGRAM";
@@ -254,16 +259,16 @@ public class Feature extends Model implements Comparator<Feature>
 	
 	// Uses Pythagoras to calculate the distance apart in terms of coordinates 
 	public double getDistance(Feature other) {
-		final double dx = this.featureGeometry.coordinate_0-other.featureGeometry.coordinate_0; 
-        final double dy = this.featureGeometry.coordinate_1-other.featureGeometry.coordinate_1;
+		final double dx = this.featureGeometry.lng-other.featureGeometry.lng; 
+        final double dy = this.featureGeometry.lat-other.featureGeometry.lat;
         return Math.sqrt(dx*dx + dy*dy);
 	}
 	
 	// Uses Haversine formula to calculate the distance apart in terms of coordinates 
 	public double getHaversineDistance(Feature other)
 	{
-		return GeoCalculations.haversine(this.featureGeometry.coordinate_1, this.featureGeometry.coordinate_0,
-										other.featureGeometry.coordinate_1, other.featureGeometry.coordinate_0);
+		return GeoCalculations.haversine(this.featureGeometry.lat, this.featureGeometry.lng,
+										other.featureGeometry.lat, other.featureGeometry.lng);
 	}
 
 	// Currently using Haversine formula for comparison
@@ -293,8 +298,8 @@ public class Feature extends Model implements Comparator<Feature>
 					"\"type\" : \"Feature\"," +
 					"\"geometry\" : {";
 		jsonString += 		"\"type\" : \"" + this.featureGeometry.type + "\"," +
-							"\"coordinates\" : [" + String.valueOf(this.featureGeometry.coordinate_0) +
-												"," + String.valueOf(this.featureGeometry.coordinate_1) + 
+							"\"coordinates\" : [" + String.valueOf(this.featureGeometry.lng) +
+												"," + String.valueOf(this.featureGeometry.lat) + 
 							"]}" +
 					",\"properties\" : {" +
 							"\"images\" : {" + 

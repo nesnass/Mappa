@@ -18,6 +18,7 @@ import play.mvc.Result;
 
 import models.*;
 import models.geometry.Geometry;
+import models.geometry.Point;
 
 // http://flexjson.sourceforge.net/
 	
@@ -66,8 +67,8 @@ public class TestController extends Controller {
 		if(user != null)
 		{
 			List<Feature> fList = Feature.find.where().eq("featureUser", user).findList();
-			Geometry g = fList.get(0).featureGeometry;
-			return ok(user.toString() + "List length: " + fList.size() + "First Item name: " + fList.get(0).description + "Geom: " + g.coordinate_0);
+			Point g = fList.get(0).featureGeometry;
+			return ok(user.toString() + "List length: " + fList.size() + "First Item name: " + fList.get(0).description + "Geom: " + g.lng);
 		}
 		else {
 			result.put("status", "KO");

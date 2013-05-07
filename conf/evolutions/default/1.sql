@@ -1,10 +1,13 @@
+# --- Created by Ebean DDL
+# To stop Ebean DDL generation, remove this comment and start using Evolutions
+
 # --- !Ups
 
 create table s_feature (
   id                        bigint not null,
-  coordinate_0              float,
-  coordinate_1              float,
-  coordinate_2              float,
+  type                      varchar(255),
+  lng                       float,
+  lat                       float,
   feature_user_id           bigint,
   mapper_user_id            bigint,
   feature_session_id        bigint,
@@ -12,7 +15,6 @@ create table s_feature (
   image_thumbnail_file_id   bigint,
   image_standard_resolution_url varchar(255),
   image_thumbnail_url       varchar(255),
-  type                      varchar(255),
   created_time              timestamp,
   descr_url                 varchar(255),
   description               varchar(255),
