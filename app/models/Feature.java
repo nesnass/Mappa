@@ -62,6 +62,9 @@ public class Feature extends Model implements Comparator<Feature>
 	@Embeddable
 	public class Properties {
 
+/****************************************************
+ * 		These variables should be mapped to the ones above for JSON printing ^
+ */
 		@Transient
 		public MUser user = featureUser;
 
@@ -74,6 +77,8 @@ public class Feature extends Model implements Comparator<Feature>
 		@Transient
 		public Set<Tag> tags = featureTags;
 
+// ***************************************************
+		
 		@Constraints.MaxLength(255)
 		public String imageStandardResolutionURL = "";
 		
