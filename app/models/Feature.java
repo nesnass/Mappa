@@ -2,6 +2,7 @@ package models;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -221,7 +222,7 @@ public class Feature extends Model implements Comparator<Feature>
 		{
 			;
 		}
-		else if(properties.source_type.toString().equals("INSTAGRAM"))
+		else if(properties.source_type.toString().equals("MAPPED_INSTAGRAM"))
 		{
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
@@ -238,7 +239,11 @@ public class Feature extends Model implements Comparator<Feature>
 		{
 			foundTags.add(tagsIteratorFromNode.next().getTextValue());
 		}
-		// Add unique and non-existing tags to the database
+		
+		// Remove existing tags for this feature
+		removeTags();
+		
+		// Add unique / new and non-existing tags to the database
 		Iterator<String> tagsIteratorAllTags = foundTags.iterator();
 		while(tagsIteratorAllTags.hasNext())
 		{
@@ -267,6 +272,17 @@ public class Feature extends Model implements Comparator<Feature>
 		while(tagsIterator.hasNext())
 		{
 			addTag(tagsIterator.next());
+		}
+	}
+	
+	public void removeTags()
+	{
+		// Find tags with references to this feature and others, remove
+		Iterator<Tag> it = featureTags.iterator();
+		while(it.hasNext())
+		{
+			it.next().tagFeatures.remove(this);
+			it.remove();
 		}
 	}
 	

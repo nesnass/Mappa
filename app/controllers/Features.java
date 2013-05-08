@@ -269,7 +269,7 @@ public class Features extends Controller
 			;
 		}
 		Ebean.save(updatedFeature);
-		return ok();
+		return ok(updatedFeature.toJson());
 	}
 
 	// POST /geo
@@ -326,6 +326,8 @@ public class Features extends Controller
 					FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
 					newFeature.imageStandardResolutionFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
 					newFeature.imageThumbnailFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, newFeature.imageStandardResolutionFile.getUuid());
+					newFeature.properties.imageStandardResolutionURL = newFeature.imageStandardResolutionFile.getUrlAsString();
+					newFeature.properties.imageThumbnailURL = newFeature.imageThumbnailFile.getUrlAsString();
 				}
 			}
 			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
