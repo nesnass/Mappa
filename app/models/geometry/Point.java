@@ -8,6 +8,8 @@ import javax.persistence.Transient;
 import org.codehaus.jackson.JsonNode;
 import org.jinstagram.entity.common.Location;
 
+import flexjson.JSON;
+
 import play.db.ebean.Model;
 
 @Embeddable
@@ -17,23 +19,24 @@ public class Point extends Model {
 	@GeneratedValue
 	private long id;
 	
-	public String gtype = "Point";
+	private String gtype = "Point";
 	private double lng;
 	private double lat;
-
+	
 	@Transient
 	private double[] coordinates;
 
 	private static final long serialVersionUID = 3913464290289955353L;
 
 	public Point() {
+		coordinates = new double[2];
 	}
 
 	public Point(double lng, double lat) {
 		this();
 		this.lng = lng;
 		this.lat = lat;
-		coordinates = new double[2];
+		
 		coordinates[0] = lng;
 		coordinates[1] = lat;
 	}
@@ -46,6 +49,28 @@ public class Point extends Model {
 	public Point(Location location) {
 		this();
 		assignProperties(location);
+	}
+
+	public String getType() {
+		return gtype;
+	}
+	
+	@JSON(include=false)
+	public double getLng() {
+		return lng;
+	}
+
+	public void setLng(double lng) {
+		this.lng = lng;
+	}
+
+	@JSON(include=false)
+	public double getLat() {
+		return lat;
+	}
+
+	public void setLat(double lat) {
+		this.lat = lat;
 	}
 
 	public void assignProperties(JsonNode pointNode) {
@@ -82,22 +107,6 @@ public class Point extends Model {
 		this.coordinates[0] = lng;
 		this.coordinates[1] = lat;
 		this.coordinates = coordinates;
-	}
-
-	public double getLng() {
-		return lng;
-	}
-
-	public void setLng(double lng) {
-		this.lng = lng;
-	}
-
-	public double getLat() {
-		return lat;
-	}
-
-	public void setLat(double lat) {
-		this.lat = lat;
 	}
 
 	public static Model.Finder<Long, Geometry> find = new Model.Finder<Long, Geometry>(

@@ -21,9 +21,7 @@ create table s_feature (
   description               varchar(255),
   mapper_description        varchar(255),
   icon_url                  varchar(255),
-  name                      varchar(255),
-  source_type               integer,
-  constraint ck_s_feature_source_type check (source_type in (0,1,2)),
+  source_type               varchar(255),
   constraint pk_s_feature primary key (id))
 ;
 
@@ -32,8 +30,8 @@ create table s_user (
   facebook_id               bigint,
   full_name                 varchar(255),
   profile_picture           varchar(255),
-  location_0                bigint,
-  location_1                bigint,
+  lng                       float,
+  lat                       float,
   constraint pk_s_user primary key (id))
 ;
 

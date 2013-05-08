@@ -3,6 +3,11 @@ package models;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.*;
+
+import flexjson.JSON;
+import flexjson.JSONSerializer;
+
+import models.geometry.Point;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
@@ -29,9 +34,11 @@ public class MUser extends Model
 	@Constraints.MaxLength(255)
 	public String profile_picture;
 	
-	public long location_0;
-	
-	public long location_1;
+	private double lng;
+	private double lat;
+
+	@Transient
+	private double[] location = new double[2];
 	
 	@OneToMany(mappedBy="featureUser", cascade=CascadeType.ALL)
 	public List<Feature> userFeatures = new ArrayList<Feature>();
@@ -56,6 +63,30 @@ public class MUser extends Model
 		this.profile_picture = profile_picture;
 	}
 	
+	@JSON(include=true)
+	public double[] getLocation() {
+		location[0] = lng;
+		location[1] = lat;
+		return location;
+	}
+	
+	@JSON(include=false)
+	public double getLng() {
+		return lng;
+	}
+	@JSON(include=false)
+	public double getLat() {
+		return lat;
+	}
+
+	public void setLat(double lat) {
+		this.lat = lat;
+	}
+
+	public void setLng(double lng) {
+		this.lng = lng;
+	}
+
 	public static Model.Finder<Long, MUser> find =  new Model.Finder<Long, MUser>(Long.class, MUser.class);
 	
 	public static List<MUser> all() {
@@ -70,7 +101,10 @@ public class MUser extends Model
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
 	public String toJson()
 	{
-		String jsonString = 
+		return "";
+	}
+        
+/*		String jsonString = 
 				
 			"{ \"location\" : [" + String.valueOf(this.location_0) +
 							"," + String.valueOf(this.location_1) +
@@ -78,6 +112,7 @@ public class MUser extends Model
 						"\",\"full_name\" : \"" + this.full_name + "\"}";
 
 		return jsonString;
-	}
+*/
+	
 
 }

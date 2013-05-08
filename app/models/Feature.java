@@ -12,6 +12,7 @@ import javax.persistence.*;
 import org.codehaus.jackson.JsonNode;
 import org.jinstagram.entity.users.feed.MediaFeedData;
 
+import flexjson.JSON;
 import flexjson.JSONSerializer;
 import helpers.GeoCalculations;
 import helpers.MyConstants;
@@ -59,23 +60,52 @@ public class Feature extends Model implements Comparator<Feature>
 	@Embedded()
 	public Properties properties;
 
+	public String accessfeatureUser() {
+		return featureUser.full_name;
+	}
+	
 	@Embeddable
 	public class Properties {
 
 /****************************************************
- * 		These variables should be mapped to the ones above for JSON printing ^
+ * 		These non-persisted variables are mapped to the ones above for JSON printing ^
  */
 		@Transient
-		public MUser user = featureUser;
-
+		private Feature myParent;
+		
 		@Transient
-		public MUser mapper = featureMapper;
-
+		private long id;
+		
 		@Transient
-		public Session session = featureSession;
-
+		private MUser user;
+		public MUser getUser() { return user; }
+		public void setUser(MUser u) { user = u; }
+		
 		@Transient
-		public Set<Tag> tags = featureTags;
+		private MUser mapper;	
+		public MUser getMapper() { return mapper; }
+		public void setMapper(MUser m) { mapper = m; }
+		
+		@Transient
+		private Session session;	
+		public Session getSession() { return session; }
+		public void setSession(Session s) { session = s; }
+		
+		@Transient
+		private Set<Tag> taglist;
+		
+		@JSON(include=true)
+		public String[] getTaglist() {
+			String[] stringTags = new String[taglist.size()];
+			Iterator<Tag> it = taglist.iterator();
+			int i = 0;
+			while(it.hasNext()) {
+				stringTags[i] = it.next().getTag();
+				i++;
+			}
+			return stringTags;
+		}
+		public void setTags(Set<Tag> t) { taglist = t; }
 
 // ***************************************************
 		
@@ -94,6 +124,26 @@ public class Feature extends Model implements Comparator<Feature>
 		@Constraints.MaxLength(255)
 		public String descr_url = "";
 		
+		// Retrieve the icon URL 
+		public String getIcon_url() {
+			if(source_type.equals(MyConstants.FeatureStrings.OVERLAY.toString()))
+				return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/overlay.png";
+			else if(source_type.equals( MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
+				return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+			else if(source_type.equals( MyConstants.FeatureStrings.INSTAGRAM.toString()))
+				return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+			else return "";
+		}
+		
+		// Retrieve the description URL
+		public String getDescription_url() {
+			return MyConstants.FEATURE_SERVER_NAME_PORT + "/content/" + String.valueOf(id);
+		}
+		
+		public String getName() {
+			return description.length() < 22 ? description : description.substring(0, 22);
+		}
+		
 		@Constraints.MaxLength(255)
 		public String description = "";
 		
@@ -103,11 +153,8 @@ public class Feature extends Model implements Comparator<Feature>
 		@Constraints.MaxLength(255)
 		public String icon_url = "";
 
-		@Constraints.MaxLength(255)
-		public String name = "";
-
 		@Constraints.MaxLength(30)
-		public MyConstants.FeatureStrings source_type = MyConstants.FeatureStrings.OVERLAY;
+		public String source_type = MyConstants.FeatureStrings.OVERLAY.toString();
 	}
 
 	public Feature() {
@@ -145,9 +192,9 @@ public class Feature extends Model implements Comparator<Feature>
 		if(featureSession == null) {
 			Session newSession = new Session();
 
-			newSession.facebook_group_id = 0;
-			newSession.stitle = "Test Session Title";
-			newSession.sdescription = "Test session Description";
+			newSession.setFacebook_group_id(0);
+			newSession.setTitle( "Test Session Title" );
+			newSession.setDescription( "Test session Description" );
 			newSession.save();
 
 			featureSession = newSession;
@@ -159,33 +206,31 @@ public class Feature extends Model implements Comparator<Feature>
 
 		String source = featureNode.get("properties").get("source_type").asText();
 		if (source.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
-			properties.source_type = MyConstants.FeatureStrings.OVERLAY;
+			properties.source_type = MyConstants.FeatureStrings.OVERLAY.toString();
 		else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-			properties.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM;
+			properties.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString();
 		//this.name = featureNode.get("properties").path("name").getTextValue();
 
 		Set<String> foundTags = new HashSet<String>();
 		// Set source dependent parameters
-		switch(properties.source_type)
+		if(properties.source_type.toString().equals("OVERLAY"))
 		{
-		case OVERLAY :
 			foundTags = TwitterParser.searchHashTags(properties.description);
-			break;
-
-		case INSTAGRAM:
-			break;
-
-		case MAPPED_INSTAGRAM:
+		}
+		else if(properties.source_type.toString().equals("INSTAGRAM"))
+		{
+			;
+		}
+		else if(properties.source_type.toString().equals("INSTAGRAM"))
+		{
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
 			properties.icon_url = MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
 			foundTags = TwitterParser.searchHashTags(properties.mapper_description);
 
 			// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
-
-			break;
 		}
-
+		
 		// Set the Tag references, if any tags exist
 		// Look through the description for tags
 		Iterator<JsonNode> tagsIteratorFromNode = featureNode.get("properties").path("tags").iterator();
@@ -212,16 +257,11 @@ public class Feature extends Model implements Comparator<Feature>
 			geometry.assignProperties(jInstagramMedia.getLocation());
 		properties.type = "INSTAGRAM";
 		properties.description = jInstagramMedia.getCaption().getText();
-		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM;
+		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();
 		properties.imageThumbnailURL = jInstagramMedia.getImages().getThumbnail().getImageUrl();
 		properties.imageStandardResolutionURL = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
-		SimpleDateFormat sdf = new SimpleDateFormat();
-		try {
-			properties.created_time.setTime(sdf.parse(jInstagramMedia.getCreatedTime()).getTime());
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		properties.created_time.setTime(Long.parseLong(jInstagramMedia.getCreatedTime()));
+
 		// Set the Tag references, if any tags exist
 		Iterator<String> tagsIterator = jInstagramMedia.getTags().iterator();
 		while(tagsIterator.hasNext())
@@ -255,23 +295,7 @@ public class Feature extends Model implements Comparator<Feature>
 	
 	public String toString()
 	{
-		return properties.name;
-	}
-	
-	// Retrieve the icon URL 
-	public String getIconURL() {
-		if(properties.source_type == MyConstants.FeatureStrings.OVERLAY)
-			return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/overlay.png";
-		else if(properties.source_type == MyConstants.FeatureStrings.MAPPED_INSTAGRAM)
-			return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
-		else if(properties.source_type == MyConstants.FeatureStrings.INSTAGRAM)
-			return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
-		else return "";
-	}
-	
-	// Retrieve the description URL
-	public String getDescriptionURL() {
-		return MyConstants.FEATURE_SERVER_NAME_PORT + "/content/" + this.id;
+		return properties.description;
 	}
 	
 	// Uses Pythagoras to calculate the distance apart in terms of coordinates 
@@ -298,50 +322,25 @@ public class Feature extends Model implements Comparator<Feature>
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
 	public String toJson()
 	{
-		JSONSerializer serializer = new JSONSerializer();
-        return serializer.exclude("*.class").include("coordinates").exclude("lat").exclude("lng").exclude("imageStandardResolutionFile").exclude("imageThumbnailFile").serialize( this );
-        
-        
-/*		// Get the listing of tags for this feature
-		String tagJson = "[";
-		Iterator<Tag> it = featureTags.iterator();
-		while(it.hasNext())
-		{
-			tagJson += "\"" + it.next().tag + "\"";
-			if(it.hasNext())
-				tagJson+= ",";
-		}
-		tagJson +="]";
+		properties.setUser(this.featureUser);
+		properties.setMapper(this.featureMapper);
+		properties.setSession(this.featureSession);
+		properties.setTags(this.featureTags);
+		properties.id = this.id;
 		
-		String jsonString = 
-			"{" +
-					"\"id\" : \"" + String.valueOf(this.id) + "\"," +
-					"\"type\" : \"Feature\"," +
-					"\"geometry\" : {";
-		jsonString += 		"\"type\" : \"" + this.featureGeometry.gtype + "\"," +
-							"\"coordinates\" : [" + String.valueOf(this.featureGeometry.lng) +
-												"," + String.valueOf(this.featureGeometry.lat) + 
-							"]}" +
-					",\"properties\" : {" +
-							"\"images\" : {" + 
-									"\"thumbnail\" : \"" + this.imageThumbnailURL +
-									"\",\"high_resolution\" : \"" + this.imageStandardResolutionURL +
-									"\",\"standard_resolution\" : \"" + this.imageStandardResolutionURL +
-							"\"}"; 
-		jsonString += 		",\"created_time\" : " + String.valueOf(this.created_time.getTime()/1000);
-		jsonString += 		",\"source_type\" : \"" + this.source_type +
-							"\",\"icon_url\" : \"" + this.getIconURL() +
-							"\",\"desc_url\" : \"" + this.getDescriptionURL() +
-							"\",\"description\" : \"" + this.description +
-							"\",\"name\" : \"" + "(name stub)";    // Is this supplied when a feature is created?
-	//	jsonString += 					"\",\"seesion_id\" : \"" + String.valueOf(this.featureSession.id);   // This should be removed and session sub key referred to instead. Deliberate spelling error to match!
-		jsonString += 					"\",\"session\" : " + this.featureSession.toJson();
-		jsonString += 					",\"user\" : " + this.featureUser.toJson();
-		jsonString += 					",\"tags\" : " + tagJson +
-					"}" +
-			"}";
+		JSONSerializer serializer = new JSONSerializer();
+        return serializer
+        		.exclude("*.class")
+        		.include("geometry.coordinates")
+        		.exclude("geometry.lat")
+        		.exclude("geometry.lng")
+        		.exclude("featureUser")
+        		.exclude("featureMapper")
+        		.exclude("featureSession")
+        		.exclude("featureTags")
+        		.exclude("imageStandardResolutionFile")
+        		.exclude("imageThumbnailFile")
+        		.serialize( this );
 
-		return jsonString;
-		*/
 	}
 }

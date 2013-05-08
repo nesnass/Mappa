@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import flexjson.JSONSerializer;
+
 import models.Feature;
 
 
@@ -14,7 +16,7 @@ import models.Feature;
 
 public class FeatureCollection {
 	public  String type = "FeatureCollection";
-	private ArrayList<Feature> features;
+	public ArrayList<Feature> features;
 	
 	public FeatureCollection() {
 		this.features = new ArrayList<Feature>();
@@ -37,7 +39,7 @@ public class FeatureCollection {
 	}
 	
 	public String toJson()
-	{
+	{ 
 		Iterator<Feature> it = features.iterator();
 		Feature f = null;
 		String jsonString = "{\"type\" : \"FeatureCollection\",\"features\":[";

@@ -21,13 +21,13 @@ public class Session extends Model
 	@GeneratedValue
 	public long id;
 	
-	public long facebook_group_id;
+	private long facebook_group_id;
 	
 	@Constraints.MaxLength(255)
-	public String stitle;
+	private String stitle;
 	
 	@Constraints.MaxLength(255)
-	public String sdescription;	
+	private String sdescription;	
 	
 	public static Model.Finder<Long, Session> find = new Model.Finder<Long, Session>(Long.class, Session.class);
 
@@ -38,16 +38,40 @@ public class Session extends Model
 	public Session(JsonNode session)
 	{
 		this();
-		setProperties(session);
+		assignProperties(session);
 	}
 	
-	public void setProperties(JsonNode session)
+	public void assignProperties(JsonNode session)
 	{
 		facebook_group_id = session.get("facebook_group_id").asLong();
 		stitle = session.get("title").asText();
 		sdescription = session.get("description").asText();
 	}
 	
+	public long getFacebook_group_id() {
+		return facebook_group_id;
+	}
+
+	public void setFacebook_group_id(long facebook_group_id) {
+		this.facebook_group_id = facebook_group_id;
+	}
+
+	public String getTitle() {
+		return stitle;
+	}
+
+	public void setTitle(String stitle) {
+		this.stitle = stitle;
+	}
+
+	public String getDescription() {
+		return sdescription;
+	}
+
+	public void setDescription(String sdescription) {
+		this.sdescription = sdescription;
+	}
+
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
 	public String toJson()
 	{

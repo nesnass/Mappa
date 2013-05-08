@@ -61,8 +61,12 @@ public class Features extends Controller
 	public static Result getGeoFeaturesByTag(String hashTag)
 	{
 		Tag foundTag = Tag.find.fetch("tagFeatures").where().eq("tag", hashTag).findUnique();
-		FeatureCollection featureCollection = new FeatureCollection(foundTag.tagFeatures);
-		return ok(featureCollection.toJson());
+		if(foundTag != null) {
+			FeatureCollection featureCollection = new FeatureCollection(foundTag.tagFeatures);
+			return ok(featureCollection.toJson());
+		}
+		else
+			return ok("POI Not Found");
 	}
 	
 	
@@ -79,7 +83,7 @@ public class Features extends Controller
 	public static Result getFeatureById(long id) {
 		Feature feature = Feature.find.byId(id);
 		if (feature == null) {
-			return ok("POI Not found");
+			return ok("POI Not Found");
 		}
 		return ok(feature.toJson());
 	}
@@ -291,8 +295,8 @@ public class Features extends Controller
 		if(user == null && facebook_id != 0)
 		{
 			user = new MUser(facebook_id, featureNode.get("properties").get("user").get("full_name").asText());
-			user.location_0 = featureNode.get("properties").get("user").get("location").get(0).asLong();
-			user.location_1 = featureNode.get("properties").get("user").get("location").get(1).asLong();
+			user.setLng( featureNode.get("properties").get("user").get("location").get(0).asLong() );
+			user.setLat( featureNode.get("properties").get("user").get("location").get(1).asLong() );
 		}
 
 		try {
@@ -322,8 +326,8 @@ public class Features extends Controller
 				if(mapperUser == null && mapper_id != 0)
 				{
 					mapperUser = new MUser(mapper_id, featureNode.get("properties").get("mapper").get("full_name").asText());
-					mapperUser.location_0 = featureNode.get("properties").get("mapper").get("location").get(0).asLong();
-					mapperUser.location_1 = featureNode.get("properties").get("mapper").get("location").get(1).asLong();
+					mapperUser.setLng( featureNode.get("properties").get("mapper").get("location").get(0).asLong() );
+					mapperUser.setLat( featureNode.get("properties").get("mapper").get("location").get(1).asLong() );
 				}
 
 				// Set the mapperUser reference

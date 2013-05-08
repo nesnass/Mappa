@@ -19,18 +19,18 @@ public class Contents extends Controller
 			return ok("This POI does not exist anymore.");
 		} else {
 
-	/*		String decString = feature.description;
+			String decString = feature.properties.description;
 
 			decString = decString.replaceAll("^\"|\"$", "");
 			String description = TwitterParser.parse(decString, "Overlay");
 			String image = "";
 			MUser user = new MUser();
 
-			if (feature.imageStandardResolutionURL != "")
+			if (feature.properties.imageStandardResolutionURL != "")
 			{
 				image = "<div id=\"image-holder\"> "
 						+ "<img src="
-						+ feature.imageStandardResolutionURL
+						+ feature.properties.imageStandardResolutionURL
 						+ " alt=\"Smiley face\"  width=\"612\" > " + "</div> ";
 			}
 			
@@ -39,7 +39,7 @@ public class Contents extends Controller
 				user.id = feature.featureUser.facebook_id;
 				user.full_name = feature.featureUser.full_name;	
 			}
-		*/	return ok();
+			return ok();
 		}
 	}
 	
@@ -48,7 +48,10 @@ public class Contents extends Controller
 	{
 		Feature feature;
 		feature = InstagramParser.getInstaByMediaId(id);
-		return ok(feature.toJson());	
+		if(feature != null)
+			return ok(feature.toJson());
+		else
+			return ok("POI Not Found");
 	}
 	
 

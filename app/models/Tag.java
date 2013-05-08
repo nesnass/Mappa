@@ -24,7 +24,7 @@ public class Tag extends Model
 
 	@Constraints.MaxLength(50)
 	@Column(unique=true)
-	public String tag;
+	private String tag;
 
 	@ManyToMany(cascade=CascadeType.ALL)
 	public Set<Feature> tagFeatures = new HashSet<Feature>();
@@ -40,6 +40,14 @@ public class Tag extends Model
 		this.tag = tag;
 	}
 	
+	public String getTag() {
+		return tag;
+	}
+
+	public void setTag(String tag) {
+		this.tag = tag;
+	}
+
 	public static Finder<Long, Tag> find = new Finder<Long, Tag>(Long.class, Tag.class);
 	
     public static List<Tag> all() {
