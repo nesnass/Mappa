@@ -114,8 +114,8 @@ public class Features extends Controller
 		}
 		
 		List<Feature> allFeaturesWithinBounds = Feature.find.fetch("featureSession").where()
-				.between("featureGeometry.coordinate_0", lng1, lng2)
-				.between("featureGeometry.coordinate_1", lat1, lat2)
+				.between("lng", lng1, lng2)
+				.between("lat", lat1, lat2)
 				.findList();
 
 		if(allFeaturesWithinBounds.size() == 0)
@@ -131,8 +131,13 @@ public class Features extends Controller
 	
 	// GET /geo/box/
 	// ******* Needs further testing to confirm reliable results ********
-	public static Result getGeoFeaturesInBoundingBox(double lng1, double lat1, double lng2, double lat2)
+	public static Result getGeoFeaturesInBoundingBox(String ln1, String la1, String ln2, String la2)
 	{	
+		double lng1 = Double.parseDouble(ln1);
+		double lat1 = Double.parseDouble(la1);
+		double lng2 = Double.parseDouble(ln2);
+		double lat2 = Double.parseDouble(la2);
+		
 		// Create a reference to the center of the bounding box by getting a midpoint
 		double midpoint[] = GeoCalculations.midpointCoordsFromStartEndCoords(lat1, lng1, lat2, lng2);
 		// Calculate the radius for a circle containing the bounding box
@@ -149,8 +154,12 @@ public class Features extends Controller
 	// GET /geo/radius/:lng/:lat/:radiusInMeters
 	// *********  There is no 'near' call within the EBean implementation, so we call search by forming an outer-bounding box, 
 	// *********  then search within it using circular radius
-	public static Result getFeaturesInRadius(double lng, double lat, double radius)
+	public static Result getFeaturesInRadius(String ln, String la, String rad)
 	{
+		double lng = Double.parseDouble(ln);
+		double lat = Double.parseDouble(la);
+		double radius = Double.parseDouble(rad);
+		
 		double outerBoxHypetnuse = Math.sqrt(((radius*MyConstants.RADIUS_MULTIPLIER)*(radius*MyConstants.RADIUS_MULTIPLIER))*2);
 		double lowBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 315, outerBoxHypetnuse);    	// Top left corner
 		double highBound[] = GeoCalculations.destinationCoordsFromDistance(lat, lng, 135, outerBoxHypetnuse);		// Bottom right corner
@@ -179,8 +188,11 @@ public class Features extends Controller
 	
 	
 	// GET /geo/recent/:lng/:lat
-	public static Result getMostRecentGeoFeatures(double lng, double lat)
+	public static Result getMostRecentGeoFeatures(String ln, String la)
 	{
+		double lng = Double.parseDouble(ln);
+		double lat = Double.parseDouble(la);
+		
 		// ******** Thinking this should do a radius search first for the given lat / lng, then display the most recent? ********
 		
 		// Find all features Limited to nearest 18

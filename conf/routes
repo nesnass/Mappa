@@ -54,9 +54,9 @@ GET				/user/:userID										controllers.Features.getGeoFeaturesByUser(userID:S
 GET				/search/:hashTag			 						controllers.Features.getGeoFeaturesByTag(hashTag:String)
 GET				/geo												controllers.Features.getAllGeoFeautres()
 GET				/geo/:id											controllers.Features.getFeatureById(id:Long)
-GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:Double, lat1:Double, lng2:Double, lat2:Double)
-GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:Double, lat:Double, radiusInMeters:Double)
-GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeatures(lng:Double, lat:Double)
+GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:String, lat1:String, lng2:String, lat2:String)
+GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:String, lat:String, radiusInMeters:String)
+GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeatures(lng:String, lat:String)
 
 
 #####	Geo Content
