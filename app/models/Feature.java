@@ -115,7 +115,7 @@ public class Feature extends Model implements Comparator<Feature>
 		private Set<Tag> taglist;
 		
 		@JSON(include=true)
-		public String[] getTaglist() {
+		public String[] getTag() {
 			String[] stringTags = new String[taglist.size()];
 			Iterator<Tag> it = taglist.iterator();
 			int i = 0;

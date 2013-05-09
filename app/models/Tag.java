@@ -6,6 +6,8 @@ import java.util.Set;
 import play.db.ebean.*;
 import javax.persistence.*;
 
+import flexjson.JSON;
+
 import play.data.validation.Constraints;
 
 /**
@@ -40,6 +42,11 @@ public class Tag extends Model
 		this.tag = tag;
 	}
 	
+	public String toString() {
+		return tag;
+	}
+	
+	@JSON(include=false)
 	public String getTag() {
 		return tag;
 	}
