@@ -26,11 +26,11 @@ public class Contents extends Controller
 			String image = "";
 			MUser user = new MUser();
 
-			if (feature.properties.imageStandardResolutionURL != "")
+			if (feature.retrieveImages().standard_resolution != "")
 			{
 				image = "<div id=\"image-holder\"> "
 						+ "<img src="
-						+ feature.properties.imageStandardResolutionURL
+						+ feature.retrieveImages().standard_resolution
 						+ " alt=\"Smiley face\"  width=\"612\" > " + "</div> ";
 			}
 			

@@ -13,8 +13,6 @@ create table s_feature (
   lat                       float,
   image_standard_resolution_file_id bigint,
   image_thumbnail_file_id   bigint,
-  image_standard_resolution_url varchar(255),
-  image_thumbnail_url       varchar(255),
   type                      varchar(255),
   created_time              timestamp,
   descr_url                 varchar(255),
@@ -22,6 +20,8 @@ create table s_feature (
   mapper_description        varchar(255),
   icon_url                  varchar(255),
   source_type               varchar(255),
+  standard_resolution       varchar(255),
+  thumbnail                 varchar(255),
   constraint pk_s_feature primary key (id))
 ;
 

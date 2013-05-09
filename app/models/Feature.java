@@ -61,13 +61,27 @@ public class Feature extends Model implements Comparator<Feature>
 	@Embedded()
 	public Properties properties;
 
+	@Embedded()
+	private Images images;
+	
 	public String accessfeatureUser() {
 		return featureUser.full_name;
 	}
 	
 	@Embeddable
-	public class Properties {
-
+	public class Images 
+	{
+		@Constraints.MaxLength(255)
+		public String standard_resolution = "";
+		
+		@Constraints.MaxLength(255)
+		public String thumbnail = "";
+	}
+	
+	@Embeddable
+	public class Properties
+	{	
+		
 /****************************************************
  * 		These non-persisted variables are mapped to the ones above for JSON printing ^
  */
@@ -77,6 +91,11 @@ public class Feature extends Model implements Comparator<Feature>
 		@Transient
 		private long id;
 		
+		@Transient
+		private Images images;
+		public Images getImages() { return images; }
+		public void setImages(Images images) { this.images = images; }
+
 		@Transient
 		private MUser user;
 		public MUser getUser() { return user; }
@@ -109,19 +128,18 @@ public class Feature extends Model implements Comparator<Feature>
 		public void setTags(Set<Tag> t) { taglist = t; }
 
 // ***************************************************
-		
-		@Constraints.MaxLength(255)
-		public String imageStandardResolutionURL = "";
-		
-		@Constraints.MaxLength(255)
-		public String imageThumbnailURL = "";
 
 		@Constraints.MaxLength(30)
 		public String type = "Feature";
 		
 		@Temporal(TemporalType.TIMESTAMP)
-		public Date created_time;
+		private Date created_time;
 		
+		// Convert Date to Unix timestamp in seconds
+		public long getCreated_time() {
+			return (long) created_time.getTime()/1000;
+		}
+
 		@Constraints.MaxLength(255)
 		public String descr_url = "";
 		
@@ -159,6 +177,7 @@ public class Feature extends Model implements Comparator<Feature>
 	}
 
 	public Feature() {
+		images = this.new Images();
 		properties = this.new Properties();
 		properties.created_time = new Date();
 	}
@@ -263,8 +282,8 @@ public class Feature extends Model implements Comparator<Feature>
 		properties.type = "INSTAGRAM";
 		properties.description = jInstagramMedia.getCaption().getText();
 		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();
-		properties.imageThumbnailURL = jInstagramMedia.getImages().getThumbnail().getImageUrl();
-		properties.imageStandardResolutionURL = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
+		images.thumbnail = jInstagramMedia.getImages().getThumbnail().getImageUrl();
+		images.standard_resolution = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
 		properties.created_time.setTime(Long.parseLong(jInstagramMedia.getCreatedTime()));
 
 		// Set the Tag references, if any tags exist
@@ -275,6 +294,10 @@ public class Feature extends Model implements Comparator<Feature>
 		}
 	}
 	
+	public Images retrieveImages() {
+		return images;
+	}
+
 	public void removeTags()
 	{
 		// Find tags with references to this feature and others, remove
@@ -301,8 +324,8 @@ public class Feature extends Model implements Comparator<Feature>
 	{
 		imageStandardResolutionFile.delete();
 		imageThumbnailFile.delete();
-		properties.imageStandardResolutionURL = "";
-		properties.imageThumbnailURL = "";
+		properties.images.standard_resolution = "";
+		properties.images.thumbnail = "";
 		imageStandardResolutionFile.delete();
 		imageThumbnailFile.delete();
 	}
@@ -342,6 +365,7 @@ public class Feature extends Model implements Comparator<Feature>
 		properties.setMapper(this.featureMapper);
 		properties.setSession(this.featureSession);
 		properties.setTags(this.featureTags);
+		properties.setImages(this.images);
 		properties.id = this.id;
 		
 		JSONSerializer serializer = new JSONSerializer();
