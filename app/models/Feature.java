@@ -233,15 +233,15 @@ public class Feature extends Model implements Comparator<Feature>
 
 		Set<String> foundTags = new HashSet<String>();
 		// Set source dependent parameters
-		if(properties.source_type.toString().equals("OVERLAY"))
+		if(properties.source_type.toString().equals(MyConstants.FeatureStrings.OVERLAY.toString()))
 		{
 			foundTags = TwitterParser.searchHashTags(properties.description);
 		}
-		else if(properties.source_type.toString().equals("INSTAGRAM"))
+		else if(properties.source_type.toString().equals(MyConstants.FeatureStrings.INSTAGRAM.toString()))
 		{
 			;
 		}
-		else if(properties.source_type.toString().equals("MAPPED_INSTAGRAM"))
+		else if(properties.source_type.toString().equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 		{
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();

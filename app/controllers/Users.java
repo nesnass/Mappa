@@ -15,8 +15,7 @@ public class Users extends Controller
 {
 	public static Result fetchGeoFeaturesByUser(String userID)
 	{
-		Long id = new Long(userID);
-		MUser user = MUser.find.byId(id);
+		MUser user = MUser.find.byId(userID);
 		if (user == null) {
 			return ok(toJson(new String[0]));
 		}

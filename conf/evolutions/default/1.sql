@@ -5,8 +5,8 @@
 
 create table s_feature (
   id                        bigint not null,
-  feature_user_id           bigint,
-  feature_mapper_id         bigint,
+  feature_user_id           varchar(255),
+  feature_mapper_id         varchar(255),
   feature_session_id        bigint,
   gtype                     varchar(255),
   lng                       float,
@@ -26,8 +26,7 @@ create table s_feature (
 ;
 
 create table s_user (
-  id                        bigint not null,
-  facebook_id               bigint,
+  id                        varchar(255) not null,
   full_name                 varchar(255),
   profile_picture           varchar(255),
   lng                       float,

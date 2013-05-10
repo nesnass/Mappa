@@ -54,7 +54,7 @@ public class InstagramParser
 	{
 		Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
 		MediaFeed feed = null;
-/*		try {
+		try {
 			switch (queryType)
 			{
 			case RADIUS:
@@ -74,7 +74,7 @@ public class InstagramParser
 			e.printStackTrace();
 			Logger.info("InstagramException: " + e.getMessage() + " " + e.getCause());
 		}
-*/
+
 			return getFeaturesFromFeed(feed);
 	}
 	
@@ -88,8 +88,11 @@ public class InstagramParser
 			Iterator<MediaFeedData> feedIterator = feeds.iterator();
 			while(feedIterator.hasNext())
 			{
+				MediaFeedData mdata = feedIterator.next();
+				MUser user = new MUser(Long.toString(mdata.getUser().getId()), mdata.getUser().getFullName(), mdata.getUser().getProfilePictureUrl());
 				Feature f = new Feature();
-				f.assignProperties(feedIterator.next());
+				f.featureUser = user;
+				f.assignProperties(mdata);
 				featureList.add(f);
 			}
 		}

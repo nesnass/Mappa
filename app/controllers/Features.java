@@ -173,7 +173,7 @@ public class Features extends Controller
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER*100));
+			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER));
 			featuresInRadius.addAll(instaPOIs);
 			// *************   Should this list be sorted by distance?
 		}
@@ -279,7 +279,7 @@ public class Features extends Controller
 		ObjectMapper mapper = new ObjectMapper();
 		FilePart featureFilePart;
 		BufferedReader fileReader;
-		long facebook_id = 0;
+		String id = "";
 		JsonNode featureNode = null;
 		MUser user = null;
 		Feature newFeature = null;
@@ -289,9 +289,9 @@ public class Features extends Controller
 			featureFilePart = ctx().request().body().asMultipartFormData().getFile("feature");
 			fileReader = new BufferedReader(new FileReader(featureFilePart.getFile()));
 			featureNode = mapper.readTree(fileReader);
-			facebook_id = featureNode.get("properties").get("user").get("id").asLong();
+			id = featureNode.get("properties").get("user").get("id").asText();
 			source_type = featureNode.get("properties").get("source_type").asText();
-			user = MUser.find.where().eq("facebook_id", facebook_id).findUnique();
+			user = MUser.find.where().eq("id", id).findUnique();
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -304,11 +304,11 @@ public class Features extends Controller
 		}
 		
 		// User is the facebook user. does not exist in DB, then create it
-		if(user == null && facebook_id != 0)
+		if(user == null && !id.equals(""))
 		{
-			user = new MUser(facebook_id, featureNode.get("properties").get("user").get("full_name").asText());
-			user.setLng( featureNode.get("properties").get("user").get("location").get(0).asLong() );
-			user.setLat( featureNode.get("properties").get("user").get("location").get(1).asLong() );
+			user = new MUser(id, featureNode.get("properties").get("user").get("full_name").asText());
+			user.setLng( featureNode.get("properties").get("user").get("location").get(0).asDouble());
+			user.setLat( featureNode.get("properties").get("user").get("location").get(1).asDouble());
 		}
 
 		try {
@@ -332,16 +332,16 @@ public class Features extends Controller
 			}
 			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			{
-				long mapper_id = 0;
-				mapper_id = featureNode.get("properties").get("mapper").get("id").asLong();
-				MUser mapperUser = MUser.find.where().eq("facebook_id", mapper_id).findUnique();
+				id = "";
+				id = featureNode.get("properties").get("mapper").get("id").asText();
+				MUser mapperUser = MUser.find.where().eq("id", id).findUnique();
 				
 				// User is the Facebook user. does not exist in DB, then create it
-				if(mapperUser == null && mapper_id != 0)
+				if(mapperUser == null && !id.equals(""))
 				{
-					mapperUser = new MUser(mapper_id, featureNode.get("properties").get("mapper").get("full_name").asText());
-					mapperUser.setLng( featureNode.get("properties").get("mapper").get("location").get(0).asLong() );
-					mapperUser.setLat( featureNode.get("properties").get("mapper").get("location").get(1).asLong() );
+					mapperUser = new MUser(id, featureNode.get("properties").get("mapper").get("full_name").asText());
+					mapperUser.setLng( featureNode.get("properties").get("mapper").get("location").get(0).asDouble() );
+					mapperUser.setLat( featureNode.get("properties").get("mapper").get("location").get(1).asDouble() );
 				}
 
 				// Set the mapperUser reference

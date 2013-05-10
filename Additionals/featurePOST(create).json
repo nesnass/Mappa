@@ -5,7 +5,7 @@
 	"geometry":
 	{
 		"type": "Point",
-		"coordinates": [10.2, 59.2]
+		"coordinates": [10.709696, 59.927087]
 	},
 	"properties":
 	{
@@ -16,6 +16,6 @@
 			"full_name":"Martin Havnør",
 			"location":[10.756731033325195,59.9238826969285]
 		},
-		"description": "This is #first #overlay POI."
+		"description": "Frogner stadium #outside"
 	}
 }

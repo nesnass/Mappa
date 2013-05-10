@@ -23,10 +23,7 @@ public class MUser extends Model
 	private static final long serialVersionUID = 7448411543574042349L;
 
 	@Id
-	@GeneratedValue
-	public long id;
-	
-	public long facebook_id;
+	private String id;
 	
 	@Constraints.MaxLength(255)
 	public String full_name;
@@ -52,19 +49,29 @@ public class MUser extends Model
 		this.full_name = full_name;
 	}
 	
-	public MUser(long fbid, String full_name) {	
+	public MUser(String id, String full_name) {	
 		this();
-		this.facebook_id = fbid;
+		this.id = id;
 		this.full_name = full_name;
 	}
 	
-	public MUser(long fbid, String full_name, String profile_picture) {	
-		this(fbid, full_name);
+	public MUser(String id, String full_name, String profile_picture) {	
+		this(id, full_name);
 		this.profile_picture = profile_picture;
 	}
 	
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	@JSON(include=true)
 	public double[] getLocation() {
+		if(lat == 0 && lng == 0)
+			return null;
 		location[0] = lng;
 		location[1] = lat;
 		return location;
@@ -87,7 +94,7 @@ public class MUser extends Model
 		this.lng = lng;
 	}
 
-	public static Model.Finder<Long, MUser> find =  new Model.Finder<Long, MUser>(Long.class, MUser.class);
+	public static Model.Finder<String, MUser> find =  new Model.Finder<String, MUser>(String.class, MUser.class);
 	
 	public static List<MUser> all() {
 		return find.all();
