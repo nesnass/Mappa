@@ -416,11 +416,11 @@ public class Instagram {
         params.put(QueryParam.LONGITUDE, Double.toString(longitude));
 
         if(maxTimeStamp != null) {
-            params.put(QueryParam.MAX_TIMESTAMP, String.valueOf(maxTimeStamp.getTime()));
+            params.put(QueryParam.MAX_TIMESTAMP, String.valueOf(maxTimeStamp.getTime()/1000 - 5000));
         }
 
         if(minTimeStamp != null) {
-            params.put(QueryParam.MIN_TIMESTAMP, String.valueOf(minTimeStamp.getTime()));
+            params.put(QueryParam.MIN_TIMESTAMP, String.valueOf(minTimeStamp.getTime()/1000 - 5000));
         }
 
         params.put(QueryParam.DISTANCE, String.valueOf(distance));

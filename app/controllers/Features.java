@@ -125,7 +125,7 @@ public class Features extends Controller
 		Feature source = new Feature(sourceGeometry);
 
 		// Retrieve the list of closest features to the source, add to it the Instagram found closest also
-		return sortAndLimitClosestFeaturesToSource(source, allFeaturesWithinBounds, MyConstants.MAX_FEATURES_TO_GET_IN_BOUNDING_BOX);
+		return sortAndLimitClosestFeaturesToSource(source, allFeaturesWithinBounds, MyConstants.MAX_FEATURES_TO_GET);
 	}
 
 	
@@ -144,7 +144,7 @@ public class Features extends Controller
 		int radius = (int) Math.round(GeoCalculations.haversine(lat1, lng1, lat2, lng2))*500; // Radius from diameter, in meters
 
 		List<Feature> closestToSource = getFeaturesClosestToSource(lat1, lng1, lat2, lng2, midpoint);
-		List<Feature> instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.BOUNDING_BOX, midpoint[0], midpoint[1], radius);
+		List<Feature> instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.BOUNDING_BOX, midpoint[0], midpoint[1], radius);
 		closestToSource.addAll(instaPOIs);
 		FeatureCollection collection = new FeatureCollection(closestToSource);
 		return ok(collection.toJson());
@@ -173,7 +173,7 @@ public class Features extends Controller
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER));
+			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RADIUS, lng, lat, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER));
 			featuresInRadius.addAll(instaPOIs);
 			// *************   Should this list be sorted by distance?
 		}
@@ -182,7 +182,7 @@ public class Features extends Controller
 			e.printStackTrace();
 		}
 		FeatureCollection collection = new FeatureCollection(featuresInRadius);
-		Logger.info("FeaturesInRadius:" + collection.toJson());
+//		Logger.info("FeaturesInRadius:" + collection.toJson());
 		return ok(collection.toJson());
 	}
 	
@@ -196,18 +196,18 @@ public class Features extends Controller
 		// ******** Thinking this should do a radius search first for the given lat / lng, then display the most recent? ********
 		
 		// Find all features Limited to nearest 18
-		List<Feature> features = Feature.find.where().orderBy("created_time desc").setMaxRows(MyConstants.MOST_RECENT_FEATURES_TO_GET).findList();
+		List<Feature> features = Feature.find.where().orderBy("created_time desc").setMaxRows(MyConstants.MAX_FEATURES_TO_GET).findList();
 		
 		List<Feature> instaPOIs;
 		try {
-			instaPOIs = InstagramParser.getQuery(InstagramParser.QueryStrings.RECENT, lat, lng, MyConstants.DEFAULT_INSTAGRAM_DISTANCE);
+			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RECENT, lat, lng, MyConstants.DEFAULT_INSTAGRAM_DISTANCE);
 			features.addAll(instaPOIs);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		FeatureCollection collection = new FeatureCollection(features);
-		Logger.info("FeaturesInRadius:" + collection.toJson());
+//		Logger.info("FeaturesInRadius:" + collection.toJson());
 		return ok(collection.toJson());
 	}
 	

@@ -25,24 +25,7 @@ public class InstagramParser
     	.build();
 	 */	
 	
-	
-	public enum QueryStrings
-	{
-	    RADIUS("radius"),
-	    BOUNDING_BOX("bounding_box"),
-	    RECENT("recent");
-	    private final String text;
 
-	    private QueryStrings(final String text)
-	    {
-	        this.text = text;
-	    }
-	    @Override
-	    public String toString()
-	    {
-	        return text;
-	    }
-	}
 	
 	// ********************************************************************************
 	//  *******    New methods using jInstagram library by Sachin Handiekar     *******
@@ -50,7 +33,7 @@ public class InstagramParser
 	//  *******               Calls to Instagram are synchronous                *******
 	
 	// Set up the query
-	public static List<Feature> getQuery(QueryStrings queryType, double latitude, double longitude, int radius)
+	public static List<Feature> getQuery(MyConstants.QueryStrings queryType, double latitude, double longitude, int radius)
 	{
 		Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
 		MediaFeed feed = null;
@@ -72,7 +55,8 @@ public class InstagramParser
 		} catch (InstagramException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			Logger.info("InstagramException: " + e.getMessage() + " " + e.getCause());
+			Logger.info("^ InstagramException: " + e.getMessage() + " " + new Date().toString());
+			return new ArrayList<Feature>();
 		}
 
 			return getFeaturesFromFeed(feed);

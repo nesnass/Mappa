@@ -17,14 +17,16 @@ public class GeoCalculations {
     
     // Returns in degrees - lat2 and lon2 away from lat1 and lon1 given distance and bearing
     // supply: radius in meters, all else in degrees
-    public static double[] destinationCoordsFromDistance(double latOrigin, double lonOrigin, double bearing, double distance) {  // distance in kilometers
-    	distance = distance/1000;
+    public static double[] destinationCoordsFromDistance(double lat, double lon, double bearing, double distance) {  // distance supplied in meters
+    	distance = distance/(R*1000);
     	bearing = Math.toRadians(bearing);
     	double[] destination = new double[2];
-    	latOrigin = Math.toRadians(latOrigin);
-    	lonOrigin = Math.toRadians(lonOrigin);
-    	destination[0] = Math.toDegrees( Math.asin( Math.sin(latOrigin)*Math.cos(distance/R) + Math.cos(latOrigin)*Math.sin(distance/R)*Math.cos(bearing) ) );
-    	destination[1] = Math.toDegrees( lonOrigin + Math.atan2(Math.sin(bearing)*Math.sin(distance/R)*Math.cos(latOrigin), Math.cos(distance/R)-Math.sin(latOrigin)*Math.sin(destination[0]) ) );
+    	lat = Math.toRadians(lat);
+    	lon = Math.toRadians(lon);
+    	destination[0] = Math.asin( Math.sin(lat)*Math.cos(distance) + Math.cos(lat)*Math.sin(distance)*Math.cos(bearing) );
+    	destination[1] = lon + Math.atan2(Math.sin(bearing)*Math.sin(distance)*Math.cos(lat), Math.cos(distance)-Math.sin(lat)*Math.sin(destination[0]) );
+    	destination[0] = Math.toDegrees(destination[0]);
+    	destination[1] = Math.toDegrees(destination[1]); 
     	return destination;
     }
     

@@ -280,7 +280,8 @@ public class Feature extends Model implements Comparator<Feature>
 		else
 			geometry.assignProperties(jInstagramMedia.getLocation());
 		properties.type = "INSTAGRAM";
-		properties.description = jInstagramMedia.getCaption().getText();
+		if(jInstagramMedia.getCaption() != null)
+			properties.description = jInstagramMedia.getCaption().getText();
 		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();
 		images.thumbnail = jInstagramMedia.getImages().getThumbnail().getImageUrl();
 		images.standard_resolution = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
