@@ -53,7 +53,7 @@ PUT				/geo												controllers.Features.updateGeoFeature()
 GET				/user/:userID										controllers.Features.getGeoFeaturesByUser(userID:String)
 GET				/search/:hashTag			 						controllers.Features.getGeoFeaturesByTag(hashTag:String)
 GET				/geo												controllers.Features.getAllGeoFeautres()
-GET				/geo/:id											controllers.Features.getFeatureById(id:Long)
+GET				/geo/:id											controllers.Features.getFeatureById(id:String)
 GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:String, lat1:String, lng2:String, lat2:String)
 GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:String, lat:String, radiusInMeters:String)
 GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeatures(lng:String, lat:String)
@@ -65,10 +65,6 @@ GET				/content/:id										controllers.Contents.contentOfFeature(id:Long)
 GET				/instagram/:id										controllers.Contents.contentOfInstaPOI(id:String)
 
 
-##### External Content
-#GET			/external											controllers.InstagramParser.getPOIs(lon1:String, lat1:String, lon2:String, lat2:String)
-
-
 ##### Mapping Sessions ######
 # Add Session														create a new session with admin_id
 POST     		/session/new          						    	controllers.Sessions.create()
@@ -77,11 +73,6 @@ GET				/session/:id										controllers.Sessions.getSessionById(id:Long)
 #POST     		/session                 						 	controllers.Sessions.save()
 #DELETE			/session/:id/:user_id								controllers.Sessions.delete(id:String, user_id:String)
 #GET			/session/:listing/:group_id							return a listing of groups that have been MAPPA associated
-
-
-
-
-
 
 
 

@@ -99,6 +99,8 @@ public class InstagramParser
 		{
 			Feature f = new Feature();
 			MediaFeedData feeddata = feed.getData();
+			MUser user = new MUser(Long.toString(feeddata.getUser().getId()), feeddata.getUser().getFullName(), feeddata.getUser().getProfilePictureUrl());
+			f.featureUser = user;
 			f.assignProperties(feeddata);
 			return f;
 		}

@@ -38,6 +38,9 @@ public class Feature extends Model implements Comparator<Feature>
 	private long _id;
 	
 	private String origin_id;
+	
+	@Constraints.MaxLength(30)
+	public String type = "Feature";
 
 	@ManyToOne()
 	public MUser featureUser;
@@ -117,7 +120,7 @@ public class Feature extends Model implements Comparator<Feature>
 		private Set<Tag> taglist;
 		
 		@JSON(include=true)
-		public String[] getTag() {
+		public String[] getTags() {
 			String[] stringTags = new String[taglist.size()];
 			Iterator<Tag> it = taglist.iterator();
 			int i = 0;
@@ -130,9 +133,6 @@ public class Feature extends Model implements Comparator<Feature>
 		public void setTags(Set<Tag> t) { taglist = t; }
 
 // ***************************************************
-
-		@Constraints.MaxLength(30)
-		public String type = "Feature";
 		
 		@Temporal(TemporalType.TIMESTAMP)
 		private Date created_time;
@@ -244,7 +244,6 @@ public class Feature extends Model implements Comparator<Feature>
 		}
 
 		// Set regular parameters
-		properties.type = featureNode.get("type").asText();
 		properties.description = featureNode.get("properties").get("description").asText();
 
 		String source = featureNode.get("properties").get("source_type").asText();
@@ -302,7 +301,6 @@ public class Feature extends Model implements Comparator<Feature>
 			geometry = new Point(jInstagramMedia.getLocation());
 		else
 			geometry.assignProperties(jInstagramMedia.getLocation());
-		properties.type = MyConstants.FeatureStrings.INSTAGRAM.toString();
 		if(jInstagramMedia.getCaption() != null)
 			properties.description = jInstagramMedia.getCaption().getText();
 		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();

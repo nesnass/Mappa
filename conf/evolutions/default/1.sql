@@ -6,6 +6,7 @@
 create table s_feature (
   _id                       bigint not null,
   origin_id                 varchar(255),
+  type                      varchar(255),
   feature_user_id           varchar(255),
   feature_mapper_id         varchar(255),
   feature_session_id        bigint,
@@ -14,7 +15,6 @@ create table s_feature (
   lat                       float,
   image_standard_resolution_file_id bigint,
   image_thumbnail_file_id   bigint,
-  type                      varchar(255),
   created_time              timestamp,
   descr_url                 varchar(255),
   description               varchar(255),

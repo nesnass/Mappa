@@ -80,8 +80,8 @@ public class Features extends Controller
 	
 	
 	//  GET /geo/:id
-	public static Result getFeatureById(long id) {
-		Feature feature = Feature.find.byId(id);
+	public static Result getFeatureById(String id) {
+		Feature feature = Feature.find.byId(Long.valueOf(id));
 		if (feature == null) {
 			return ok("POI Not Found");
 		}
