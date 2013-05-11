@@ -161,7 +161,7 @@ public class Feature extends Model implements Comparator<Feature>
 		
 		// Retrieve the description URL
 		public String getDescription_url() {
-			return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/content/" + getId();
+			return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/content/" + origin_id;
 		}
 		
 		public String getName() {

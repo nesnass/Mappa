@@ -11,9 +11,9 @@ public class Contents extends Controller
 {
 	
 	// ******** This method adapted, but seems incomplete??
-	public static Result contentOfFeature(long id)
+	public static Result contentOfFeature(String id)
 	{
-		Feature feature = Feature.find.byId(id);
+		Feature feature = Feature.find.byId(Long.parseLong(id));
 
 		if (feature == null) {
 			return ok("This POI does not exist anymore.");
