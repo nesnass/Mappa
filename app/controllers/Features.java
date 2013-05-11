@@ -47,7 +47,7 @@ public class Features extends Controller
 	// GET /user/:userId
 	public static Result getGeoFeaturesByUser(String userID)
 	{
-		MUser user = MUser.find.where().eq("facebook_id", Long.valueOf(userID)).findUnique();
+		MUser user = MUser.find.where().eq("id", Long.valueOf(userID)).findUnique();
 		if (user == null) {
 			List<String> empty = new ArrayList<String>();
 			return ok(toJson(empty));
@@ -351,6 +351,7 @@ public class Features extends Controller
 
 			// Save the feature in DB, the feature and tag save will cascade from user due to mapping settings
 			Ebean.save(user);
+			newFeature.setOrigin_id();
 		}
 		catch (javax.persistence.PersistenceException e)
 		{

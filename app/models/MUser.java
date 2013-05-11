@@ -5,9 +5,7 @@ import java.util.List;
 import javax.persistence.*;
 
 import flexjson.JSON;
-import flexjson.JSONSerializer;
 
-import models.geometry.Point;
 import play.data.validation.Constraints;
 import play.db.ebean.Model;
 
@@ -110,16 +108,4 @@ public class MUser extends Model
 	{
 		return "";
 	}
-        
-/*		String jsonString = 
-				
-			"{ \"location\" : [" + String.valueOf(this.location_0) +
-							"," + String.valueOf(this.location_1) +
-						"],\"id\" : \"" + String.valueOf(this.facebook_id) +
-						"\",\"full_name\" : \"" + this.full_name + "\"}";
-
-		return jsonString;
-*/
-	
-
 }

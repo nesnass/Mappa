@@ -35,7 +35,9 @@ public class Feature extends Model implements Comparator<Feature>
 	
 	@Id
 	@GeneratedValue
-	public long id;
+	private long _id;
+	
+	private String origin_id;
 
 	@ManyToOne()
 	public MUser featureUser;
@@ -89,7 +91,7 @@ public class Feature extends Model implements Comparator<Feature>
 		private Feature myParent;
 		
 		@Transient
-		private long id;
+		private String origin_id;
 		
 		@Transient
 		private Images images;
@@ -159,7 +161,7 @@ public class Feature extends Model implements Comparator<Feature>
 		
 		// Retrieve the description URL
 		public String getDescription_url() {
-			return MyConstants.FEATURE_SERVER_NAME_PORT + "/content/" + String.valueOf(id);
+			return MyConstants.FEATURE_SERVER_NAME_PORT + "/content/"; // + origin_id;
 		}
 		
 		public String getName() {
@@ -197,6 +199,24 @@ public class Feature extends Model implements Comparator<Feature>
 		assignProperties(featureNode);
 	}
 	
+	@JSON(include=true)
+	public String getId() {
+		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.OVERLAY.toString())) {
+			return String.valueOf(this._id);
+		}
+		else
+			return this.origin_id;
+	}
+
+	@JSON(include=false)
+	public String getOrigin_id() {
+		return origin_id;
+	}
+	
+	public void setOrigin_id() {
+		this.origin_id = String.valueOf(_id);
+	}
+	
 	// Setup by JsonNode object
 	public void assignProperties(JsonNode featureNode)
 	{
@@ -211,7 +231,7 @@ public class Feature extends Model implements Comparator<Feature>
 			geometry.assignProperties(featureNode.get("geometry"));
 		featureSession = Session.find.byId(featureNode.get("properties").path("session_id").asLong());
 
-		// *************  Session should always be supplied in the JSON. This case should be removed when sessions are enabled
+// *************  Session should always be supplied in the JSON. This case should be removed when sessions are enabled
 		if(featureSession == null) {
 			Session newSession = new Session();
 
@@ -282,7 +302,7 @@ public class Feature extends Model implements Comparator<Feature>
 			geometry = new Point(jInstagramMedia.getLocation());
 		else
 			geometry.assignProperties(jInstagramMedia.getLocation());
-		properties.type = "INSTAGRAM";
+		properties.type = MyConstants.FeatureStrings.INSTAGRAM.toString();
 		if(jInstagramMedia.getCaption() != null)
 			properties.description = jInstagramMedia.getCaption().getText();
 		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();
@@ -290,6 +310,7 @@ public class Feature extends Model implements Comparator<Feature>
 		images.standard_resolution = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
 		long tt = Long.parseLong(jInstagramMedia.getCreatedTime());
 		properties.created_time.setTime(tt);
+		this.origin_id = jInstagramMedia.getId();
 
 		// Set the Tag references, if any tags exist
 		Iterator<String> tagsIterator = jInstagramMedia.getTags().iterator();
@@ -366,12 +387,17 @@ public class Feature extends Model implements Comparator<Feature>
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
 	public String toJson()
 	{
+		// Temporary variables inside 'properties' need to be initialised before serialisation
 		properties.setUser(this.featureUser);
 		properties.setMapper(this.featureMapper);
 		properties.setSession(this.featureSession);
 		properties.setTags(this.featureTags);
 		properties.setImages(this.images);
-		properties.id = this.id;
+		if(this.properties.source_type.equals(MyConstants.FeatureStrings.OVERLAY.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString())) {
+			properties.origin_id = String.valueOf(this._id);
+		}
+		else
+			properties.origin_id = this.origin_id;
 		
 		JSONSerializer serializer = new JSONSerializer();
         return serializer

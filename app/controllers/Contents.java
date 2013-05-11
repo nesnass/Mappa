@@ -39,7 +39,7 @@ public class Contents extends Controller
 				user.setId( feature.featureUser.getId() );
 				user.full_name = feature.featureUser.full_name;	
 			}
-			return ok();
+			return ok(image);
 		}
 	}
 	

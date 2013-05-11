@@ -4,7 +4,8 @@
 # --- !Ups
 
 create table s_feature (
-  id                        bigint not null,
+  _id                       bigint not null,
+  origin_id                 varchar(255),
   feature_user_id           varchar(255),
   feature_mapper_id         varchar(255),
   feature_session_id        bigint,
@@ -22,7 +23,7 @@ create table s_feature (
   source_type               varchar(255),
   standard_resolution       varchar(255),
   thumbnail                 varchar(255),
-  constraint pk_s_feature primary key (id))
+  constraint pk_s_feature primary key (_id))
 ;
 
 create table s_user (
@@ -59,15 +60,15 @@ create table s_tag (
 
 
 create table s_feature_tag (
-  s_feature_id                   bigint not null,
+  s_feature__id                  bigint not null,
   s_tag_id                       bigint not null,
-  constraint pk_s_feature_tag primary key (s_feature_id, s_tag_id))
+  constraint pk_s_feature_tag primary key (s_feature__id, s_tag_id))
 ;
 
 create table s_tag_feature (
   s_tag_id                       bigint not null,
-  s_feature_id                   bigint not null,
-  constraint pk_s_tag_feature primary key (s_tag_id, s_feature_id))
+  s_feature__id                  bigint not null,
+  constraint pk_s_tag_feature primary key (s_tag_id, s_feature__id))
 ;
 create sequence s_feature_seq;
 
@@ -92,13 +93,13 @@ create index ix_s_feature_imageThumbnailFil_5 on s_feature (image_thumbnail_file
 
 
 
-alter table s_feature_tag add constraint fk_s_feature_tag_s_feature_01 foreign key (s_feature_id) references s_feature (id);
+alter table s_feature_tag add constraint fk_s_feature_tag_s_feature_01 foreign key (s_feature__id) references s_feature (_id);
 
 alter table s_feature_tag add constraint fk_s_feature_tag_s_tag_02 foreign key (s_tag_id) references s_tag (id);
 
 alter table s_tag_feature add constraint fk_s_tag_feature_s_tag_01 foreign key (s_tag_id) references s_tag (id);
 
-alter table s_tag_feature add constraint fk_s_tag_feature_s_feature_02 foreign key (s_feature_id) references s_feature (id);
+alter table s_tag_feature add constraint fk_s_tag_feature_s_feature_02 foreign key (s_feature__id) references s_feature (_id);
 
 # --- !Downs
 
