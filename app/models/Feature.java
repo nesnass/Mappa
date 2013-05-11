@@ -137,7 +137,10 @@ public class Feature extends Model implements Comparator<Feature>
 		
 		// Convert Date to Unix timestamp in seconds
 		public long getCreated_time() {
-			return (long) created_time.getTime()/1000;
+			if(this.source_type == MyConstants.FeatureStrings.INSTAGRAM.toString())
+				return created_time.getTime();
+			else
+				return created_time.getTime()/1000;
 		}
 
 		@Constraints.MaxLength(255)
@@ -285,7 +288,8 @@ public class Feature extends Model implements Comparator<Feature>
 		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();
 		images.thumbnail = jInstagramMedia.getImages().getThumbnail().getImageUrl();
 		images.standard_resolution = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
-		properties.created_time.setTime(Long.parseLong(jInstagramMedia.getCreatedTime()));
+		long tt = Long.parseLong(jInstagramMedia.getCreatedTime());
+		properties.created_time.setTime(tt);
 
 		// Set the Tag references, if any tags exist
 		Iterator<String> tagsIterator = jInstagramMedia.getTags().iterator();
