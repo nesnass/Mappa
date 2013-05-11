@@ -30,6 +30,7 @@ create table s_user (
   id                        varchar(255) not null,
   full_name                 varchar(255),
   profile_picture           varchar(255),
+  username                  varchar(255),
   lng                       float,
   lat                       float,
   constraint pk_s_user primary key (id))

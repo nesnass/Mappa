@@ -151,17 +151,17 @@ public class Feature extends Model implements Comparator<Feature>
 		// Retrieve the icon URL 
 		public String getIcon_url() {
 			if(source_type.equals(MyConstants.FeatureStrings.OVERLAY.toString()))
-				return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/overlay.png";
+				return MyConstants.OLD_FEATURE_SERVER_NAME_PORT + "/assets/img/overlay.png";
 			else if(source_type.equals( MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-				return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+				return MyConstants.OLD_FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
 			else if(source_type.equals( MyConstants.FeatureStrings.INSTAGRAM.toString()))
-				return MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+				return MyConstants.OLD_FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
 			else return "";
 		}
 		
 		// Retrieve the description URL
 		public String getDescription_url() {
-			return MyConstants.FEATURE_SERVER_NAME_PORT + "/content/"; // + origin_id;
+			return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/content/" + getId();
 		}
 		
 		public String getName() {
@@ -267,7 +267,7 @@ public class Feature extends Model implements Comparator<Feature>
 		{
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
-			properties.icon_url = MyConstants.FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+			properties.icon_url = MyConstants.OLD_FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
 			foundTags = TwitterParser.searchHashTags(properties.mapper_description);
 
 			// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
@@ -303,6 +303,7 @@ public class Feature extends Model implements Comparator<Feature>
 			geometry.assignProperties(jInstagramMedia.getLocation());
 		if(jInstagramMedia.getCaption() != null)
 			properties.description = jInstagramMedia.getCaption().getText();
+		properties.descr_url = MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/instagram/" + jInstagramMedia.getId();
 		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();
 		images.thumbnail = jInstagramMedia.getImages().getThumbnail().getImageUrl();
 		images.standard_resolution = jInstagramMedia.getImages().getStandardResolution().getImageUrl();

@@ -74,6 +74,7 @@ public class InstagramParser
 			{
 				MediaFeedData mdata = feedIterator.next();
 				MUser user = new MUser(Long.toString(mdata.getUser().getId()), mdata.getUser().getFullName(), mdata.getUser().getProfilePictureUrl());
+				user.setUsername(mdata.getUser().getUserName());
 				Feature f = new Feature();
 				f.featureUser = user;
 				f.assignProperties(mdata);
@@ -100,6 +101,7 @@ public class InstagramParser
 			Feature f = new Feature();
 			MediaFeedData feeddata = feed.getData();
 			MUser user = new MUser(Long.toString(feeddata.getUser().getId()), feeddata.getUser().getFullName(), feeddata.getUser().getProfilePictureUrl());
+			user.setUsername(feeddata.getUser().getUserName());
 			f.featureUser = user;
 			f.assignProperties(feeddata);
 			return f;

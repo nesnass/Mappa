@@ -28,6 +28,9 @@ public class MUser extends Model
 	
 	@Constraints.MaxLength(255)
 	public String profile_picture;
+
+	@Constraints.MaxLength(255)
+	private String username;
 	
 	private double lng;
 	private double lat;
@@ -90,6 +93,14 @@ public class MUser extends Model
 
 	public void setLng(double lng) {
 		this.lng = lng;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
 	}
 
 	public static Model.Finder<String, MUser> find =  new Model.Finder<String, MUser>(String.class, MUser.class);

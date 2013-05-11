@@ -47,7 +47,7 @@ public class TwitterParser
 			}
 			else
 			{
-				searchHTML = "<a href=" +  MyConstants.FEATURE_SERVER_NAME_PORT + "/search/" + search + " >" + result + "</a>";
+				searchHTML = "<a href=" +  MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/search/" + search + " >" + result + "</a>";
 			}
 			tweetText = tweetText.replace(result,searchHTML);
 		}
@@ -66,7 +66,7 @@ public class TwitterParser
 				userHTML = "<a href='instagram:/user?username" + rawName + "'>" + result + "</a>";
 			}
 			else {
-				userHTML = "<a href=" + MyConstants.FEATURE_SERVER_NAME_PORT + "/user/"+ rawName +">"  + result + "</a>";
+				userHTML = "<a href=" + MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/user/"+ rawName +">"  + result + "</a>";
 
 			}
 			tweetText = tweetText.replace(result,userHTML);
