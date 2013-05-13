@@ -53,6 +53,8 @@ public class Features extends Controller
 			return ok(toJson(empty));
 		}
 		FeatureCollection features = new FeatureCollection(user.userFeatures);
+		
+		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(features.toJson());
 	}
 	
@@ -63,6 +65,8 @@ public class Features extends Controller
 		Tag foundTag = Tag.find.fetch("tagFeatures").where().eq("tag", hashTag).findUnique();
 		if(foundTag != null) {
 			FeatureCollection featureCollection = new FeatureCollection(foundTag.tagFeatures);
+			
+			response().setContentType("text/html; charset=iso-8859-1");
 			return ok(featureCollection.toJson());
 		}
 		else
@@ -85,6 +89,8 @@ public class Features extends Controller
 		if (feature == null) {
 			return ok("POI Not Found");
 		}
+		
+		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(feature.toJson());
 	}
 	
@@ -147,6 +153,8 @@ public class Features extends Controller
 		List<Feature> instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.BOUNDING_BOX, midpoint[0], midpoint[1], radius);
 		closestToSource.addAll(instaPOIs);
 		FeatureCollection collection = new FeatureCollection(closestToSource);
+		
+		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(collection.toJson());
 	}
 	
@@ -183,6 +191,7 @@ public class Features extends Controller
 		}
 		FeatureCollection collection = new FeatureCollection(featuresInRadius);
 //		Logger.info("FeaturesInRadius:" + collection.toJson());
+		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(collection.toJson());
 	}
 	
@@ -208,6 +217,7 @@ public class Features extends Controller
 		}
 		FeatureCollection collection = new FeatureCollection(features);
 //		Logger.info("FeaturesInRadius:" + collection.toJson());
+		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(collection.toJson());
 	}
 	
@@ -269,6 +279,7 @@ public class Features extends Controller
 			;
 		}
 		Ebean.save(updatedFeature);
+		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(updatedFeature.toJson());
 	}
 
@@ -369,8 +380,10 @@ public class Features extends Controller
 		    return badRequest(result);
 		}
 		
+		String jsn = newFeature.toJson();
 		
-		return ok(newFeature.toJson());
+		response().setContentType("text/html; charset=iso-8859-1");
+		return ok(jsn);
 	}
 	
 	

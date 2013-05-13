@@ -17,6 +17,7 @@ public class Sessions extends Controller
 		JsonNode node = ctx().request().body().asJson();
 		Session newSession = new Session(node);
 		newSession.save();
+		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(newSession.toJson());
 	}
 	
@@ -26,6 +27,7 @@ public class Sessions extends Controller
 		if (session == null) {
 			return ok("Session Not found");
 		}
+		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(session.toJson());
 	}
 	

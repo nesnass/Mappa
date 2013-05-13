@@ -39,6 +39,8 @@ public class Contents extends Controller
 				user.setId( feature.featureUser.getId() );
 				user.full_name = feature.featureUser.full_name;	
 			}
+			
+			response().setContentType("text/html; charset=iso-8859-1");
 			return ok(image);
 		}
 	}
@@ -48,8 +50,10 @@ public class Contents extends Controller
 	{
 		Feature feature;
 		feature = InstagramParser.getInstaByMediaId(id);
-		if(feature != null)
+		if(feature != null) {
+			response().setContentType("text/html; charset=iso-8859-1");
 			return ok(feature.toJson());
+		}
 		else
 			return ok("POI Not Found");
 	}
