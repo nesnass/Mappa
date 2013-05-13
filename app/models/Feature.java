@@ -285,12 +285,13 @@ public class Feature extends Model implements Comparator<Feature>
 		removeTags();
 		
 		// Add unique / new and non-existing tags to the database
-		Iterator<String> tagsIteratorAllTags = foundTags.iterator();
-		while(tagsIteratorAllTags.hasNext())
-		{
-			addTag(tagsIteratorAllTags.next());
+		if(foundTags != null) {
+			Iterator<String> tagsIteratorAllTags = foundTags.iterator();
+			while(tagsIteratorAllTags.hasNext())
+			{
+				addTag(tagsIteratorAllTags.next());
+			}
 		}
-
 	}
 	
 	// Setup by jInstagram MediaFeedData object

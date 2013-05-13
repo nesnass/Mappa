@@ -82,7 +82,7 @@ public class TwitterParser
 		Matcher matcher = pattern.matcher(tweetText);
 
 		String  result = "";
-		Set<String>hashTags = new HashSet<String>();
+		Set<String> hashTags = new HashSet<String>();
 
 		// Search for Hashtags
 		while (matcher.find()) {
