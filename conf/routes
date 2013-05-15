@@ -29,8 +29,8 @@
 
 #####   Test calls for SQL conversion
 
-#GET		/userlist													controllers.TestController.allusers()
-#GET		/taglist													controllers.TestController.alltags()
+#GET		/userlist												controllers.TestController.allusers()
+#GET		/taglist												controllers.TestController.alltags()
 #POST	/adduser													controllers.TestController.addUser()
 #POST	/addfeature													controllers.TestController.addUserFeature()
 #POST	/userfeatures												controllers.TestController.getUserFeatures()
@@ -39,8 +39,10 @@
 
 
 #####	Home page
-GET    	/															controllers.Application.index()
+GET    			/													controllers.Application.index()
 
+#####	Kml action
+#GET     		/kml 							                     controllers.Application.getKml()
 
 #####	Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               								controllers.Assets.at(path="/public", file)
@@ -50,13 +52,16 @@ GET     /assets/*file               								controllers.Assets.at(path="/public"
 POST			/geo												controllers.Features.createGeoFeature()
 PUT				/geo												controllers.Features.updateGeoFeature()
 #DELETE			/geo												controllers.Features.deleteGeoFeature(id:String, user_id:String)
-GET				/user/:userID										controllers.Features.getGeoFeaturesByUser(userID:String)
+GET				/user/:userID										controllers.Features.getGeoFeaturesByUserId(userID:String)
+GET				/user/id/:userID									controllers.Features.getGeoFeaturesByUserId(userID:String)
+GET				/user/username/:userName							controllers.Features.getGeoFeaturesByUserName(userName:String)
 GET				/search/:hashTag			 						controllers.Features.getGeoFeaturesByTag(hashTag:String)
 GET				/geo												controllers.Features.getAllGeoFeautres()
 GET				/geo/:id											controllers.Features.getFeatureById(id:String)
 GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:String, lat1:String, lng2:String, lat2:String)
 GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:String, lat:String, radiusInMeters:String)
 GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeatures(lng:String, lat:String)
+GET				/geo/kml/:sessionId									controllers.Features.getKmlBySessionId(sessionId:String)
 
 
 #####	Geo Content
@@ -68,7 +73,7 @@ GET				/instagram/:id										controllers.Contents.contentOfInstaPOI(id:String)
 ##### Mapping Sessions ######
 # Add Session														create a new session with admin_id
 POST     		/session/new          						    	controllers.Sessions.create()
-GET				/session/:id										controllers.Sessions.getSessionById(id:Long)
+GET				/session/:id										controllers.Sessions.getSessionById(id:String)
 
 #POST     		/session                 						 	controllers.Sessions.save()
 #DELETE			/session/:id/:user_id								controllers.Sessions.delete(id:String, user_id:String)

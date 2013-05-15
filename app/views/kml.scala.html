@@ -1,0 +1,40 @@
+@(session_id: String)
+
+@main("Results") {
+    
+	<script src="//www.google.com/jsapi?key=ABQIAAAA5El50zA4PeDTEMlv-sXFfRSsTL4WIgxhMZ0ZK_kHjwHeQuOD4xTdBhxbkZWuzyYTVeclkwYHpb17ZQ"></script>
+	<script type="text/javascript">
+		var ge;
+		var session_id = '${session_id}';
+		google.load("earth", "1");
+
+		function init() {
+			google.earth.createInstance('map3d', initCB, failureCB);
+		}
+
+		function initCB(instance) {
+			ge = instance;
+			ge.getWindow().setVisibility(true);
+
+			var link = ge.createLink('');
+			var href = 'http://mappa.uio.im/geo/kml/' + session_id;
+			link.setHref(href);
+
+			var networkLink = ge.createNetworkLink('');
+			networkLink.set(link, true, true); // Sets the link, refreshVisibility, and flyToView.
+
+			ge.getFeatures().appendChild(networkLink);
+		}
+
+		function failureCB(errorCode) {
+		}
+		
+		google.setOnLoadCallback(init);
+	</script>
+   
+	<div id="map3d" style="height:400px; width:600px;"></div>
+    
+	<p class="buttons">
+		<a href="@routes.Application.index">Back to the form</a>
+	</p>
+}

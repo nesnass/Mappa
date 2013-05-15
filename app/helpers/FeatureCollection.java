@@ -17,6 +17,7 @@ import models.Feature;
 public class FeatureCollection {
 	public  String type = "FeatureCollection";
 	public ArrayList<Feature> features;
+	public Meta meta = new Meta();
 	
 	public FeatureCollection() {
 		this.features = new ArrayList<Feature>();
@@ -42,7 +43,7 @@ public class FeatureCollection {
 	{ 
 		Iterator<Feature> it = features.iterator();
 		Feature f = null;
-		String jsonString = "{\"type\" : \"FeatureCollection\",\"features\":[";
+		String jsonString = "{\"type\" : \"FeatureCollection\", \"meta\" : " + meta.toJson() + ", \"features\":[";
 		while(it.hasNext())
 		{
 			f = it.next();

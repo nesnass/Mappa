@@ -28,13 +28,12 @@ import com.avaje.ebean.Ebean;
 
 import helpers.MyConstants;
 import parsers.InstagramParser;
-import play.Logger;
+import parsers.KmlParser;
 import play.libs.Json;
 import play.mvc.Result;
 import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData.FilePart;
 import models.*;
-import models.geometry.Geometry;
 import models.geometry.Point;
 
 /**
@@ -43,11 +42,10 @@ import models.geometry.Point;
 public class Features extends Controller
 {
 
-
-	// GET /user/:userId
-	public static Result getGeoFeaturesByUser(String userID)
+	// get Features by User ID
+	public static Result getGeoFeaturesByUserId(String userID)
 	{
-		MUser user = MUser.find.where().eq("id", Long.valueOf(userID)).findUnique();
+		MUser user = MUser.find.where().eq("id", userID).findUnique();
 		if (user == null) {
 			List<String> empty = new ArrayList<String>();
 			return ok(toJson(empty));
@@ -55,9 +53,37 @@ public class Features extends Controller
 		FeatureCollection features = new FeatureCollection(user.userFeatures);
 		
 		response().setContentType("text/html; charset=iso-8859-1");
-		return ok(features.toJson());
+		String s = features.toJson(); 
+		return ok(s);
 	}
 	
+	// get Features by User Name
+	public static Result getGeoFeaturesByUserName(String userName)
+	{
+		MUser user = MUser.find.where().eq("username", userName).findUnique();
+		if (user == null) {
+			List<String> empty = new ArrayList<String>();
+			return ok(toJson(empty));
+		}
+		FeatureCollection features = new FeatureCollection(user.userFeatures);
+		
+		response().setContentType("text/html; charset=iso-8859-1");
+		String s = features.toJson(); 
+		return ok(s);
+	}
+
+	// Get a Feature list for a facebook group ID
+	public static Result getKmlBySessionId(String groupID)
+	{
+		File kmlFile = new File(groupID+".kml");
+		KmlParser.getKmlForSession(groupID, kmlFile);
+		
+	//	response().setContentType("application/x-download"); 
+		response().setContentType("application/vnd.google-earth.kml+xml");
+		response().setHeader("Content-disposition","attachment; filename="+groupID+".kml"); 
+		return ok(kmlFile);
+	}
+
 	
 	// GET /search/:hashTag
 	public static Result getGeoFeaturesByTag(String hashTag)
@@ -67,7 +93,8 @@ public class Features extends Controller
 			FeatureCollection featureCollection = new FeatureCollection(foundTag.tagFeatures);
 			
 			response().setContentType("text/html; charset=iso-8859-1");
-			return ok(featureCollection.toJson());
+			String s = featureCollection.toJson();
+			return ok(s);
 		}
 		else
 			return ok("POI Not Found");
@@ -91,7 +118,8 @@ public class Features extends Controller
 		}
 		
 		response().setContentType("text/html; charset=iso-8859-1");
-		return ok(feature.toJson());
+		String s = feature.toJson(); 
+		return ok(s);
 	}
 	
 	
@@ -151,11 +179,16 @@ public class Features extends Controller
 
 		List<Feature> closestToSource = getFeaturesClosestToSource(lat1, lng1, lat2, lng2, midpoint);
 		List<Feature> instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.BOUNDING_BOX, midpoint[0], midpoint[1], radius);
+		
 		closestToSource.addAll(instaPOIs);
 		FeatureCollection collection = new FeatureCollection(closestToSource);
-		
+		if(instaPOIs.size() == 0) {
+			collection.meta.code = "204";
+			collection.meta.error_message = "No response from Instagram. Refresh to try again";
+		}
 		response().setContentType("text/html; charset=iso-8859-1");
-		return ok(collection.toJson());
+		String s = collection.toJson();
+		return ok(s);
 	}
 	
 	
@@ -184,15 +217,20 @@ public class Features extends Controller
 			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RADIUS, lat, lng, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER));
 			featuresInRadius.addAll(instaPOIs);
 			// *************   Should this list be sorted by distance?
+			FeatureCollection collection = new FeatureCollection(featuresInRadius);
+			if(instaPOIs != null && instaPOIs.size() == 0) {
+				collection.meta.code = "204";
+				collection.meta.error_message = "No response from Instagram. Refresh to try again";
+			}
+			response().setContentType("text/html; charset=iso-8859-1");
+			String s = collection.toJson();
+			return ok(s);
 		}
 		catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		FeatureCollection collection = new FeatureCollection(featuresInRadius);
-//		Logger.info("FeaturesInRadius:" + collection.toJson());
-		response().setContentType("text/html; charset=iso-8859-1");
-		return ok(collection.toJson());
+		return ok();
 	}
 	
 	
@@ -211,14 +249,20 @@ public class Features extends Controller
 		try {
 			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RECENT, lat, lng, MyConstants.DEFAULT_INSTAGRAM_DISTANCE);
 			features.addAll(instaPOIs);
+			FeatureCollection collection = new FeatureCollection(features);
+			if(instaPOIs != null && instaPOIs.size() == 0) {
+				collection.meta.code = "204";
+				collection.meta.error_message = "No response from Instagram. Refresh to try again";
+			}
+//			Logger.info("FeaturesInRadius:" + collection.toJson());
+			response().setContentType("text/html; charset=iso-8859-1");
+			String s = collection.toJson();
+			return ok(s);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		FeatureCollection collection = new FeatureCollection(features);
-//		Logger.info("FeaturesInRadius:" + collection.toJson());
-		response().setContentType("text/html; charset=iso-8859-1");
-		return ok(collection.toJson());
+		return ok();
 	}
 	
 	// PUT /geo
@@ -280,7 +324,8 @@ public class Features extends Controller
 		}
 		Ebean.save(updatedFeature);
 		response().setContentType("text/html; charset=iso-8859-1");
-		return ok(updatedFeature.toJson());
+		String s = updatedFeature.toJson();
+		return ok(s);
 	}
 
 	// POST /geo
@@ -317,7 +362,7 @@ public class Features extends Controller
 		// User is the facebook user. does not exist in DB, then create it
 		if(user == null && !id.equals(""))
 		{
-			user = new MUser(id, featureNode.get("properties").get("user").get("full_name").asText());
+			user = new MUser(id, featureNode.get("properties").get("user").get("full_name").asText(), featureNode.get("properties").get("user").get("username").asText());
 			user.setLng( featureNode.get("properties").get("user").get("location").get(0).asDouble());
 			user.setLat( featureNode.get("properties").get("user").get("location").get(1).asDouble());
 		}
@@ -350,7 +395,7 @@ public class Features extends Controller
 				// User is the Facebook user. does not exist in DB, then create it
 				if(mapperUser == null && !id.equals(""))
 				{
-					mapperUser = new MUser(id, featureNode.get("properties").get("mapper").get("full_name").asText());
+					mapperUser = new MUser(id, featureNode.get("properties").get("mapper").get("full_name").asText(), featureNode.get("properties").get("user").path("username").asText());
 					mapperUser.setLng( featureNode.get("properties").get("mapper").get("location").get(0).asDouble() );
 					mapperUser.setLat( featureNode.get("properties").get("mapper").get("location").get(1).asDouble() );
 				}
@@ -385,7 +430,6 @@ public class Features extends Controller
 		response().setContentType("text/html; charset=iso-8859-1");
 		return ok(jsn);
 	}
-	
 	
 	
 	// Save image to Amazon S3 as original or thumbnail, return the url

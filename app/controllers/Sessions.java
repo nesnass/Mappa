@@ -22,8 +22,8 @@ public class Sessions extends Controller
 	}
 	
 	//  GET /session/:id
-	public static Result getSessionById(long id) {
-		Session session = Session.find.byId(id);
+	public static Result getSessionById(String id) {
+		Session session = Session.find.byId(Long.valueOf(id));
 		if (session == null) {
 			return ok("Session Not found");
 		}

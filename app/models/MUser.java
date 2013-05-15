@@ -56,9 +56,15 @@ public class MUser extends Model
 		this.full_name = full_name;
 	}
 	
-	public MUser(String id, String full_name, String profile_picture) {	
+	public MUser(String id, String full_name, String profile_picture, String username) {	
 		this(id, full_name);
 		this.profile_picture = profile_picture;
+		this.username = username;
+	}
+	
+	public MUser(String id, String full_name, String username) {	
+		this(id, full_name);
+		this.username = username;
 	}
 	
 	public String getId() {

@@ -1,7 +1,10 @@
-@(message: String)
+@(kmlForm: Form[Application.Kml])
 
-@main("Welcome to Play 2.1") {
+@import helper._
+
+@main(title = "Welcome to MAPPA") {
     
-    @play20.welcome(message, style = "Java")
+    <h1>Choose a session:</h1>
     
+
 }

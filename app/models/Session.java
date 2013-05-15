@@ -23,6 +23,8 @@ public class Session extends Model
 	
 	private long facebook_group_id;
 	
+	private long facebook_creator_id;
+	
 	@Constraints.MaxLength(255)
 	private String stitle;
 	
@@ -44,6 +46,7 @@ public class Session extends Model
 	public void assignProperties(JsonNode session)
 	{
 		facebook_group_id = session.get("facebook_group_id").asLong();
+		facebook_creator_id = session.path("facebook_creator_id").asLong();
 		stitle = session.get("title").asText();
 		sdescription = session.get("description").asText();
 	}
@@ -62,6 +65,14 @@ public class Session extends Model
 
 	public void setTitle(String stitle) {
 		this.stitle = stitle;
+	}
+
+	public long getFacebook_creator_id() {
+		return facebook_creator_id;
+	}
+
+	public void setFacebook_creator_id(long facebook_creator_id) {
+		this.facebook_creator_id = facebook_creator_id;
 	}
 
 	public String getDescription() {

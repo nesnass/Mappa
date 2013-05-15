@@ -1,0 +1,55 @@
+@(title: String)
+
+#{if frontPost}
+
+<html>
+<head>
+   <title>kmlnetworklink_example.html</title>
+   <script src="//www.google.com/jsapi?key=ABQIAAAA5El50zA4PeDTEMlv-sXFfRSsTL4WIgxhMZ0ZK_kHjwHeQuOD4xTdBhxbkZWuzyYTVeclkwYHpb17ZQ"></script>
+   <script type="text/javascript">
+      var ge;
+      google.load("earth", "1");
+
+      function init() {
+         google.earth.createInstance('map3d', initCB, failureCB);
+      }
+
+      function initCB(instance) {
+         ge = instance;
+         ge.getWindow().setVisibility(true);
+
+         var link = ge.createLink('');
+         var href = 'http://mappa.uio.im/geo/kml/' + session_ID;
+         link.setHref(href);
+
+         var networkLink = ge.createNetworkLink('');
+         networkLink.set(link, true, true); // Sets the link, refreshVisibility, and flyToView.
+
+         ge.getFeatures().appendChild(networkLink);
+      }
+
+      function failureCB(errorCode) {
+      }
+
+      google.setOnLoadCallback(init);
+   </script>
+
+</head>
+<body>
+
+	<div id="requestForm" >
+		<form name="input" action="@{Features.getKmlBySessionId()}" method="GET">
+			Facebook Group ID: <input type="text" name="sessionID">
+			<input type="submit" value="Submit">
+			</form>
+	</div>
+	<div id="map3d" style="height:400px; width:600px;"></div>
+
+</body>
+</html>
+
+#{/if}
+ 
+#{else}
+
+#{/else}

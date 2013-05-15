@@ -12,6 +12,7 @@ object ApplicationBuild extends Build {
   	"com.amazonaws" % "aws-java-sdk" % "1.3.11",
   	"net.sf.flexjson" % "flexjson" % "2.1",
   	"org.imgscalr" % "imgscalr-lib" % "4.2",
+  	"de.micromata.jak" % "JavaAPIforKml" % "2.2.0-SNAPSHOT",
     javaCore,
     javaJdbc,
     javaEbean
@@ -19,7 +20,9 @@ object ApplicationBuild extends Build {
 
   val main = play.Project(appName, appVersion, appDependencies).settings(
     // Add your own project settings here    
-    ebeanEnabled := true
+    ebeanEnabled := true,
+    
+    resolvers += "Java.net Maven 2 Repository" at "http://download.java.net/maven/2"
   )
 
 }
