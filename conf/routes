@@ -42,7 +42,7 @@
 GET    			/													controllers.Application.index()
 
 #####	Kml action
-#GET     		/kml 							                     controllers.Application.getKml()
+GET     		/kml 							                     controllers.Application.getKml()
 #####	Delete action
 #GET     		/deleteall 							                     controllers.Application.clearDB()
 

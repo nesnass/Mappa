@@ -6,4 +6,16 @@
     
     <h1>Choose a session:</h1>
 
+   @form(action = routes.Application.getKml, args = 'id -> "kmlForm") {
+        
+        @inputText(
+            field = kmlForm("facebook_group_id"),
+            args = '_label -> "Session ID"
+        )
+        
+        <p class="buttons">
+            <input type="submit">
+        <p>
+        
+    }
 }
