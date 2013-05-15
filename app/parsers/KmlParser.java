@@ -37,4 +37,33 @@ public class KmlParser {
 		}
 		return false;
 	}
+	
+	
+	
+	public static boolean getKmlForUser(String user_id, File kmlFile) {
+		
+		List<Feature> featureList = Feature.find.fetch("featureUser").where().eq("featureUser.id", user_id).findList();
+		Iterator<Feature> it = featureList.iterator();
+		Feature f;
+		
+		final Kml kml = new Kml();
+		
+		while(it.hasNext()) {
+			f = it.next();
+			kml.createAndSetPlacemark()
+				.withDescription(f.properties.description)
+				.withName(f.properties.source_type).withOpen(Boolean.TRUE)
+				.createAndSetPoint().addToCoordinates(f.geometry.getLng(), f.geometry.getLat());
+		}
+		try {
+			if( kml.marshal(kmlFile) )
+				return true;
+			else
+				return false;
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
 }

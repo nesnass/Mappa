@@ -83,7 +83,17 @@ public class Features extends Controller
 		response().setHeader("Content-disposition","attachment; filename="+groupID+".kml"); 
 		return ok(kmlFile);
 	}
-
+	// Get a Feature list for a facebook user ID
+	public static Result getKmlByUserId(String userID)
+	{
+		File kmlFile = new File(userID+".kml");
+		KmlParser.getKmlForUser(userID, kmlFile);
+		
+		response().setContentType("application/x-download"); 
+	//	response().setContentType("application/vnd.google-earth.kml+xml");
+		response().setHeader("Content-disposition","attachment; filename="+userID+".kml"); 
+		return ok(kmlFile);
+	}
 	
 	// GET /search/:hashTag
 	public static Result getGeoFeaturesByTag(String hashTag)

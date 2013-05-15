@@ -6,16 +6,25 @@
     
     <h1>Choose a session:</h1>
 
-   @form(action = routes.Application.getKml, args = 'id -> "kmlForm") {
+   @form(action = routes.Application.getKml, args = 'id -> "sessionForm") {
         
         @inputText(
-            field = kmlForm("facebook_group_id"),
+            field = kmlForm("filter_id"),
             args = '_label -> "Session ID"
         )
         
+        @select(
+            field = kmlForm("type"), 
+            options = options(
+                "session" -> "Session",
+                "user" -> "User"
+            ),
+            args = '_label -> "Choose a color"
+        )
         <p class="buttons">
             <input type="submit">
         <p>
         
     }
+
 }

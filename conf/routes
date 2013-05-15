@@ -63,8 +63,8 @@ GET				/geo/:id											controllers.Features.getFeatureById(id:String)
 GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:String, lat1:String, lng2:String, lat2:String)
 GET				/geo/radius/:lng/:lat/:radiusInMeters				controllers.Features.getFeaturesInRadius(lng:String, lat:String, radiusInMeters:String)
 GET				/geo/recent/:lng/:lat								controllers.Features.getMostRecentGeoFeatures(lng:String, lat:String)
-GET				/geo/kml/:sessionId									controllers.Features.getKmlBySessionId(sessionId:String)
-
+GET				/geo/session/kml/:sessionId							controllers.Features.getKmlBySessionId(sessionId:String)
+GET				/geo/user/kml/:userId								controllers.Features.getKmlByUserId(userId:String)
 
 #####	Geo Content
 #GET			/image/:id											controllers.Features.showImage(id:Long)

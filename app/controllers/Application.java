@@ -20,7 +20,9 @@ public class Application extends Controller {
      * Describes the KML request form.
      */
     public static class Kml {
-        public String facebook_group_id;
+        public String filter_id;
+        public String type;
+        public String linkType;
     }
     
     
@@ -37,8 +39,12 @@ public class Application extends Controller {
             return badRequest(index.render(form));
         } else {
             Kml data = form.get();
+            if(data.type.equals("user"))
+            	data.linkType = "/geo/user/kml/";
+            else
+            	data.linkType = "/geo/session/kml/";
             return ok(
-                kml.render(data.facebook_group_id)
+                kml.render(data.filter_id, data.linkType)
             );
         }
     }

@@ -1,11 +1,12 @@
-@(facebook_group_id: String)
+@(filter_id: String)(linkType: String)
 
 @main(title = "Results") {
 
 	<script src="//www.google.com/jsapi?key=ABQIAAAA5El50zA4PeDTEMlv-sXFfRSsTL4WIgxhMZ0ZK_kHjwHeQuOD4xTdBhxbkZWuzyYTVeclkwYHpb17ZQ"></script>
 	<script type="text/javascript">
 		var ge;
-		var facebook_group_id = @facebook_group_id;
+		var filter_id = @filter_id;  
+		var linkType = "@linkType";
 		google.load("earth", "1");
 
 		function init() {
@@ -17,9 +18,10 @@
 			ge.getWindow().setVisibility(true);
 
 			var link = ge.createLink('');
-			var href = 'http://mappa.uio.im/geo/kml/' + facebook_group_id;
+		//	var href = 'http://mappa.uio.im' + linkType + filter_id;
+			var href = 'http://localhost:9000' + linkType + filter_id;
+			alert(href);
 			link.setHref(href);
-
 			var networkLink = ge.createNetworkLink('');
 			networkLink.set(link, true, true); // Sets the link, refreshVisibility, and flyToView.
 
