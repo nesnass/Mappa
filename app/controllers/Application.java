@@ -7,6 +7,10 @@ import static play.data.Form.*;
 import play.data.validation.Constraints.*;
 
 import java.util.*;
+
+import models.Feature;
+import models.MUser;
+import models.Tag;
 import views.html.*;
 
 public class Application extends Controller {
@@ -41,4 +45,38 @@ public class Application extends Controller {
     }
 */
   
+/*    
+    public static Result clearDB() {
+    	
+    
+    	
+    	List<MUser> userList = MUser.find.all();
+    	Iterator<MUser> it2 = userList.iterator();
+    	MUser u;
+    	while(it2.hasNext()) {
+    		u = it2.next();
+    		
+        	Iterator<Feature> it = u.userFeatures.iterator();
+        	Feature f;
+        	while(it.hasNext()) {
+        		f = it.next();
+        		
+        		Iterator<Tag> it3 = f.featureTags.iterator();
+        		while(it3.hasNext())
+        		{
+        			it3.next().tagFeatures.remove(f);
+        			it3.remove();
+        		}
+        		
+        	//	f.featureMapper.delete();
+        		
+        	}
+    		
+    		
+    		it2.remove();
+    	}
+    	
+    	return ok();
+    }
+ */   
 }
