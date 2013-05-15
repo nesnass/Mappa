@@ -235,7 +235,7 @@ public class Feature extends Model implements Comparator<Feature>
 		if(featureSession == null) {
 			Session newSession = new Session();
 
-			newSession.setFacebook_group_id(0);
+			newSession.setFacebook_group_id(featureNode.path("session_id").asLong());
 			newSession.setTitle( "Test Session Title" );
 			newSession.setDescription( "Test session Description" );
 			newSession.save();

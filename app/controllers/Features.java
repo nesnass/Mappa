@@ -78,8 +78,8 @@ public class Features extends Controller
 		File kmlFile = new File(groupID+".kml");
 		KmlParser.getKmlForSession(groupID, kmlFile);
 		
-	//	response().setContentType("application/x-download"); 
-		response().setContentType("application/vnd.google-earth.kml+xml");
+		response().setContentType("application/x-download"); 
+	//	response().setContentType("application/vnd.google-earth.kml+xml");
 		response().setHeader("Content-disposition","attachment; filename="+groupID+".kml"); 
 		return ok(kmlFile);
 	}
