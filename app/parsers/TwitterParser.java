@@ -2,6 +2,7 @@ package parsers;
 
 import helpers.MyConstants;
 
+import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -30,7 +31,8 @@ public class TwitterParser
 		// TODO: implement instagram hooks for both users and hashtag
 		// TODO: implement facebook hook for the current logged in user
 
-		String patternStr = "(?:\\s|\\A)[##]+([A-Za-z0-9-_]+)";
+	//	String patternStr = "(?:\\s|\\A)[##]+([A-Za-z0-9-_]+)";
+		String patternStr = "(?:\\s|\\A)[##]+([\\p{L}0-9-_]+)";
 		Pattern pattern = Pattern.compile(patternStr);
 		Matcher matcher = pattern.matcher(tweetText);
 		String result = "";
@@ -52,14 +54,15 @@ public class TwitterParser
 			tweetText = tweetText.replace(result,searchHTML);
 		}
 
-		// Search for Users
-		patternStr = "(?:\\s|\\A)[@]+([A-Za-z0-9-_.]+)";
+		// Search for Users "\\p{L}+"
+//		patternStr = "(?:\\s|\\A)[@]+([A-Za-z0-9-_.]+)";
+		patternStr = "(?:\\s|\\A)[@]+([\\p{L}0-9-_.]+)";
 		pattern = Pattern.compile(patternStr);
 		matcher = pattern.matcher(tweetText);
 		while (matcher.find()) {
 			result = matcher.group();
 			result = result.replace(" ", "");
-			String rawName = result.replace("@", "");
+			String rawName = Charset.forName("UTF-8").encode(result.replace("@", "")).toString();
 			
 			String userHTML;
 			if (source.equals("Instagram")) {
@@ -77,7 +80,8 @@ public class TwitterParser
 
 	public static Set<String> searchHashTags(String tweetText)
 	{
-		String patternStr = "(?:\\s|\\A)[##]+([A-Za-z0-9-_]+)";
+	//	String patternStr = "(?:\\s|\\A)[##]+([A-Za-z0-9-_]+)";
+		String patternStr = "(?:\\s|\\A)[##]+([\\p{L}0-9-_]+)";
 		Pattern pattern = Pattern.compile(patternStr);
 		Matcher matcher = pattern.matcher(tweetText);
 
