@@ -429,7 +429,7 @@ public class Features extends Controller
 		}
 		
 		String jsn = newFeature.toJson();
-		
+
 		response().setContentType("text/html; charset=utf-8");
 		return ok(jsn);
 	}

@@ -25,8 +25,9 @@ public class Users extends Controller
 		// What is the need for FeatureCollection class?
 		// *********************************************
 		FeatureCollection features = new FeatureCollection(featureList);
-		response().setContentType("text/html; charset=iso-8859-1");
-		return ok(toJson(features));
+		response().setContentType("text/html; charset=utf-8");
+		String s = features.toJson();
+		return ok(s);
 	}
 
 /*	

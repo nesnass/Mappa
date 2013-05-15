@@ -40,7 +40,7 @@ public class Contents extends Controller
 				user.full_name = feature.featureUser.full_name;	
 			}
 			
-			response().setContentType("text/html; charset=iso-8859-1");
+			response().setContentType("text/html; charset=utf-8");
 			return ok(image);
 		}
 	}
@@ -51,8 +51,9 @@ public class Contents extends Controller
 		Feature feature;
 		feature = InstagramParser.getInstaByMediaId(id);
 		if(feature != null) {
-			response().setContentType("text/html; charset=iso-8859-1");
-			return ok(feature.toJson());
+			response().setContentType("text/html; charset=utf-8");
+			String s = feature.toJson();
+			return ok(s);
 		}
 		else
 			return ok("POI Not Found");
