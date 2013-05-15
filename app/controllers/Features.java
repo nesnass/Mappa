@@ -52,7 +52,7 @@ public class Features extends Controller
 		}
 		FeatureCollection features = new FeatureCollection(user.userFeatures);
 		
-		response().setContentType("text/html; charset=iso-8859-1");
+		response().setContentType("text/html; charset=utf-8");
 		String s = features.toJson(); 
 		return ok(s);
 	}
@@ -67,7 +67,7 @@ public class Features extends Controller
 		}
 		FeatureCollection features = new FeatureCollection(user.userFeatures);
 		
-		response().setContentType("text/html; charset=iso-8859-1");
+		response().setContentType("text/html; charset=utf-8");
 		String s = features.toJson(); 
 		return ok(s);
 	}
@@ -92,7 +92,7 @@ public class Features extends Controller
 		if(foundTag != null) {
 			FeatureCollection featureCollection = new FeatureCollection(foundTag.tagFeatures);
 			
-			response().setContentType("text/html; charset=iso-8859-1");
+			response().setContentType("text/html; charset=utf-8");
 			String s = featureCollection.toJson();
 			return ok(s);
 		}
@@ -106,7 +106,10 @@ public class Features extends Controller
 	{
 		List<Feature> featureList = Feature.find.all();
 		FeatureCollection featureCollection = new FeatureCollection(featureList);
-		return ok(featureCollection.toJson());
+		
+		response().setContentType("text/html; charset=utf-8");
+		String s = featureCollection.toJson();
+		return ok(s);
 	}
 	
 	
@@ -117,7 +120,7 @@ public class Features extends Controller
 			return ok("POI Not Found");
 		}
 		
-		response().setContentType("text/html; charset=iso-8859-1");
+		response().setContentType("text/html; charset=utf-8");
 		String s = feature.toJson(); 
 		return ok(s);
 	}
@@ -186,7 +189,7 @@ public class Features extends Controller
 			collection.meta.code = "204";
 			collection.meta.error_message = "No response from Instagram. Refresh to try again";
 		}
-		response().setContentType("text/html; charset=iso-8859-1");
+		response().setContentType("text/html; charset=utf-8");
 		String s = collection.toJson();
 		return ok(s);
 	}
@@ -222,7 +225,7 @@ public class Features extends Controller
 				collection.meta.code = "204";
 				collection.meta.error_message = "No response from Instagram. Refresh to try again";
 			}
-			response().setContentType("text/html; charset=iso-8859-1");
+			response().setContentType("text/html; charset=utf-8");
 			String s = collection.toJson();
 			return ok(s);
 		}
@@ -255,7 +258,7 @@ public class Features extends Controller
 				collection.meta.error_message = "No response from Instagram. Refresh to try again";
 			}
 //			Logger.info("FeaturesInRadius:" + collection.toJson());
-			response().setContentType("text/html; charset=iso-8859-1");
+			response().setContentType("text/html; charset=utf-8");
 			String s = collection.toJson();
 			return ok(s);
 		} catch (Exception e) {
@@ -323,7 +326,7 @@ public class Features extends Controller
 			;
 		}
 		Ebean.save(updatedFeature);
-		response().setContentType("text/html; charset=iso-8859-1");
+		response().setContentType("text/html; charset=utf-8");
 		String s = updatedFeature.toJson();
 		return ok(s);
 	}
@@ -427,7 +430,7 @@ public class Features extends Controller
 		
 		String jsn = newFeature.toJson();
 		
-		response().setContentType("text/html; charset=iso-8859-1");
+		response().setContentType("text/html; charset=utf-8");
 		return ok(jsn);
 	}
 	
