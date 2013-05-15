@@ -30,7 +30,7 @@ public class MUser extends Model
 	public String profile_picture;
 
 	@Constraints.MaxLength(255)
-	private String username;
+	private String username = "";
 	
 	private double lng;
 	private double lat;
@@ -64,7 +64,8 @@ public class MUser extends Model
 	
 	public MUser(String id, String full_name, String username) {	
 		this(id, full_name);
-		this.username = username;
+		if (username != null)
+			this.username = username;
 	}
 	
 	public String getId() {

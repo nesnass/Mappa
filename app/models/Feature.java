@@ -171,7 +171,7 @@ public class Feature extends Model implements Comparator<Feature>
 		@Constraints.MaxLength(255)
 		public String description = "";
 		
-		@Constraints.MaxLength(255)
+//		@Constraints.MaxLength(255)
 		public String mapper_description = "";
 
 		@Constraints.MaxLength(255)

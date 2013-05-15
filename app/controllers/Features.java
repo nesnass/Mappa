@@ -362,7 +362,7 @@ public class Features extends Controller
 		// User is the facebook user. does not exist in DB, then create it
 		if(user == null && !id.equals(""))
 		{
-			user = new MUser(id, featureNode.get("properties").get("user").get("full_name").asText(), featureNode.get("properties").get("user").get("username").asText());
+			user = new MUser(id, featureNode.get("properties").get("user").get("full_name").asText(), featureNode.get("properties").get("user").path("username").asText());
 			user.setLng( featureNode.get("properties").get("user").get("location").get(0).asDouble());
 			user.setLat( featureNode.get("properties").get("user").get("location").get(1).asDouble());
 		}
