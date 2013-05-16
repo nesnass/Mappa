@@ -20,7 +20,8 @@
 			var link = ge.createLink('');
 		//	var href = 'http://mappa.uio.im' + linkType + filter_id;
 			var href = 'http://localhost:9000' + linkType + filter_id;
-			alert(href);
+			var a = document.getElementById('fileReference');
+			a.href = href;
 			link.setHref(href);
 			var networkLink = ge.createNetworkLink('');
 			networkLink.set(link, true, true); // Sets the link, refreshVisibility, and flyToView.
@@ -34,9 +35,14 @@
 		google.setOnLoadCallback(init);
 	</script>
    
-	<div id="map3d" style="height:400px; width:600px;"></div>
+	<div id="map3d" style="height:600px; width:800px;"></div>
     
 	<p class="buttons">
 		<a href="@routes.Application.index">Back to the form</a>
 	</p>
+		<a id="fileReference" href="@routes.Application.index">KML File</a>
+	<p class="directLink">
+		
+	</p>
+	
 }

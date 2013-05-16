@@ -3,14 +3,17 @@
 @import helper._
 
 @main(title = "Welcome to MAPPA") {
-    
-    <h1>Choose a session:</h1>
+
+	<div class="container">
 
    @form(action = routes.Application.getKml, args = 'id -> "sessionForm") {
         
+        <fieldset>
+            <legend>Request your KML output</legend>
+            
         @inputText(
             field = kmlForm("filter_id"),
-            args = '_label -> "Session ID"
+            args = '_label -> "ID"
         )
         
         @select(
@@ -19,12 +22,15 @@
                 "session" -> "Session",
                 "user" -> "User"
             ),
-            args = '_label -> "Choose a color"
+            args = '_label -> "Type"
         )
+        
+        </fieldset>
+        
         <p class="buttons">
             <input type="submit">
         <p>
-        
+    </div>
     }
 
 }

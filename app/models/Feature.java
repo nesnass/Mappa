@@ -216,7 +216,7 @@ public class Feature extends Model implements Comparator<Feature>
 	public void setOrigin_id() {
 		this.origin_id = String.valueOf(_id);
 	}
-	
+
 	// Setup by JsonNode object
 	public void assignProperties(JsonNode featureNode)
 	{
