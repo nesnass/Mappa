@@ -153,7 +153,7 @@ public class Feature extends Model implements Comparator<Feature>
 			if(source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()))
 				return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mappa.png";
 			else if(source_type.equals( MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-				return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mInsta.png";
+				return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mapped_instagram.png";
 			else if(source_type.equals( MyConstants.FeatureStrings.INSTAGRAM.toString()))
 				return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/instagram.png";
 			else return "";
@@ -267,7 +267,7 @@ public class Feature extends Model implements Comparator<Feature>
 		{
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
-			properties.icon_url = MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mInsta.png";
+			properties.icon_url = MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mapped_instagram.png";
 			foundTags = TwitterParser.searchHashTags(properties.mapper_description);
 
 			// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?

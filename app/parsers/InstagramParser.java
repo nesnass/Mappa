@@ -26,8 +26,8 @@ public class InstagramParser
 	
 		private static InstagramService service =  new InstagramAuthService()
     	.apiKey(MyConstants.INSTAGRAM_CLIENT_ID)
-    	.apiSecret(MyConstants.INSTAGRAM_CLIENT_ID)
-    	.callback(MyConstants.NEW_FEATURE_SERVER_NAME_PORT)     
+    	.apiSecret(MyConstants.INSTAGRAM_SECRET_ID)
+    	.callback(MyConstants.INSTAGRAM_CALLBACK)     
     	.build();
 	 	
 	
@@ -38,14 +38,19 @@ public class InstagramParser
 	//  *******        https://github.com/sachin-handiekar/jInstagram           *******
 	//  *******               Calls to Instagram are synchronous                *******
 	
+
+	
+
+	
+		
 	// Set up the query
 	public static List<Feature> getQuery(MyConstants.QueryStrings queryType, double latitude, double longitude, int radius)
 	{
 		String authorizationUrl = service.getAuthorizationUrl(EMPTY_TOKEN);
-		Verifier verifier = new Verifier(MyConstants.INSTAGRAM_PASSWORD);
+		Verifier verifier = new Verifier(controllers.Authorisation.getInstagramCode());
 		Token accessToken = service.getAccessToken(EMPTY_TOKEN, verifier);
 		
-		Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
+		Instagram instagram = new Instagram(accessToken);
 		MediaFeed feed = null;
 		try {
 			switch (queryType)

@@ -69,7 +69,7 @@ GET				/geo/user/kml/:userId								controllers.Features.getKmlByUserId(userId:S
 #GET			/image/:id											controllers.Features.showImage(id:Long)
 GET				/content/:id										controllers.Contents.contentOfFeature(id:String)
 GET				/instagram/:id										controllers.Contents.contentOfInstaPOI(id:String)
-
+GET				/instagramAuthorisation/							controllers.Authorisation.instagram(code:String)
 
 ##### Mapping Sessions ######
 # Add Session														create a new session with admin_id
