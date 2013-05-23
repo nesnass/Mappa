@@ -41,3 +41,5 @@ modules/
 .target/parsers/InstagramParser.class
 
 .target/parsers/InstagramParser.class
+
+app/helpers/MyConstants.java
