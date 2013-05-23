@@ -58,8 +58,10 @@ public class MyConstants
 	public final static String OLD_FEATURE_SERVER_NAME_PORT = "http://intermedia-prod03.uio.no:9010";
 	public final static String NEW_FEATURE_SERVER_NAME_PORT = "http://mappa.uio.im";
 	public final static String AMAZON_SERVER_NAME_PORT = "https://s3.amazonaws.com/";
-//	public final static String INSTAGRAM_CLIENT_ID = "  a80dd450be84452a91527609a4eae97b";
-	public final static String INSTAGRAM_CLIENT_ID = "  a702601d59444091bcb3dc4893558d32";
+//	public final static String INSTAGRAM_CLIENT_ID = "a80dd450be84452a91527609a4eae97b";
+	public final static String INSTAGRAM_CLIENT_ID = "f652d47c088c48f8b7920af970760a49";
+	public final static String INSTAGRAM_SECRET_ID = "2888f73f0bc14e66b5245fcdec52d483";
+	public final static String INSTAGRAM_PASSWORD = "";
 	public final static String KML_MAPPA_ICON = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_orange.png";
 	
 	

@@ -9,6 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jinstagram.Instagram;
+import org.jinstagram.auth.InstagramAuthService;
+import org.jinstagram.auth.model.Token;
+import org.jinstagram.auth.model.Verifier;
+import org.jinstagram.auth.oauth.InstagramService;
 import org.jinstagram.entity.media.MediaInfoFeed;
 import org.jinstagram.entity.users.feed.MediaFeed;
 import org.jinstagram.entity.users.feed.MediaFeedData;
@@ -18,12 +22,14 @@ import play.Logger;
 
 public class InstagramParser
 {
-	/*	InstagramService service =  new InstagramAuthService()
-    	.apiKey("your_client_id")
-    	.apiSecret("your_client_secret")
-    	.callback("your_callback_url")     
+	private static final Token EMPTY_TOKEN = null;
+	
+		private static InstagramService service =  new InstagramAuthService()
+    	.apiKey(MyConstants.INSTAGRAM_CLIENT_ID)
+    	.apiSecret(MyConstants.INSTAGRAM_CLIENT_ID)
+    	.callback(MyConstants.NEW_FEATURE_SERVER_NAME_PORT)     
     	.build();
-	 */	
+	 	
 	
 
 	
@@ -35,6 +41,10 @@ public class InstagramParser
 	// Set up the query
 	public static List<Feature> getQuery(MyConstants.QueryStrings queryType, double latitude, double longitude, int radius)
 	{
+		String authorizationUrl = service.getAuthorizationUrl(EMPTY_TOKEN);
+		Verifier verifier = new Verifier(MyConstants.INSTAGRAM_PASSWORD);
+		Token accessToken = service.getAccessToken(EMPTY_TOKEN, verifier);
+		
 		Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
 		MediaFeed feed = null;
 		try {
