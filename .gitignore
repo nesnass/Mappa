@@ -1,4 +1,3 @@
-/app/helpers/MyConstants.java
 logs
 project/project
 project/target
@@ -41,5 +40,3 @@ modules/
 .target/parsers/InstagramParser.class
 
 .target/parsers/InstagramParser.class
-
-app/helpers/MyConstants.java
