@@ -42,12 +42,12 @@
 GET    			/													controllers.Application.index()
 
 #####	Kml action
-GET     		/kml 							                     controllers.Application.getKml()
+GET     		/kml												controllers.Application.getKml()
 #####	Delete action
-#GET     		/deleteall 							                     controllers.Application.clearDB()
+#GET     		/deleteall											controllers.Application.clearDB()
 
 #####	Map static resources from the /public folder to the /assets URL path
-GET     /resources/*file               								controllers.Assets.at(path="/public", file)
+GET     		/resources/*file               						controllers.Assets.at(path="/public", file)
 
 #####	Geo Features
 POST			/geo												controllers.Features.createGeoFeature()
