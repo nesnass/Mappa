@@ -150,12 +150,12 @@ public class Feature extends Model implements Comparator<Feature>
 		
 		// Retrieve the icon URL 
 		public String getIcon_url() {
-			if(source_type.equals(MyConstants.FeatureStrings.OVERLAY.toString()))
-				return MyConstants.OLD_FEATURE_SERVER_NAME_PORT + "/assets/img/overlay.png";
+			if(source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()))
+				return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mappa.png";
 			else if(source_type.equals( MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-				return MyConstants.OLD_FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+				return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mInsta.png";
 			else if(source_type.equals( MyConstants.FeatureStrings.INSTAGRAM.toString()))
-				return MyConstants.OLD_FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+				return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/instagram.png";
 			else return "";
 		}
 		
@@ -178,7 +178,7 @@ public class Feature extends Model implements Comparator<Feature>
 		public String icon_url = "";
 
 		@Constraints.MaxLength(30)
-		public String source_type = MyConstants.FeatureStrings.OVERLAY.toString();
+		public String source_type = MyConstants.FeatureStrings.MAPPA.toString();
 	}
 
 	public Feature() {
@@ -201,7 +201,7 @@ public class Feature extends Model implements Comparator<Feature>
 	
 	@JSON(include=true)
 	public String getId() {
-		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.OVERLAY.toString())) {
+		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString())) {
 			return String.valueOf(this._id);
 		}
 		else
@@ -247,15 +247,15 @@ public class Feature extends Model implements Comparator<Feature>
 		properties.description = featureNode.get("properties").get("description").asText();
 
 		String source = featureNode.get("properties").get("source_type").asText();
-		if (source.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
-			properties.source_type = MyConstants.FeatureStrings.OVERLAY.toString();
+		if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
+			properties.source_type = MyConstants.FeatureStrings.MAPPA.toString();
 		else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			properties.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString();
 		//this.name = featureNode.get("properties").path("name").getTextValue();
 
 		Set<String> foundTags = new HashSet<String>();
 		// Set source dependent parameters
-		if(properties.source_type.toString().equals(MyConstants.FeatureStrings.OVERLAY.toString()))
+		if(properties.source_type.toString().equals(MyConstants.FeatureStrings.MAPPA.toString()))
 		{
 			foundTags = TwitterParser.searchHashTags(properties.description);
 		}
@@ -267,7 +267,7 @@ public class Feature extends Model implements Comparator<Feature>
 		{
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
-			properties.icon_url = MyConstants.OLD_FEATURE_SERVER_NAME_PORT + "/assets/img/mInsta.png";
+			properties.icon_url = MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mInsta.png";
 			foundTags = TwitterParser.searchHashTags(properties.mapper_description);
 
 			// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
@@ -393,7 +393,7 @@ public class Feature extends Model implements Comparator<Feature>
 		properties.setSession(this.featureSession);
 		properties.setTags(this.featureTags);
 		properties.setImages(this.images);
-		if(this.properties.source_type.equals(MyConstants.FeatureStrings.OVERLAY.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString())) {
+		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString())) {
 			properties.origin_id = String.valueOf(this._id);
 		}
 		else

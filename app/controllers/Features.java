@@ -319,7 +319,7 @@ public class Features extends Controller
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
+		if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
 		{
 			if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
 			{
@@ -388,7 +388,7 @@ public class Features extends Controller
 			// Add the feature to the user
 			user.userFeatures.add(newFeature);
 
-			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.OVERLAY.toString()))
+			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
 			{
 				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
 				{

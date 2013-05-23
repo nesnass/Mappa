@@ -4,7 +4,7 @@ public class MyConstants
 {
 	public enum FeatureStrings
 	{
-	    OVERLAY("overlay"),
+	    MAPPA("mappa"),
 	    MAPPED_INSTAGRAM("mapped_instagram"),
 	    INSTAGRAM("Instagram");
 	    private final String text;
