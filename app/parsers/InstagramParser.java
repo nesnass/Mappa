@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.jinstagram.Instagram;
 import org.jinstagram.auth.InstagramAuthService;
+import org.jinstagram.auth.exceptions.OAuthException;
 import org.jinstagram.auth.model.Token;
 import org.jinstagram.auth.model.Verifier;
 import org.jinstagram.auth.oauth.InstagramService;
@@ -46,13 +47,13 @@ public class InstagramParser
 	// Set up the query
 	public static List<Feature> getQuery(MyConstants.QueryStrings queryType, double latitude, double longitude, int radius)
 	{
-		String authorizationUrl = service.getAuthorizationUrl(EMPTY_TOKEN);
-		Verifier verifier = new Verifier(controllers.Authorisation.getInstagramCode());
-		Token accessToken = service.getAccessToken(EMPTY_TOKEN, verifier);
-		
-		Instagram instagram = new Instagram(accessToken);
+//		String authorizationUrl = service.getAuthorizationUrl(EMPTY_TOKEN);
+//		Verifier verifier = new Verifier(controllers.Authorisation.getInstagramCode());
+
 		MediaFeed feed = null;
 		try {
+//			Token accessToken = service.getAccessToken(EMPTY_TOKEN, verifier);
+			Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
 			switch (queryType)
 			{
 			case RADIUS:
@@ -66,7 +67,10 @@ public class InstagramParser
 				feed = instagram.searchMedia(latitude, longitude, new Date(), null, radius);
 				break;
 			}
-		
+		} catch(OAuthException e) {
+			e.printStackTrace();
+			Logger.info("^ InstagramException: " + e.getMessage() + " " + new Date().toString());
+			return new ArrayList<Feature>();
 		} catch (InstagramException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
