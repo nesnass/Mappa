@@ -265,6 +265,8 @@ public class Feature extends Model implements Comparator<Feature>
 		}
 		else if(properties.source_type.toString().equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 		{
+			images.standard_resolution = featureNode.get("properties").get("images").path("standard_resolution").asText();
+			images.thumbnail = featureNode.get("properties").get("images").path("thumbnail").getTextValue();
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
 			properties.icon_url = MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mapped_instagram.png";
