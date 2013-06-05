@@ -8,7 +8,7 @@
 	},
 	"properties":
 	{
-		"source_type": "overlay",
+		"source_type": "mappa",
 		"user":
 		{
 			"id":"122808270471",
@@ -18,9 +18,9 @@
 		},
 		"sessions": [
 			{
-				"id" : "1234567",
+				"id" : "245718548833281",
 				"owner" : "808270471",
-				"privacy" : "open",
+				"privacy" : "private",
 				"name" : "Test Session",
 				"description" : "This is a new session created for testing"
 			}

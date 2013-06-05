@@ -16,7 +16,7 @@
         "tags": "alistofstringseparatedbyspacewillbemadebyserverbyparsingthetext",
         "descr_url": "createdbyserverwhichwillleadtoHTMLpageshowingthecontentsofPIO",
         "icon_url": "mytesticonURL",
-        "source_type": "overlay"
+        "source_type": "mappa"
         "session":
 		{
 			"id" : "1234567",

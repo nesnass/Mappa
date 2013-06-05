@@ -20,7 +20,7 @@ public class KmlParser {
 
 	public static boolean getKmlForSession(String session_id, File kmlFile) {
 		
-		List<Feature> featureList = Feature.find.fetch("featureSession").where().eq("featureSession.facebook_group_id", Long.valueOf(session_id)).findList();
+		List<Feature> featureList = Feature.find.fetch("featureSession").where().eq("featureSession.facebook_group_id", session_id).findList();
 		Iterator<Feature> it = featureList.iterator();
 		Feature f;
 		
