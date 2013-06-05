@@ -18,77 +18,56 @@ import de.micromata.opengis.kml.v_2_2_0.Point;
 
 public class KmlParser {
 
-	public static boolean getKmlForSession(String session_id, File kmlFile) {
-		
+	public static boolean getKmlForSession(String session_id, File kmlFile) {	
 		List<Feature> featureList = Feature.find.fetch("featureSession").where().eq("featureSession.facebook_group_id", session_id).findList();
-		Iterator<Feature> it = featureList.iterator();
-		Feature f;
-		
-		final Kml kml = new Kml();
-		
-		while(it.hasNext()) {
-			f = it.next();
-			kml.createAndSetPlacemark()
-				.withDescription(f.properties.description)
-				.withName(f.properties.source_type).withOpen(Boolean.TRUE)
-				.createAndSetPoint().addToCoordinates(f.geometry.getLng(), f.geometry.getLat());
-		}
-		try {
-			if( kml.marshal(kmlFile) )
-				return true;
-			else
-				return false;
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return false;
+		return createKmlFile(session_id, kmlFile, featureList);
 	}
 	
-	
-	
 	public static boolean getKmlForUser(String user_id, File kmlFile) {
-		
 		List<Feature> featureList = Feature.find.fetch("featureUser").where().eq("featureUser.id", user_id).findList();
-		Iterator<Feature> it = featureList.iterator();
-		Feature f;
-		
+		return createKmlFile(user_id, kmlFile, featureList);
+	}
+	
+	private static boolean createKmlFile(String fileName, File kmlFile, List<Feature> featureList) {
 		final Kml kml = new Kml();
 		final Document document = kml.createAndSetDocument()
-				.withName("User_"+user_id+".kml").withOpen(true);
-	
+				.withName("User_"+fileName+".kml").withOpen(true);
+
+		Iterator<Feature> it = featureList.iterator();
+		Feature f;
+
 		document.createAndAddStyle()
-			.withId("myBalloonStyle")
-			.createAndSetBalloonStyle()
-			.withId("ID")
-			.withBgColor("ffffffbb")
-			.withTextColor("ff000000")
+		.withId("myBalloonStyle")
+		.createAndSetBalloonStyle()
+		.withId("ID")
+		.withBgColor("ffffffbb")
+		.withTextColor("ff000000")
 		//	.withText("<![CDATA[<table width=\"400\"><tr><td>" + "<b><font color='#CC0000' size='+3'>$[name] Ahhhhhhhhh!  </font></b>" + "<br/><br/></td></tr>" + "<tr><td><font face='Courier'>$[description]</font>" + "<br/><br/></td></tr></table>]]>");
-			.withText("<![CDATA[" + "<b><font color='#CC0000' size='+3'>$[name]</font></b>" + "<br/><br/>" + "<font face='Courier'>$[description]</font>" + "]]>");
-	//	<div style="width: 200px; height: 50px; overflow: auto; overflow-x:hidden;">
+		.withText("<![CDATA[" + "<b><font color='#CC0000' size='+3'>$[name]</font></b>" + "<br/><br/>" + "<font face='Courier'>$[description]</font>" + "]]>");
+		//	<div style="width: 200px; height: 50px; overflow: auto; overflow-x:hidden;">
 		document.createAndAddStyle()
-			.withId("myIconStyle")
-			.createAndSetIconStyle()
-			.withScale(1)
-			.createAndSetIcon()
-			.withHref(MyConstants.KML_MAPPA_ICON);
-		
+		.withId("myIconStyle")
+		.createAndSetIconStyle()
+		.withScale(1)
+		.createAndSetIcon()
+		.withHref(MyConstants.KML_MAPPA_ICON);
+
 		while(it.hasNext()) {
 			f = it.next();
-			
+
 			Placemark placemark = document.createAndAddPlacemark()
 					.withName(f.featureUser.full_name)
 					.withDescription("<table width=\"300px\"><tr><td><p>" + f.properties.description + "</p></td></tr><tr><td>" + "<img border=\"0\" src=\""+f.retrieveImages().standard_resolution+"\" alt=\"Pulpit rock\" width=\"300\" ></td></tr></table>" )
 					.withStyleUrl("#myBalloonStyle");
-					
+
 			Point point = placemark.withStyleUrl("#myIconStyle").createAndSetPoint();
 			List<Coordinate> coord = point.createAndSetCoordinates();
 			coord.add(new Coordinate(f.geometry.getLng(), f.geometry.getLat()));
-			
-//			kml.createAndSetPlacemark()
-//				.withDescription(f.properties.description)
-//				.withName(f.featureUser.full_name).withOpen(Boolean.TRUE)
-//				.createAndSetPoint().addToCoordinates(f.geometry.getLng(), f.geometry.getLat());
+
+			//		kml.createAndSetPlacemark()
+			//			.withDescription(f.properties.description)
+			//			.withName(f.featureUser.full_name).withOpen(Boolean.TRUE)
+			//			.createAndSetPoint().addToCoordinates(f.geometry.getLng(), f.geometry.getLat());
 		}
 		try {
 			if( kml.marshal(kmlFile) )
@@ -101,4 +80,6 @@ public class KmlParser {
 		}
 		return false;
 	}
+	
+
 }
