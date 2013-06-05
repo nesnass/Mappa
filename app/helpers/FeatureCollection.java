@@ -5,8 +5,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import flexjson.JSONSerializer;
-
 import models.Feature;
 
 
@@ -14,7 +12,7 @@ import models.Feature;
  * @author Muhammad Fahied & Richard Nesnass
  */
 
-public class FeatureCollection {
+public class FeatureCollection implements Iterable<Feature> {
 	public  String type = "FeatureCollection";
 	public ArrayList<Feature> features;
 	public Meta meta = new Meta();
@@ -26,6 +24,13 @@ public class FeatureCollection {
 	public FeatureCollection(Collection<Feature> features) {
 		this();
 		for(Feature f : features)
+		{
+			this.features.add(f);
+		}
+	}
+	
+	public void add(Collection<Feature> fc) {
+		for(Feature f : fc)
 		{
 			this.features.add(f);
 		}
@@ -53,6 +58,11 @@ public class FeatureCollection {
 		}
 		jsonString += "]}";
 		return jsonString;
+	}
+
+	@Override
+	public Iterator<Feature> iterator() {
+		return features.iterator();
 	}
 	
 }

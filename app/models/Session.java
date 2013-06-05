@@ -4,7 +4,8 @@ import javax.persistence.*;
 
 import org.codehaus.jackson.JsonNode;
 
-import play.data.validation.Constraints;
+import flexjson.JSON;
+
 import play.db.ebean.Model;
 
 /**
@@ -19,17 +20,17 @@ public class Session extends Model
 
 	@Id
 	@GeneratedValue
-	public long id;
+	private long id;
 	
-	private long facebook_group_id;
+	private String facebook_group_id;
 	
-	private long facebook_creator_id;
+	private String facebook_creator_id;
 	
-	@Constraints.MaxLength(255)
 	private String stitle;
 	
-	@Constraints.MaxLength(255)
 	private String sdescription;	
+	
+	private String privacy;
 	
 	public static Model.Finder<Long, Session> find = new Model.Finder<Long, Session>(Long.class, Session.class);
 
@@ -45,17 +46,18 @@ public class Session extends Model
 	
 	public void assignProperties(JsonNode session)
 	{
-		facebook_group_id = session.get("facebook_group_id").asLong();
-		facebook_creator_id = session.path("facebook_creator_id").asLong();
+		facebook_group_id = session.get("facebook_group_id").asText();
+		facebook_creator_id = session.path("facebook_creator_id").asText();
 		stitle = session.get("title").asText();
 		sdescription = session.get("description").asText();
+		privacy = "open";
 	}
 	
-	public long getFacebook_group_id() {
+	public String getFacebook_group_id() {
 		return facebook_group_id;
 	}
 
-	public void setFacebook_group_id(long facebook_group_id) {
+	public void setFacebook_group_id(String facebook_group_id) {
 		this.facebook_group_id = facebook_group_id;
 	}
 
@@ -67,12 +69,20 @@ public class Session extends Model
 		this.stitle = stitle;
 	}
 
-	public long getFacebook_creator_id() {
+	public String getFacebook_creator_id() {
 		return facebook_creator_id;
 	}
 
-	public void setFacebook_creator_id(long facebook_creator_id) {
+	public void setFacebook_creator_id(String facebook_creator_id) {
 		this.facebook_creator_id = facebook_creator_id;
+	}
+
+	public String getPrivacy() {
+		return privacy;
+	}
+
+	public void setPrivacy(String privacy) {
+		this.privacy = privacy;
 	}
 
 	public String getDescription() {

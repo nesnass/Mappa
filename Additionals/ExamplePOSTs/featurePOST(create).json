@@ -1,7 +1,6 @@
 {
 	"type": "Feature",
 	"id":"511cad2c0364f1bea54ba3ca",
-	"session_id":"1",
 	"geometry":
 	{
 		"type": "Point",
@@ -17,6 +16,15 @@
 			"location":[10.756731033325195,59.9238826969285],
 			"username" : "martinhavnør"
 		},
+		"sessions": [
+			{
+				"id" : "1234567",
+				"owner" : "808270471",
+				"privacy" : "open",
+				"name" : "Test Session",
+				"description" : "This is a new session created for testing"
+			}
+		],
 		"description": "Mysfrøukost och greys i sängen ❤ @nmadeleine #breåkfastinbed#loveit #cozy #everydayiscozyday #greaysanatomy #føny"
 	}
 }

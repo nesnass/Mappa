@@ -229,15 +229,16 @@ public class Feature extends Model implements Comparator<Feature>
 		}
 		else
 			geometry.assignProperties(featureNode.get("geometry"));
-		featureSession = Session.find.byId(featureNode.get("properties").path("session_id").asLong());
+		featureSession = Session.find.where().eq("facebook_group_id", featureNode.get("properties").path("sessions").path(0).path("id").asText()).findUnique();
 
 // *************  Session should always be supplied in the JSON. This case should be removed when sessions are enabled
 		if(featureSession == null) {
 			Session newSession = new Session();
 
-			newSession.setFacebook_group_id(featureNode.path("session_id").asLong());
-			newSession.setTitle( "Test Session Title" );
-			newSession.setDescription( "Test session Description" );
+			newSession.setFacebook_group_id( featureNode.get("properties").path("sessions").path(0).path("id").asText() );
+			newSession.setTitle( featureNode.get("properties").path("sessions").path(0).path("name").asText() );
+		//	newSession.setDescription( featureNode.get("properties").path("session").path(0).path("description").asText() );
+		//	newSession.setPrivacy(featureNode.get("properties").path("session").path(0).path("description").asText() );
 			newSession.save();
 
 			featureSession = newSession;

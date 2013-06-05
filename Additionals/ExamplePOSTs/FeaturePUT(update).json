@@ -17,5 +17,13 @@
         "descr_url": "createdbyserverwhichwillleadtoHTMLpageshowingthecontentsofPIO",
         "icon_url": "mytesticonURL",
         "source_type": "overlay"
+        "session":
+		{
+			"id" : "1234567",
+			"owner" : "808270471",
+			"privacy" : "open",
+			"name" : "Test Session",
+			"description" : "This is a new session created for testing"
+		}
     }
 }

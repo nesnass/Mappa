@@ -1,6 +1,11 @@
 {
-	"facebook_group_id" : "1234567",
-	"facebook_creator_id" : "808270471",
-	"title" : "Test Session",
-	"description" : "This is a new session created for testing"
+	"properties" : {
+		"session" : {
+			"id" : "1234567",
+			"owner" : "808270471",
+			"privacy" : "open",
+			"name" : "Test Session",
+			"description" : "This is a new session created for testing"
+		}
+	}
 }

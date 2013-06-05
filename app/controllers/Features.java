@@ -12,7 +12,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -73,14 +75,14 @@ public class Features extends Controller
 	}
 
 	// Get a Feature list for a facebook group ID
-	public static Result getKmlBySessionId(String groupID)
+	public static Result getKmlBySessionId(String sessionID)
 	{
-		File kmlFile = new File(groupID+".kml");
-		KmlParser.getKmlForSession(groupID, kmlFile);
+		File kmlFile = new File(sessionID+".kml");
+		KmlParser.getKmlForSession(sessionID, kmlFile);
 		
 		response().setContentType("application/x-download"); 
 	//	response().setContentType("application/vnd.google-earth.kml+xml");
-		response().setHeader("Content-disposition","attachment; filename="+groupID+".kml"); 
+		response().setHeader("Content-disposition","attachment; filename="+sessionID+".kml"); 
 		return ok(kmlFile);
 	}
 	// Get a Feature list for a facebook user ID
@@ -96,12 +98,23 @@ public class Features extends Controller
 	}
 	
 	// GET /search/:hashTag
-	public static Result getGeoFeaturesByTag(String hashTag)
+	public static Result getGeoFeaturesByTag(String hashTag, String sessionIDs)
 	{
-		Tag foundTag = Tag.find.fetch("tagFeatures").where().eq("tag", hashTag).findUnique();
+		Tag foundTag = Tag.find.fetch("tagFeatures").fetch("tagFeatures.featureSession").where().eq("tag", hashTag).findUnique();
 		if(foundTag != null) {
+			List<String> sessions = Arrays.asList(sessionIDs.split(","));
 			FeatureCollection featureCollection = new FeatureCollection(foundTag.tagFeatures);
 			
+			Iterator<Feature> it = featureCollection.iterator();
+			while(it.hasNext())
+			{
+				Feature fit = it.next();
+				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
+				{
+					it.remove();
+				}
+			}
+
 			response().setContentType("text/html; charset=utf-8");
 			String s = featureCollection.toJson();
 			return ok(s);
@@ -112,10 +125,29 @@ public class Features extends Controller
 	
 	
 	// GET /geo
-	public static Result getAllGeoFeautres()
+	public static Result getAllGeoFeatures(String sessionIDs)
 	{
-		List<Feature> featureList = Feature.find.all();
-		FeatureCollection featureCollection = new FeatureCollection(featureList);
+		FeatureCollection featureCollection = new FeatureCollection();
+		List<Feature> featureList;
+		List<String> sessions = Arrays.asList(sessionIDs.split(","));
+		
+		if(sessions.size() == 0) {
+			featureList = Feature.find.fetch("featureSession").where().eq("featureSession.privacy", "open").findList();
+			featureCollection.add(featureList);
+		}
+		else {
+			featureList = Feature.find.fetch("featureSession").findList();
+			Iterator<Feature> it = featureList.iterator();
+			while(it.hasNext())
+			{
+				Feature fit = it.next();
+				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
+				{
+					it.remove();
+				}
+			}
+			featureCollection.add(featureList);
+		}
 		
 		response().setContentType("text/html; charset=utf-8");
 		String s = featureCollection.toJson();
@@ -123,16 +155,18 @@ public class Features extends Controller
 	}
 	
 	
-	//  GET /geo/:id
-	public static Result getFeatureById(String id) {
-		Feature feature = Feature.find.byId(Long.valueOf(id));
-		if (feature == null) {
+	//  GET /geo/:id/:sessionIDs
+//***********************  NEEDS TO RETRIEVE SESSION *************************
+	public static Result getFeatureById(String id, String sessionID) {
+		Feature feature = Feature.find.fetch("featureSession").where().eq("", Long.valueOf(id)).findUnique();
+		Session s = feature.featureSession;
+		if (feature == null || s.getFacebook_group_id() != sessionID) {
 			return ok("POI Not Found");
 		}
 		
 		response().setContentType("text/html; charset=utf-8");
-		String s = feature.toJson(); 
-		return ok(s);
+		String str = feature.toJson(); 
+		return ok(str);
 	}
 	
 	
@@ -144,7 +178,7 @@ public class Features extends Controller
 	
 	
 	// Given bounding coordinates, return all MAPPA Features within
-	private static List<Feature> getFeaturesClosestToSource(double lat1, double lng1, double lat2, double lng2, double[] midpoint)
+	private static List<Feature> getFeaturesClosestToSource(double lat1, double lng1, double lat2, double lng2, double[] midpoint, String sessionIDs)
 	{
 		// First .between coordinate should be smaller than the second, swap if necessary
 		double longHolder = lng1;
@@ -160,11 +194,33 @@ public class Features extends Controller
 			lat2 = latHolder;
 		}
 		
-		List<Feature> allFeaturesWithinBounds = Feature.find.fetch("featureSession").where()
-				.between("lng", lng1, lng2)
-				.between("lat", lat1, lat2)
-				.findList();
-
+		List<Feature> allFeaturesWithinBounds;
+		List<String> sessions = Arrays.asList(sessionIDs.split(","));
+		
+		if(sessions.size() == 0) {
+			allFeaturesWithinBounds = Feature.find.fetch("featureSession").where()
+					.between("lng", lng1, lng2)
+					.between("lat", lat1, lat2)
+					.eq("featureSession.privacy", "open")
+					.findList();
+		}
+		else {
+			allFeaturesWithinBounds = Feature.find.where()
+					.between("lng", lng1, lng2)
+					.between("lat", lat1, lat2)
+					.findList();
+			
+			Iterator<Feature> it = allFeaturesWithinBounds.iterator();
+			while(it.hasNext())
+			{
+				Feature fit = it.next();
+				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
+				{
+					it.remove();
+				}
+			}
+		}
+		
 		if(allFeaturesWithinBounds.size() == 0)
 			return allFeaturesWithinBounds;
 		
@@ -178,7 +234,7 @@ public class Features extends Controller
 	
 	// GET /geo/box/
 	// ******* Needs further testing to confirm reliable results ********
-	public static Result getGeoFeaturesInBoundingBox(String ln1, String la1, String ln2, String la2)
+	public static Result getGeoFeaturesInBoundingBox(String ln1, String la1, String ln2, String la2, String sessionIDs)
 	{	
 		double lng1 = Double.parseDouble(ln1);
 		double lat1 = Double.parseDouble(la1);
@@ -190,7 +246,7 @@ public class Features extends Controller
 		// Calculate the radius for a circle containing the bounding box
 		int radius = (int) Math.round(GeoCalculations.haversine(lat1, lng1, lat2, lng2))*500; // Radius from diameter, in meters
 
-		List<Feature> closestToSource = getFeaturesClosestToSource(lat1, lng1, lat2, lng2, midpoint);
+		List<Feature> closestToSource = getFeaturesClosestToSource(lat1, lng1, lat2, lng2, midpoint, sessionIDs);
 		List<Feature> instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.BOUNDING_BOX, midpoint[0], midpoint[1], radius);
 		
 		closestToSource.addAll(instaPOIs);
@@ -208,7 +264,7 @@ public class Features extends Controller
 	// GET /geo/radius/:lng/:lat/:radiusInMeters
 	// *********  There is no 'near' call within the EBean implementation, so we call search by forming an outer-bounding box, 
 	// *********  then search within it using circular radius
-	public static Result getFeaturesInRadius(String ln, String la, String rad)
+	public static Result getFeaturesInRadius(String ln, String la, String rad, String sessionIDs)
 	{
 		double lng = Double.parseDouble(ln);
 		double lat = Double.parseDouble(la);
@@ -221,7 +277,7 @@ public class Features extends Controller
 		// Create a reference to the center of the bounding box by getting a midpoint
 		double midpoint[] = GeoCalculations.midpointCoordsFromStartEndCoords(lowBound[0], lowBound[1], highBound[0], highBound[1]);
 		
-		List<Feature> featuresInRadius = getFeaturesClosestToSource(lowBound[0], lowBound[1], highBound[0], highBound[1], midpoint);
+		List<Feature> featuresInRadius = getFeaturesClosestToSource(lowBound[0], lowBound[1], highBound[0], highBound[1], midpoint, sessionIDs);
 		
 		// ********* For more precise results, this box set should now be searched for a circular radius set within
 		
@@ -248,16 +304,33 @@ public class Features extends Controller
 	
 	
 	// GET /geo/recent/:lng/:lat
-	public static Result getMostRecentGeoFeatures(String ln, String la)
+	public static Result getMostRecentGeoFeatures(String ln, String la, String sessionIDs)
 	{
 		double lng = Double.parseDouble(ln);
 		double lat = Double.parseDouble(la);
 		
 		// ******** Thinking this should do a radius search first for the given lat / lng, then display the most recent? ********
 		
-		// Find all features Limited to nearest 18
-		List<Feature> features = Feature.find.where().orderBy("created_time desc").setMaxRows(MyConstants.MAX_FEATURES_TO_GET).findList();
+		// Find all features Limited to nearest 18, remove if no session id is contained within, or return "open" POIs
+		List<Feature> features;
+		List<String> sessions = Arrays.asList(sessionIDs.split(","));
 		
+		if(sessions.size() == 0) {
+			features = Feature.find.fetch("featureSession").where().eq("featureSession.privacy", "open").orderBy("created_time desc").setMaxRows(MyConstants.MAX_FEATURES_TO_GET).findList();
+		}
+		else {
+			features = Feature.find.where().orderBy("created_time desc").setMaxRows(MyConstants.MAX_FEATURES_TO_GET).findList();
+			
+			Iterator<Feature> it = features.iterator();
+			while(it.hasNext())
+			{
+				Feature fit = it.next();
+				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
+				{
+					it.remove();
+				}
+			}
+		}
 		List<Feature> instaPOIs;
 		try {
 			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RECENT, lat, lng, MyConstants.DEFAULT_INSTAGRAM_DISTANCE);
