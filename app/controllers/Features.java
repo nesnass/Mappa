@@ -124,7 +124,7 @@ public class Features extends Controller
 	}
 	
 	
-	// GET /geo
+	// GET /geo?sessions=1234567
 	public static Result getAllGeoFeatures(String sessionIDs)
 	{
 		FeatureCollection featureCollection = new FeatureCollection();
@@ -156,11 +156,10 @@ public class Features extends Controller
 	
 	
 	//  GET /geo/:id/:sessionIDs
-//***********************  NEEDS TO RETRIEVE SESSION *************************
 	public static Result getFeatureById(String id, String sessionID) {
-		Feature feature = Feature.find.fetch("featureSession").where().eq("", Long.valueOf(id)).findUnique();
+		Feature feature = Feature.find.fetch("featureSession").where().idEq(Long.valueOf(id)).findUnique();
 		Session s = feature.featureSession;
-		if (feature == null || s.getFacebook_group_id() != sessionID) {
+		if (feature == null || !s.getFacebook_group_id().equalsIgnoreCase(sessionID)) {
 			return ok("POI Not Found");
 		}
 		
@@ -169,6 +168,14 @@ public class Features extends Controller
 		return ok(str);
 	}
 	
+
+	//  DELETE /geo/?...&...
+	public static Result deleteGeoFeature(String id, String user_id, String sessionID) {
+
+		response().setContentType("text/html; charset=utf-8");
+		String str = "Delete not implemented"; 
+		return ok(str);
+	}
 	
 	// Return a list of the maxItem closest Features to the given source Feature
 	private static List<Feature> sortAndLimitClosestFeaturesToSource(final Feature source, final List<Feature> others, int maxItems) {
@@ -232,7 +239,7 @@ public class Features extends Controller
 	}
 
 	
-	// GET /geo/box/
+	// GET /geo/box/?...&...
 	// ******* Needs further testing to confirm reliable results ********
 	public static Result getGeoFeaturesInBoundingBox(String ln1, String la1, String ln2, String la2, String sessionIDs)
 	{	
@@ -261,7 +268,7 @@ public class Features extends Controller
 	}
 	
 	
-	// GET /geo/radius/:lng/:lat/:radiusInMeters
+	// GET /geo/radius/:lng/:lat/:radiusInMeters/:sessionIDs
 	// *********  There is no 'near' call within the EBean implementation, so we call search by forming an outer-bounding box, 
 	// *********  then search within it using circular radius
 	public static Result getFeaturesInRadius(String ln, String la, String rad, String sessionIDs)
@@ -303,7 +310,7 @@ public class Features extends Controller
 	}
 	
 	
-	// GET /geo/recent/:lng/:lat
+	// GET /geo/recent/:lng/:lat/:sessionIDs
 	public static Result getMostRecentGeoFeatures(String ln, String la, String sessionIDs)
 	{
 		double lng = Double.parseDouble(ln);

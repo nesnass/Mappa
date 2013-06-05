@@ -96,6 +96,13 @@ public class Feature extends Model implements Comparator<Feature>
 		@Transient
 		private String origin_id;
 		
+		public String getId() {
+			return origin_id;
+		}
+		public void setId(String origin_id) {
+			this.origin_id = origin_id;
+		}
+
 		@Transient
 		private Images images;
 		public Images getImages() { return images; }
@@ -231,7 +238,7 @@ public class Feature extends Model implements Comparator<Feature>
 			geometry.assignProperties(featureNode.get("geometry"));
 		featureSession = Session.find.where().eq("facebook_group_id", featureNode.get("properties").path("sessions").path(0).path("id").asText()).findUnique();
 
-// *************  Session should always be supplied in the JSON. This case should be removed when sessions are enabled
+// *************  Session should always be supplied in the JSON
 		if(featureSession == null) {
 			Session newSession = new Session();
 
@@ -397,10 +404,10 @@ public class Feature extends Model implements Comparator<Feature>
 		properties.setTags(this.featureTags);
 		properties.setImages(this.images);
 		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString())) {
-			properties.origin_id = String.valueOf(this._id);
+			properties.setId(String.valueOf(this._id));
 		}
 		else
-			properties.origin_id = this.origin_id;
+			properties.setId(this.origin_id);
 		
 		JSONSerializer serializer = new JSONSerializer();
         return serializer

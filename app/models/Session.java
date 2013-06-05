@@ -46,10 +46,10 @@ public class Session extends Model
 	
 	public void assignProperties(JsonNode session)
 	{
-		facebook_group_id = session.get("facebook_group_id").asText();
-		facebook_creator_id = session.path("facebook_creator_id").asText();
-		stitle = session.get("title").asText();
-		sdescription = session.get("description").asText();
+		facebook_group_id = session.get("id").asText();
+	//	facebook_creator_id = session.path("facebook_creator_id").asText();
+		stitle = session.get("name").asText();
+	//	sdescription = session.get("description").asText();
 		privacy = "open";
 	}
 	
