@@ -1,32 +1,47 @@
 {
     "type": "Feature",
-    "id":"511cad2c0364f1bea54ba3ca",
-    "geometry":
-                {
-                   "type": "Point",
-                   "coordinates": [10.7552, 59.9178]
-                },
-    "properties":
-                {
-               		"source_type": "mapped_instagram",
-               		"user":{
-               					"id":"30308715",
-               					"username": "elingranstrand",
-               					"full_name":"Elin Granstrand",
-               					"location":[10.756731033325195,59.9238826969285],
-               					"profile_picture": "http://images.instagram.com/profiles/profile_30308715_75sq_1360081308.jpg"
-               				},
-               		"description": "Mysfrukost och greys i sängen ❤ @nmadeleine #breakfastinbed#loveit #cozy#everydayiscozyday #greaysanatomy",
-               		"mapper":{
-               					"id":"122808270471",
-               					"full_name":"Martin Havnør",
-               					"location":[10.756731033325195,59.9238826969285]
-               				},
-               	 	"mapper_description": "I can also see the #mapped #instagram df asfasdfa sf as",
-               	 	"images" : {
-      							"thumbnail" : "http://distilleryimage8.s3.amazonaws.com/f4417cf479aa11e2976e22000a1fbc8d_5.jpg",
-      							"standard_resolution" : "http://distilleryimage8.s3.amazonaws.com/f4417cf479aa11e2976e22000a1fbc8d_7.jpg"
-   							 }
-                }
-                
+    "id": "511cad2c0364f1bea54ba3ca",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            10.7552,
+            59.9178
+        ]
+    },
+    "properties": {
+        "source_type": "mapped_instagram",
+        "user": {
+            "id": "30308715",
+            "username": "elingranstrand",
+            "full_name": "Elin Granstrand",
+            "location": [
+                10.756731033325195,
+                59.9238826969285
+            ],
+            "profile_picture": "http://images.instagram.com/profiles/profile_30308715_75sq_1360081308.jpg"
+        },
+        "sessions": [
+            {
+                "id": "245718548833281",
+                "owner": "808270471",
+                "privacy": "private",
+                "name": "Test Session",
+                "description": "This is a new session created for testing"
+            }
+        ],
+        "description": "Mysfrukost och greys i sängen ❤ @nmadeleine #breakfastinbed#loveit #cozy#everydayiscozyday #greaysanatomy",
+        "mapper": {
+            "id": "122808270471",
+            "full_name": "Martin Havnør",
+            "location": [
+                10.756731033325195,
+                59.9238826969285
+            ]
+        },
+        "mapper_description": "I can also see the #mapped #instagram df asfasdfa sf as",
+        "images": {
+            "thumbnail": "http://distilleryimage8.s3.amazonaws.com/f4417cf479aa11e2976e22000a1fbc8d_5.jpg",
+            "standard_resolution": "http://distilleryimage8.s3.amazonaws.com/f4417cf479aa11e2976e22000a1fbc8d_7.jpg"
+        }
+    }
 }

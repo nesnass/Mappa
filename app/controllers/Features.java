@@ -485,7 +485,7 @@ public class Features extends Controller
 				id = featureNode.get("properties").get("mapper").get("id").asText();
 				MUser mapperUser = MUser.find.where().eq("id", id).findUnique();
 				
-				// User is the Facebook user. does not exist in DB, then create it
+				// User is the Instagram user. does not exist in DB, then create it
 				if(mapperUser == null && !id.equals(""))
 				{
 					mapperUser = new MUser(id, featureNode.get("properties").get("mapper").get("full_name").asText(), featureNode.get("properties").get("user").path("username").asText());
