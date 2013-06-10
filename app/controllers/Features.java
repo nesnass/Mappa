@@ -495,6 +495,8 @@ public class Features extends Controller
 
 				// Set the mapperUser reference
 				newFeature.featureMapper = mapperUser;
+				// Add the feature to the mapping user
+				mapperUser.userFeatures.add(newFeature);
 				Ebean.save(mapperUser);
 			}
 
