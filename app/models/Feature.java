@@ -42,13 +42,13 @@ public class Feature extends Model implements Comparator<Feature>
 	@Constraints.MaxLength(30)
 	public String type = "Feature";
 
-	@ManyToOne()
+	@ManyToOne(cascade=CascadeType.ALL)
 	public MUser featureUser;
 	
-	@ManyToOne()
+	@ManyToOne(cascade=CascadeType.ALL)
 	public MUser featureMapper;
 
-	@ManyToOne()
+	@ManyToOne(cascade=CascadeType.ALL)
 	public Session featureSession;
 	
 	@ManyToMany(cascade=CascadeType.ALL)
@@ -312,24 +312,6 @@ public class Feature extends Model implements Comparator<Feature>
 			geometry = new Point(jInstagramMedia.getLocation());
 		else
 			geometry.assignProperties(jInstagramMedia.getLocation());
-
-
-// ******************************			
-		featureSession = Session.find.where().eq("facebook_group_id", featureNode.get("properties").path("sessions").path(0).path("id").asText()).findUnique();
-
-		if(featureSession == null) {
-			Session newSession = new Session();
-
-			newSession.setFacebook_group_id( featureNode.get("properties").path("sessions").path(0).path("id").asText() );
-			newSession.setTitle( featureNode.get("properties").path("sessions").path(0).path("name").asText() );
-		//	newSession.setDescription( featureNode.get("properties").path("session").path(0).path("description").asText() );
-		//	newSession.setPrivacy(featureNode.get("properties").path("session").path(0).path("description").asText() );
-			newSession.save();
-
-			featureSession = newSession;
-		}
-		
-//******************************	
 
 		if(jInstagramMedia.getCaption() != null)
 			properties.description = jInstagramMedia.getCaption().getText();
