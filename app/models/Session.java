@@ -93,6 +93,9 @@ public class Session extends Model
 		this.sdescription = sdescription;
 	}
 
+	public long retrieveId() {
+		return this.id;
+	}
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
 	public String toJson()
 	{

@@ -171,9 +171,15 @@ public class Features extends Controller
 
 	//  DELETE /geo/?...&...
 	public static Result deleteGeoFeature(String id, String user_id, String sessionID) {
-
+		String str; 
+		Feature f = Feature.find.fetch("featureuser").where().idEq(Long.valueOf(id)).findUnique();
+		if(f.featureUser.getId().equalsIgnoreCase(user_id) && f.featureSession.retrieveId() == Long.parseLong(sessionID)) {
+			Ebean.delete(f);
+			str = "POI Deleted";
+		}
+		else
+			str = "Unable to Delete";
 		response().setContentType("text/html; charset=utf-8");
-		String str = "Delete not implemented"; 
 		return ok(str);
 	}
 	
@@ -212,7 +218,7 @@ public class Features extends Controller
 					.findList();
 		}
 		else {
-			allFeaturesWithinBounds = Feature.find.where()
+			allFeaturesWithinBounds = Feature.find.fetch("featureSession").where()
 					.between("lng", lng1, lng2)
 					.between("lat", lat1, lat2)
 					.findList();
@@ -221,7 +227,8 @@ public class Features extends Controller
 			while(it.hasNext())
 			{
 				Feature fit = it.next();
-				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
+				Session s = fit.featureSession;
+				if(s != null && !sessions.contains(s.getFacebook_group_id()))
 				{
 					it.remove();
 				}
