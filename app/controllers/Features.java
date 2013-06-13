@@ -375,7 +375,7 @@ public class Features extends Controller
 			featureNode = mapper.readTree(fileReader);
 			source_type = featureNode.get("properties").get("source_type").asText();
 			long fid = featureNode.get("id").asLong();
-			updatedFeature = Feature.find.byId(fid);
+			updatedFeature = Feature.find.fetch("featureTags").where().eq("_id", fid).findUnique();
 
 			if(updatedFeature == null)
 			{
@@ -409,6 +409,8 @@ public class Features extends Controller
 				updatedFeature.deleteImages();
 				updatedFeature.imageStandardResolutionFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
 				updatedFeature.imageThumbnailFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolutionFile.getUuid());
+				updatedFeature.retrieveImages().standard_resolution = updatedFeature.imageStandardResolutionFile.getUrlAsString();
+				updatedFeature.retrieveImages().thumbnail = updatedFeature.imageThumbnailFile.getUrlAsString();
 			}
 		}
 		else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))

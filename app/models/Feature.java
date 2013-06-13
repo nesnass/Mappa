@@ -291,6 +291,9 @@ public class Feature extends Model implements Comparator<Feature>
 			foundTags.add(tagsIteratorFromNode.next().getTextValue());
 		}
 		
+		updateTags(foundTags);
+		
+		/*
 		// Remove existing tags for this feature
 		removeTags();
 		
@@ -302,6 +305,7 @@ public class Feature extends Model implements Comparator<Feature>
 				addTag(tagsIteratorAllTags.next());
 			}
 		}
+		*/
 	}
 	
 	// Setup by jInstagram MediaFeedData object
@@ -323,18 +327,48 @@ public class Feature extends Model implements Comparator<Feature>
 		properties.created_time.setTime(tt);
 		this.origin_id = jInstagramMedia.getId();
 
+		// New set to contain tags
+		Set<String> foundTags = new HashSet<String>();
 		// Set the Tag references, if any tags exist
 		Iterator<String> tagsIterator = jInstagramMedia.getTags().iterator();
 		while(tagsIterator.hasNext())
 		{
-			addTag(tagsIterator.next());
+			foundTags.add(tagsIterator.next());
 		}
+		updateTags(foundTags);
 	}
 	
 	public Images retrieveImages() {
 		return images;
 	}
-
+	
+	/*  This method avoids PSQL complaints from eBean, but creates a lot of DB accesses! */
+	/*  Reconsider the need for many-many tag relationship.. */
+	public void updateTags(Set<String> tags) {
+			featureTags.clear();
+			this.saveManyToManyAssociations("featureTags");
+		  /*  for(Tag tag : featureTags) {
+		        removeTag(tag.retrieveId());
+		    }
+		  */
+		    for (String tag : tags) {
+		    	Tag newTag = Tag.find.where().eq("tag", tag).findUnique();
+				if(newTag == null) {
+					newTag = new Tag(tag);
+					newTag.tagFeatures.add(this);
+					newTag.save();
+		            featureTags.add(newTag);
+				}
+		    }
+		    this.saveManyToManyAssociations("featureTags");
+	}
+	
+	public void removeTag(Long tagId) {
+	    featureTags.remove(Tag.find.ref(tagId));
+	    this.saveManyToManyAssociations("featureTags");
+	}
+	
+	/*
 	public void removeTags()
 	{
 		// Find tags with references to this feature and others, remove
@@ -345,7 +379,8 @@ public class Feature extends Model implements Comparator<Feature>
 			it.remove();
 		}
 	}
-	
+	*/
+	/*
 	public void addTag(String theTag)
 	{
 		Tag newTag = Tag.find.where().eq("tag", theTag).findUnique();
@@ -356,15 +391,16 @@ public class Feature extends Model implements Comparator<Feature>
 		newTag.tagFeatures.add(this);
 		//newTag.save();
 	}
-	
+	*/
 	public void deleteImages()
 	{
 		imageStandardResolutionFile.delete();
 		imageThumbnailFile.delete();
-		properties.images.standard_resolution = "";
-		properties.images.thumbnail = "";
+		images.standard_resolution = "";
+		images.thumbnail = "";
 		imageStandardResolutionFile.delete();
 		imageThumbnailFile.delete();
+		properties.setImages(images);
 	}
 	
 	public static Model.Finder<Long, Feature> find = new Model.Finder<Long, Feature>(Long.class, Feature.class);

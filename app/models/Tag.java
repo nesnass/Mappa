@@ -45,6 +45,10 @@ public class Tag extends Model
 	public String toString() {
 		return tag;
 	}
+
+	public long retrieveId(){
+		return id;
+	}
 	
 	@JSON(include=false)
 	public String getTag() {

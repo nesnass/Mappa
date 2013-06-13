@@ -1,5 +1,5 @@
 {
-    "id": "41",
+    "id": "63",
     "type": "Feature",
     "geometry": {
         "type": "Point",
@@ -9,21 +9,23 @@
         ]
     },
     "properties": {
-        "name": "ServerwillgeneratethenameofPOIbyparsingtheTEXTusingsomelogic",
         "description": "textincludinglabelandhashtagsthatcanbethefirstsentenceorsomeotherlogicalsegment  #finalTag!",
-        "author": "authornamefromfacebook",
-        "authorId": "authoruniqueIdfromfacebook",
-        "tags": "alistofstringseparatedbyspacewillbemadebyserverbyparsingthetext",
-        "descr_url": "createdbyserverwhichwillleadtoHTMLpageshowingthecontentsofPIO",
-        "icon_url": "mytesticonURL",
-        "source_type": "mappa"
-        "session":
+        "source_type": "mappa",
+		"sessions": [
+			{
+				"id" : "245718548833281",
+				"owner" : "808270471",
+				"privacy" : "private",
+				"name" : "Test Session",
+				"description" : "This is a new session created for testing"
+			}
+		],
+		"user":
 		{
-			"id" : "1234567",
-			"owner" : "808270471",
-			"privacy" : "open",
-			"name" : "Test Session",
-			"description" : "This is a new session created for testing"
+			"id":"122808270471",
+			"full_name":"Martin Havnør",
+			"location":[10.756731033325195,59.9238826969285],
+			"username" : "martinhavnør"
 		}
     }
 }
