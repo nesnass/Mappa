@@ -171,16 +171,18 @@ public class Features extends Controller
 
 	//  DELETE /geo/?...&...
 	public static Result deleteGeoFeature(String id, String user_id, String sessionID) {
-		String str; 
-		Feature f = Feature.find.fetch("featureuser").where().idEq(Long.valueOf(id)).findUnique();
-		if(f.featureUser.getId().equalsIgnoreCase(user_id) && f.featureSession.retrieveId() == Long.parseLong(sessionID)) {
-			Ebean.delete(f);
-			str = "POI Deleted";
-		}
-		else
-			str = "Unable to Delete";
 		response().setContentType("text/html; charset=utf-8");
-		return ok(str);
+		Feature f = Feature.find.fetch("featureUser").fetch("featureSession").fetch("featureTags").where().idEq(Long.valueOf(id)).findUnique();
+		if(f != null) {
+		String uid = f.featureUser.getId();
+		String sid = f.featureSession.getFacebook_group_id();
+			if(uid.equalsIgnoreCase(user_id) && sid.equalsIgnoreCase(sessionID)) {
+				f.removeTags();
+				Ebean.delete(f);
+				return ok("POI Deleted");
+			}
+		}
+		return ok("Unable to delete");
 	}
 	
 	// Return a list of the maxItem closest Features to the given source Feature

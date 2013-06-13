@@ -28,7 +28,7 @@ public class Tag extends Model
 	@Column(unique=true)
 	private String tag;
 
-	@ManyToMany(cascade=CascadeType.ALL)
+	@ManyToMany()
 	public Set<Feature> tagFeatures = new HashSet<Feature>();
 
 	public Tag()
