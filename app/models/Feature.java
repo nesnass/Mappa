@@ -42,17 +42,16 @@ public class Feature extends Model implements Comparator<Feature>
 	@Constraints.MaxLength(30)
 	public String type = "Feature";
 
-	@ManyToOne()
+	@ManyToOne(cascade=CascadeType.ALL)
 	public MUser featureUser;
 	
-	// This needs to be removed - mock mapper is don in Properties class. But we need to persist an "origin" section instead for mapped items . See email 11th June 2013.
-	@ManyToOne()
+	@ManyToOne(cascade=CascadeType.ALL)
 	public MUser featureMapper;
 
-	@ManyToOne()
+	@ManyToOne(cascade=CascadeType.ALL)
 	public Session featureSession;
 	
-	@ManyToMany()
+	@ManyToMany(cascade=CascadeType.ALL)
 	public Set<Tag> featureTags = new HashSet<Tag>();
 	
 	@Embedded()
@@ -343,27 +342,30 @@ public class Feature extends Model implements Comparator<Feature>
 		return images;
 	}
 	
+	/*  This method avoids PSQL complaints from eBean, but creates a lot of DB accesses! */
+	/*  Reconsider the need for many-many tag relationship.. */
 	public void updateTags(Set<String> tags) {
-		removeTags();
-		for (String tag : tags) {
-			Tag newTag = Tag.find.where().eq("tag", tag).findUnique();
-			if(newTag == null) {
-				newTag = new Tag(tag);
-			}
-			newTag.tagFeatures.add(this);
-			featureTags.add(newTag);
-			newTag.save();
-		}
-		this.saveManyToManyAssociations("featureTags");
+			featureTags.clear();
+			this.saveManyToManyAssociations("featureTags");
+		  /*  for(Tag tag : featureTags) {
+		        removeTag(tag.retrieveId());
+		    }
+		  */
+		    for (String tag : tags) {
+		    	Tag newTag = Tag.find.where().eq("tag", tag).findUnique();
+				if(newTag == null) {
+					newTag = new Tag(tag);
+					newTag.tagFeatures.add(this);
+					newTag.save();
+		            featureTags.add(newTag);
+				}
+		    }
+		    this.saveManyToManyAssociations("featureTags");
 	}
 	
-	public void removeTags() {
-		for(Tag tag : featureTags) {
-			tag.tagFeatures.remove(this);
-			tag.save();
-		}
-		featureTags.clear();
-		this.save();
+	public void removeTag(Long tagId) {
+	    featureTags.remove(Tag.find.ref(tagId));
+	    this.saveManyToManyAssociations("featureTags");
 	}
 	
 	/*
@@ -392,12 +394,12 @@ public class Feature extends Model implements Comparator<Feature>
 	*/
 	public void deleteImages()
 	{
-		if(imageStandardResolutionFile !=null)
-			imageStandardResolutionFile.delete();
-		if(imageThumbnailFile != null)
-			imageThumbnailFile.delete();
+		imageStandardResolutionFile.delete();
+		imageThumbnailFile.delete();
 		images.standard_resolution = "";
 		images.thumbnail = "";
+		imageStandardResolutionFile.delete();
+		imageThumbnailFile.delete();
 		properties.setImages(images);
 	}
 	
