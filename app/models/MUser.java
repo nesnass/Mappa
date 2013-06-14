@@ -38,7 +38,7 @@ public class MUser extends Model
 	@Transient
 	private double[] location = new double[2];
 	
-	@OneToMany(mappedBy="featureUser", cascade=CascadeType.ALL)
+	@OneToMany(mappedBy="featureUser")
 	public List<Feature> userFeatures = new ArrayList<Feature>();
 	
 	public MUser() {

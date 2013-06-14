@@ -13,9 +13,10 @@ object ApplicationBuild extends Build {
   	"net.sf.flexjson" % "flexjson" % "2.1",
   	"org.imgscalr" % "imgscalr-lib" % "4.2",
   	"de.micromata.jak" % "JavaAPIforKml" % "2.2.0-SNAPSHOT",
+  //	"org.avaje" % "ebean" % "2.7.7",
     javaCore,
     javaJdbc,
-    javaEbean
+	javaEbean
   )
 
   val main = play.Project(appName, appVersion, appDependencies).settings(

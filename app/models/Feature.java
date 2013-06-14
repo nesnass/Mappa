@@ -1,8 +1,6 @@
 package models;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
@@ -17,10 +15,10 @@ import flexjson.JSON;
 import flexjson.JSONSerializer;
 import helpers.GeoCalculations;
 import helpers.MyConstants;
-import models.geometry.Geometry;
 import models.geometry.Point;
 import parsers.TwitterParser;
 import play.data.validation.*;
+
 import play.db.ebean.Model;
 
 /**
@@ -36,26 +34,24 @@ public class Feature extends Model implements Comparator<Feature>
 	@Id
 	@GeneratedValue
 	private long _id;
-	
-	private String origin_id;
-	
+
 	@Constraints.MaxLength(30)
 	public String type = "Feature";
 
-	@ManyToOne()
+	@ManyToOne
 	public MUser featureUser;
 	
 	// This needs to be removed - mock mapper is don in Properties class. But we need to persist an "origin" section instead for mapped items . See email 11th June 2013.
-	@ManyToOne()
-	public MUser featureMapper;
+//	@ManyToOne
+//	public MUser featureMapper;
 
-	@ManyToOne()
+	@ManyToOne
 	public Session featureSession;
 	
-	@ManyToMany()
+	@ManyToMany
 	public Set<Tag> featureTags = new HashSet<Tag>();
 	
-	@Embedded()
+	@Embedded
 	public Point geometry;
 	
 	@OneToOne(cascade=CascadeType.ALL)
@@ -64,10 +60,10 @@ public class Feature extends Model implements Comparator<Feature>
 	@OneToOne(cascade=CascadeType.ALL)
 	public S3File imageThumbnailFile;
 
-	@Embedded()
+	@Embedded
 	public Properties properties;
 
-	@Embedded()
+	@Embedded
 	private Images images;
 	
 	public String accessfeatureUser() {
@@ -84,6 +80,53 @@ public class Feature extends Model implements Comparator<Feature>
 		public String thumbnail = "";
 	}
 	
+	@Embedded
+	private Origin origin;
+	
+	@Embeddable
+	public class Origin {
+		
+		public String id;
+		public String full_name;
+		public String username;
+		private double lngOrigin;
+		private double latOrigin;
+		
+		@JSON(include=false)
+		public double getLng() {
+			return lngOrigin;
+		}
+		@JSON(include=false)
+		public void setLng(double lng) {
+			this.lngOrigin = lng;
+		}
+		@JSON(include=false)
+		public double getLat() {
+			return latOrigin;
+		}
+		@JSON(include=false)
+		public void setLat(double lat) {
+			this.latOrigin = lat;
+		}
+
+		
+		
+		@JSON(include=true)
+		public double[] getLocation() {
+			double[] location = new double[2];
+			if(latOrigin == 0 && lngOrigin == 0)
+				return null;
+			location[0] = lngOrigin;
+			location[1] = latOrigin;
+			return location;
+		}
+		
+		public void setLocation(double ln, double la) {
+			this.lngOrigin = ln;
+			this.latOrigin = la;
+		}
+	}
+	
 	@Embeddable
 	public class Properties
 	{	
@@ -92,27 +135,29 @@ public class Feature extends Model implements Comparator<Feature>
  * 		These non-persisted variables are mapped to the ones above for JSON printing ^
  */
 		@Transient
-		private Feature myParent;
+		private String idProperties;
 		
-		@Transient
-		private String origin_id;
-		
+		@JSON(include=true)
 		public String getId() {
-			return origin_id;
+			if(source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()) || source_type.equals(MyConstants.FeatureStrings.MAPPA.toString())) {
+				return String.valueOf(this.idProperties);
+			}
+			else
+				return origin.id;
 		}
-		public void setId(String origin_id) {
-			this.origin_id = origin_id;
+		public void setId(String id) {
+			idProperties = id;
 		}
-
+		
 		@Transient
 		private Images images;
 		public Images getImages() { return images; }
 		public void setImages(Images images) { this.images = images; }
 
 		@Transient
-		private MUser user;
-		public MUser getUser() { return user; }
-		public void setUser(MUser u) { user = u; }
+		private Origin user;
+		public Origin getUser() { return user; }
+		public void setUser(Origin u) { user = u; }
 		
 		@Transient
 		private MUser mapper;	
@@ -169,7 +214,7 @@ public class Feature extends Model implements Comparator<Feature>
 		
 		// Retrieve the description URL
 		public String getDescription_url() {
-			return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/content/" + origin_id;
+			return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/content/" + user.id;
 		}
 		
 		public String getName() {
@@ -193,6 +238,7 @@ public class Feature extends Model implements Comparator<Feature>
 		images = this.new Images();
 		properties = this.new Properties();
 		properties.created_time = new Date();
+		origin = this.new Origin();
 	}
 	
 	// Construct a new feature given Geometry
@@ -213,18 +259,14 @@ public class Feature extends Model implements Comparator<Feature>
 			return String.valueOf(this._id);
 		}
 		else
-			return this.origin_id;
+			return this.origin.id;
 	}
 
-	@JSON(include=false)
+/*	@JSON(include=false)
 	public String getOrigin_id() {
-		return origin_id;
+		return origin.id;
 	}
-	
-	public void setOrigin_id() {
-		this.origin_id = String.valueOf(_id);
-	}
-
+*/
 	// Setup by JsonNode object
 	public void assignProperties(JsonNode featureNode)
 	{
@@ -273,7 +315,7 @@ public class Feature extends Model implements Comparator<Feature>
 			;
 		}
 		else if(properties.source_type.toString().equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-		{
+		{	
 			images.standard_resolution = featureNode.get("properties").get("images").path("standard_resolution").asText();
 			images.thumbnail = featureNode.get("properties").get("images").path("thumbnail").getTextValue();
 			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
@@ -283,6 +325,10 @@ public class Feature extends Model implements Comparator<Feature>
 
 			// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
 		}
+		origin.full_name = featureNode.get("properties").get("user").get("full_name").asText();
+		origin.setLocation(featureNode.get("properties").get("user").get("location").get(0).asDouble(), featureNode.get("properties").get("user").get("location").get(1).asDouble());
+		origin.id = featureNode.get("properties").get("user").get("id").asText();
+		origin.username = featureNode.get("properties").get("user").get("username").asText();
 		
 		// Set the Tag references, if any tags exist
 		// Look through the description for tags
@@ -326,7 +372,7 @@ public class Feature extends Model implements Comparator<Feature>
 		images.standard_resolution = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
 		long tt = Long.parseLong(jInstagramMedia.getCreatedTime());
 		properties.created_time.setTime(tt);
-		this.origin_id = jInstagramMedia.getId();
+		this.origin.id = jInstagramMedia.getId();
 
 		// New set to contain tags
 		Set<String> foundTags = new HashSet<String>();
@@ -433,16 +479,18 @@ public class Feature extends Model implements Comparator<Feature>
 	public String toJson()
 	{
 		// Temporary variables inside 'properties' need to be initialised before serialisation
-		properties.setUser(this.featureUser);
-		properties.setMapper(this.featureMapper);
-		properties.setSession(this.featureSession);
-		properties.setTags(this.featureTags);
-		properties.setImages(this.images);
 		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString())) {
 			properties.setId(String.valueOf(this._id));
 		}
 		else
-			properties.setId(this.origin_id);
+			properties.setId(this.origin.id);
+		
+		properties.setUser(this.origin);
+		properties.setMapper(this.featureUser);
+		properties.setSession(this.featureSession);
+		properties.setTags(this.featureTags);
+		properties.setImages(this.images);
+
 		
 		JSONSerializer serializer = new JSONSerializer();
         return serializer
@@ -451,7 +499,6 @@ public class Feature extends Model implements Comparator<Feature>
         		.exclude("geometry.lat")
         		.exclude("geometry.lng")
         		.exclude("featureUser")
-        		.exclude("featureMapper")
         		.exclude("featureSession")
         		.exclude("featureTags")
         		.exclude("imageStandardResolutionFile")

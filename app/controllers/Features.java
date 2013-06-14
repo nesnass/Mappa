@@ -452,8 +452,12 @@ public class Features extends Controller
 			featureFilePart = ctx().request().body().asMultipartFormData().getFile("feature");
 			fileReader = new BufferedReader(new FileReader(featureFilePart.getFile()));
 			featureNode = mapper.readTree(fileReader);
-			id = featureNode.get("properties").get("user").get("id").asText();
+			
 			source_type = featureNode.get("properties").get("source_type").asText();
+			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
+				id = featureNode.get("properties").get("user").get("id").asText();
+			else
+				id = featureNode.get("properties").get("mapper").get("id").asText();
 			user = MUser.find.where().eq("id", id).findUnique();
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
@@ -467,20 +471,32 @@ public class Features extends Controller
 		}
 		
 		// User is the facebook user. does not exist in DB, then create it
+		// Current client supplied JSON needs refactoring to provide an 'origin' section. At present user and mapper are mixing up types depending on source_type..
 		if(user == null && !id.equals(""))
 		{
-			user = new MUser(id, featureNode.get("properties").get("user").get("full_name").asText(), featureNode.get("properties").get("user").path("username").asText());
-			user.setLng( featureNode.get("properties").get("user").get("location").get(0).asDouble());
-			user.setLat( featureNode.get("properties").get("user").get("location").get(1).asDouble());
+			String fn, un;
+			double ln, la;
+			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString())) {
+				fn = featureNode.get("properties").get("user").get("full_name").asText();
+				un = featureNode.get("properties").get("user").path("username").asText();
+				ln = featureNode.get("properties").get("user").get("location").get(0).asDouble();
+				la = featureNode.get("properties").get("user").get("location").get(1).asDouble();
+			}
+			else {
+				fn = featureNode.get("properties").get("mapper").get("full_name").asText();
+				// Username currently not being sent in JSON?
+				un = featureNode.get("properties").get("mapper").path("username").asText();
+				ln = featureNode.get("properties").get("mapper").get("location").get(0).asDouble();
+				la = featureNode.get("properties").get("mapper").get("location").get(1).asDouble();
+			}
+			user = new MUser(id, fn, un);
+			user.setLng(ln);
+			user.setLat(la);
 		}
 
 		try {
 			// Setup a new feature, including geometry
 			newFeature = new Feature(featureNode);
-			// Set the user reference
-			newFeature.featureUser = user;
-			// Add the feature to the user
-			user.userFeatures.add(newFeature);
 
 			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
 			{
@@ -493,30 +509,14 @@ public class Features extends Controller
 					newFeature.retrieveImages().thumbnail = newFeature.imageThumbnailFile.getUrlAsString();
 				}
 			}
-			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-			{
-				id = "";
-				id = featureNode.get("properties").get("mapper").get("id").asText();
-				MUser mapperUser = MUser.find.where().eq("id", id).findUnique();
-				
-				// User is the Instagram user. does not exist in DB, then create it
-				if(mapperUser == null && !id.equals(""))
-				{
-					mapperUser = new MUser(id, featureNode.get("properties").get("mapper").get("full_name").asText(), featureNode.get("properties").get("user").path("username").asText());
-					mapperUser.setLng( featureNode.get("properties").get("mapper").get("location").get(0).asDouble() );
-					mapperUser.setLat( featureNode.get("properties").get("mapper").get("location").get(1).asDouble() );
-				}
 
-				// Set the mapperUser reference
-				newFeature.featureMapper = mapperUser;
-				// Add the feature to the mapping user
-				mapperUser.userFeatures.add(newFeature);
-				Ebean.save(mapperUser);
-			}
-
+			// Set the user reference
+			newFeature.featureUser = user;
+			// Add the feature to the user
+			user.userFeatures.add(newFeature);
 			// Save the feature in DB, the feature and tag save will cascade from user due to mapping settings
 			Ebean.save(user);
-			newFeature.setOrigin_id();
+			Ebean.save(newFeature);
 		}
 		catch (javax.persistence.PersistenceException e)
 		{
@@ -533,7 +533,6 @@ public class Features extends Controller
 			}
 		    return badRequest(result);
 		}
-		
 		String jsn = newFeature.toJson();
 
 		response().setContentType("text/html; charset=utf-8");
@@ -601,9 +600,9 @@ public class Features extends Controller
 			try {
 				BufferedImage image = ImageIO.read(f);
 				image = Scalr.resize(image, Scalr.Method.BALANCED, 960);
-				File tmpFile = new File("");
+				File tmpFile = new File(".jpg");
 				ImageIO.write(image, "jpg", tmpFile);
-				image.flush();
+			//	image.flush();
 				s3File.type = MyConstants.S3Strings.SIZE_ORIGINAL.toString();
 				s3File.file = tmpFile;
 			} catch (IOException e) {
@@ -616,9 +615,9 @@ public class Features extends Controller
 			try {
 				BufferedImage image = ImageIO.read(f);
 				image = Scalr.resize(image, 150);
-				File tmpFile = new File("");
+				File tmpFile = new File(".jpg");
 				ImageIO.write(image, "jpg", tmpFile);
-				image.flush();
+			//	image.flush();
 				s3File.type = MyConstants.S3Strings.SIZE_THUMBNAIL.toString();
 				s3File.file = tmpFile;
 			} catch (IOException e) {
