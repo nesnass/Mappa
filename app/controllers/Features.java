@@ -5,7 +5,6 @@ import static play.libs.Json.toJson;
 import helpers.FeatureCollection;
 import helpers.GeoCalculations;
 
-//import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
@@ -38,8 +37,6 @@ import play.mvc.Controller;
 import play.mvc.Http.MultipartFormData.FilePart;
 import models.*;
 import models.geometry.Point;
-
-//import javax.imageio.ImageIO;
 
 /**
  * @author Richard Nesnass
@@ -174,18 +171,16 @@ public class Features extends Controller
 
 	//  DELETE /geo/?...&...
 	public static Result deleteGeoFeature(String id, String user_id, String sessionID) {
-		response().setContentType("text/html; charset=utf-8");
-		Feature f = Feature.find.fetch("featureUser").fetch("featureSession").fetch("featureTags").where().idEq(Long.valueOf(id)).findUnique();
-		if(f != null) {
-		String uid = f.featureUser.getId();
-		String sid = f.featureSession.getFacebook_group_id();
-			if(uid.equalsIgnoreCase(user_id) && sid.equalsIgnoreCase(sessionID)) {
-				f.removeTags();
-				Ebean.delete(f);
-				return ok("POI Deleted");
-			}
+		String str; 
+		Feature f = Feature.find.fetch("featureuser").where().idEq(Long.valueOf(id)).findUnique();
+		if(f.featureUser.getId().equalsIgnoreCase(user_id) && f.featureSession.retrieveId() == Long.parseLong(sessionID)) {
+			Ebean.delete(f);
+			str = "POI Deleted";
 		}
-		return ok("Unable to delete");
+		else
+			str = "Unable to Delete";
+		response().setContentType("text/html; charset=utf-8");
+		return ok(str);
 	}
 	
 	// Return a list of the maxItem closest Features to the given source Feature
@@ -540,57 +535,6 @@ public class Features extends Controller
 	}
 	
 	
-	/*
-	// Save image to Amazon S3 as recompressed JPG or thumbnail, return the url
-	private static S3File uploadFeatureImagesRecompressed(File f, MyConstants.S3Strings size, UUID uuid) {
-		S3File s3File = new S3File();
-		File output = new File("");
-		
-		try {
-			BufferedImage originalImage = ImageIO.read(f);
-			int type = originalImage.getType() == 0 ? BufferedImage.TYPE_INT_ARGB : originalImage.getType();
-	
-			
-	 
-		
-		if(size == MyConstants.S3Strings.SIZE_ORIGINAL)
-		{
-			BufferedImage resizeImageJpg = resizeImage(originalImage, type);
-			ImageIO.write(resizeImageJpg, "jpg", output);
-			
-		
-			s3File.type = MyConstants.S3Strings.SIZE_ORIGINAL.toString();
-			s3File.file = f;
-		}
-		else if(size == MyConstants.S3Strings.SIZE_THUMBNAIL)
-		{
-			try {
-				BufferedImage image = ImageIO.read(f);
-				image = Scalr.resize(image, 150);
-				File tmpFile = new File(".jpg");
-				ImageIO.write(image, "jpg", tmpFile);
-				s3File.type = MyConstants.S3Strings.SIZE_THUMBNAIL.toString();
-				s3File.file = tmpFile;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		if(uuid != null)
-			s3File.setUuid(uuid);
-		s3File.save();
-		return s3File;
-	}
-	
-		private static BufferedImage resizeImage(BufferedImage originalImage, int type, int width, int height) {
-			BufferedImage resizedImage = new BufferedImage(width, height, type);
-			Graphics2D g = resizedImage.createGraphics();
-			g.drawImage(originalImage, 0, 0, IMG_WIDTH, IMG_HEIGHT, null);
-			g.dispose();
-
-			return resizedImage;
-		}
-*/
 	// Save image to Amazon S3 as original or thumbnail, return the url
 	private static S3File uploadFeatureImages(File f, MyConstants.S3Strings size, UUID uuid) {
 		S3File s3File = new S3File();
@@ -630,33 +574,4 @@ public class Features extends Controller
 		s3File.save();
 		return s3File;
 	}
-	/*
-		private static S3File uploadFeatureImages(File f, MyConstants.S3Strings size, UUID uuid) {
-		S3File s3File = new S3File();
-		
-		if(size == MyConstants.S3Strings.SIZE_ORIGINAL)
-		{
-			s3File.type = MyConstants.S3Strings.SIZE_ORIGINAL.toString();
-			s3File.file = f;
-		}
-		else if(size == MyConstants.S3Strings.SIZE_THUMBNAIL)
-		{
-			try {
-				BufferedImage image = ImageIO.read(f);
-				image = Scalr.resize(image, 150);
-				File tmpFile = new File(".jpg");
-				ImageIO.write(image, "jpg", tmpFile);
-				s3File.type = MyConstants.S3Strings.SIZE_THUMBNAIL.toString();
-				s3File.file = tmpFile;
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		if(uuid != null)
-			s3File.setUuid(uuid);
-		s3File.save();
-		return s3File;
-	}
-	 */
 }
