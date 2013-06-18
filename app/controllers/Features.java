@@ -54,7 +54,7 @@ public class Features extends Controller
 		}
 		FeatureCollection features = new FeatureCollection(user.userFeatures);
 		
-		response().setContentType("text/html; charset=utf-8");
+		response().setContentType("application/json; charset=utf-8");
 		String s = features.toJson(); 
 		return ok(s);
 	}
@@ -69,7 +69,7 @@ public class Features extends Controller
 		}
 		FeatureCollection features = new FeatureCollection(user.userFeatures);
 		
-		response().setContentType("text/html; charset=utf-8");
+		response().setContentType("application/json; charset=utf-8");
 		String s = features.toJson(); 
 		return ok(s);
 	}
@@ -115,7 +115,7 @@ public class Features extends Controller
 				}
 			}
 
-			response().setContentType("text/html; charset=utf-8");
+			response().setContentType("application/json; charset=utf-8");
 			String s = featureCollection.toJson();
 			return ok(s);
 		}
@@ -150,7 +150,7 @@ public class Features extends Controller
 			featureCollection.add(featureList);
 		}
 		
-		response().setContentType("text/html; charset=utf-8");
+		response().setContentType("application/json; charset=utf-8");
 		String s = featureCollection.toJson();
 		return ok(s);
 	}
@@ -164,7 +164,7 @@ public class Features extends Controller
 			return ok("POI Not Found");
 		}
 		
-		response().setContentType("text/html; charset=utf-8");
+		response().setContentType("application/json; charset=utf-8");
 		String str = feature.toJson(); 
 		return ok(str);
 	}
@@ -173,14 +173,17 @@ public class Features extends Controller
 	//  DELETE /geo/?...&...
 	public static Result deleteGeoFeature(String id, String user_id, String sessionID) {
 		String str; 
-		Feature f = Feature.find.fetch("featureuser").where().idEq(Long.valueOf(id)).findUnique();
-		if(f.featureUser.getId().equalsIgnoreCase(user_id) && f.featureSession.retrieveId() == Long.parseLong(sessionID)) {
+		Feature f = Feature.find.fetch("featureUser").fetch("featureSession").where().idEq(Long.valueOf(id)).findUnique();
+		String uid = f.featureUser.getId();
+		String sid = f.featureSession.getFacebook_group_id();
+		if(uid.equalsIgnoreCase(user_id) && sid.equalsIgnoreCase(sessionID)) {
+			f.updateTags(null);
 			Ebean.delete(f);
 			str = "POI Deleted";
 		}
 		else
 			str = "Unable to Delete";
-		response().setContentType("text/html; charset=utf-8");
+		response().setContentType("application/json; charset=utf-8");
 		return ok(str);
 	}
 	
@@ -237,7 +240,7 @@ public class Features extends Controller
 		}
 		
 		if(allFeaturesWithinBounds.size() == 0)
-			return allFeaturesWithinBounds;
+			return new ArrayList<Feature>();
 		
 		Point sourceGeometry = new Point(midpoint[1], midpoint[0]);
 		Feature source = new Feature(sourceGeometry);
@@ -262,15 +265,23 @@ public class Features extends Controller
 		int radius = (int) Math.round(GeoCalculations.haversine(lat1, lng1, lat2, lng2))*500; // Radius from diameter, in meters
 
 		List<Feature> closestToSource = getFeaturesClosestToSource(lat1, lng1, lat2, lng2, midpoint, sessionIDs);
-		List<Feature> instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.BOUNDING_BOX, midpoint[0], midpoint[1], radius);
-		
+		List<Feature> instaPOIs = new ArrayList<Feature>();
+		try {
+			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.BOUNDING_BOX, midpoint[0], midpoint[1], radius);
+			closestToSource.addAll(instaPOIs);
+		}
+		catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		closestToSource.addAll(instaPOIs);
+
 		FeatureCollection collection = new FeatureCollection(closestToSource);
 		if(instaPOIs.size() == 0) {
 			collection.meta.code = "204";
 			collection.meta.error_message = "No response from Instagram. Refresh to try again";
 		}
-		response().setContentType("text/html; charset=utf-8");
+		response().setContentType("application/json; charset=utf-8");
 		String s = collection.toJson();
 		return ok(s);
 	}
@@ -296,25 +307,24 @@ public class Features extends Controller
 		
 		// ********* For more precise results, this box set should now be searched for a circular radius set within
 		
-		List<Feature> instaPOIs;
+		List<Feature> instaPOIs = new ArrayList<Feature>();
 		try {
 			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RADIUS, lat, lng, (int) Math.round(radius*MyConstants.RADIUS_MULTIPLIER));
 			featuresInRadius.addAll(instaPOIs);
-			// *************   Should this list be sorted by distance?
-			FeatureCollection collection = new FeatureCollection(featuresInRadius);
-			if(instaPOIs != null && instaPOIs.size() == 0) {
-				collection.meta.code = "204";
-				collection.meta.error_message = "No response from Instagram. Refresh to try again";
-			}
-			response().setContentType("text/html; charset=utf-8");
-			String s = collection.toJson();
-			return ok(s);
 		}
 		catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return ok();
+
+		FeatureCollection collection = new FeatureCollection(featuresInRadius);
+		if(instaPOIs.size() == 0) {
+			collection.meta.code = "204";
+			collection.meta.error_message = "No response from Instagram. Refresh to try again";
+		}
+		response().setContentType("application/json; charset=utf-8");
+		String s = collection.toJson();
+		return ok(s);
 	}
 	
 	
@@ -346,24 +356,22 @@ public class Features extends Controller
 				}
 			}
 		}
-		List<Feature> instaPOIs;
+		List<Feature> instaPOIs = new ArrayList<Feature>();
 		try {
 			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RECENT, lat, lng, MyConstants.DEFAULT_INSTAGRAM_DISTANCE);
 			features.addAll(instaPOIs);
-			FeatureCollection collection = new FeatureCollection(features);
-			if(instaPOIs != null && instaPOIs.size() == 0) {
-				collection.meta.code = "204";
-				collection.meta.error_message = "No response from Instagram. Refresh to try again";
-			}
-//			Logger.info("FeaturesInRadius:" + collection.toJson());
-			response().setContentType("text/html; charset=utf-8");
-			String s = collection.toJson();
-			return ok(s);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return ok();
+		FeatureCollection collection = new FeatureCollection(features);
+		if(instaPOIs.size() == 0) {
+			collection.meta.code = "204";
+			collection.meta.error_message = "No response from Instagram. Refresh to try again";
+		}
+		response().setContentType("application/json; charset=utf-8");
+		String s = collection.toJson();
+		return ok(s);
 	}
 	
 	// PUT /geo
@@ -426,7 +434,7 @@ public class Features extends Controller
 			;
 		}
 		Ebean.save(updatedFeature);
-		response().setContentType("text/html; charset=utf-8");
+		response().setContentType("application/json; charset=utf-8");
 		String s = updatedFeature.toJson();
 		return ok(s);
 	}
@@ -531,7 +539,7 @@ public class Features extends Controller
 		}
 		String jsn = newFeature.toJson();
 
-		response().setContentType("text/html; charset=utf-8");
+		response().setContentType("application/json; charset=utf-8");
 		return ok(jsn);
 	}
 	

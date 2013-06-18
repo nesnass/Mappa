@@ -393,6 +393,8 @@ public class Feature extends Model implements Comparator<Feature>
 	/*  Reconsider the need for many-many tag relationship.. */
 	public void updateTags(Set<String> tags) {
 			featureTags.clear();
+			if(tags == null)
+				return;
 			this.saveManyToManyAssociations("featureTags");
 		  /*  for(Tag tag : featureTags) {
 		        removeTag(tag.retrieveId());
