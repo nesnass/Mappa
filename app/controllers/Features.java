@@ -141,7 +141,8 @@ public class Features extends Controller
 			while(it.hasNext())
 			{
 				Feature fit = it.next();
-				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
+				Session fs = fit.featureSession;
+				if(fs != null && !sessions.contains(fit.featureSession.getFacebook_group_id()))
 				{
 					it.remove();
 				}
