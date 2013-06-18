@@ -392,10 +392,17 @@ public class Feature extends Model implements Comparator<Feature>
 	/*  This method avoids PSQL complaints from eBean, but creates a lot of DB accesses! */
 	/*  Reconsider the need for many-many tag relationship.. */
 	public void updateTags(Set<String> tags) {
+			for(Tag tag : featureTags) {
+				tag.tagFeatures.remove(this);
+				tag.save();
+			}
 			featureTags.clear();
-			if(tags == null)
+			
+			if(tags == null) {
+				this.save();
 				return;
-			this.saveManyToManyAssociations("featureTags");
+			}
+			
 		  /*  for(Tag tag : featureTags) {
 		        removeTag(tag.retrieveId());
 		    }
@@ -409,7 +416,8 @@ public class Feature extends Model implements Comparator<Feature>
 		            featureTags.add(newTag);
 				}
 		    }
-		    this.saveManyToManyAssociations("featureTags");
+		    this.save();
+		   // this.saveManyToManyAssociations("featureTags");
 	}
 	
 	public void removeTag(Long tagId) {
