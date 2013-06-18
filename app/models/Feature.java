@@ -399,7 +399,7 @@ public class Feature extends Model implements Comparator<Feature>
 			featureTags.clear();
 			
 			if(tags == null) {
-				this.save();
+			
 				return;
 			}
 			
@@ -413,8 +413,9 @@ public class Feature extends Model implements Comparator<Feature>
 					newTag = new Tag(tag);
 					newTag.tagFeatures.add(this);
 					newTag.save();
-		            featureTags.add(newTag);
+		            
 				}
+				featureTags.add(newTag);
 		    }
 		    this.save();
 		   // this.saveManyToManyAssociations("featureTags");

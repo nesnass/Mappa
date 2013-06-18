@@ -172,17 +172,19 @@ public class Features extends Controller
 
 	//  DELETE /geo/?...&...
 	public static Result deleteGeoFeature(String id, String user_id, String sessionID) {
-		String str; 
+		String str = "POI not found"; 
 		Feature f = Feature.find.fetch("featureUser").fetch("featureSession").where().idEq(Long.valueOf(id)).findUnique();
-		String uid = f.featureUser.getId();
-		String sid = f.featureSession.getFacebook_group_id();
-		if(uid.equalsIgnoreCase(user_id) && sid.equalsIgnoreCase(sessionID)) {
-			f.updateTags(null);
-			Ebean.delete(f);
-			str = "POI Deleted";
+		if(f != null) {
+			String uid = f.featureUser.getId();
+			String sid = f.featureSession.getFacebook_group_id();
+			if(uid.equalsIgnoreCase(user_id) && sid.equalsIgnoreCase(sessionID)) {
+				f.updateTags(null);
+				Ebean.delete(f);
+				str = "POI Deleted";
+			}
+			else
+				str = "Unable to Delete";
 		}
-		else
-			str = "Unable to Delete";
 		response().setContentType("application/json; charset=utf-8");
 		return ok(str);
 	}
