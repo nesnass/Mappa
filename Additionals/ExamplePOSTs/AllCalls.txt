@@ -220,7 +220,7 @@ RESPONSE:
 
 GET REQUEST RESULTS:
 
-/geo
+/geo/[sessionID]
 
 
 {
@@ -276,7 +276,7 @@ GET REQUEST RESULTS:
     	.................etc...>
       
       
-/search/:hashTag
+/search/[hashTag]/[sessionID]
 
 
 {
@@ -347,7 +347,7 @@ GET REQUEST RESULTS:
 }
 
 
-/geo/box/
+/geo/box/?lng1=[lng1]&lat1=[lat1]&lng2=[lng2]&lat2=[lat2]&sessions=[sessions]
 
 
 

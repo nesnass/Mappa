@@ -51,6 +51,9 @@ public class Feature extends Model implements Comparator<Feature>
 	@ManyToMany
 	public Set<Tag> featureTags = new HashSet<Tag>();
 	
+	@Transient
+	private Set<Tag> instaTags = new HashSet<Tag>();
+	
 	@Embedded
 	public Point geometry;
 	
@@ -391,7 +394,20 @@ public class Feature extends Model implements Comparator<Feature>
 	
 	/*  This method avoids PSQL complaints from eBean, but creates a lot of DB accesses! */
 	/*  Reconsider the need for many-many tag relationship.. */
+	
+	// this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString())
+	
+	
 	public void updateTags(Set<String> tags) {
+		
+		// In the case of a pure Instagram POI, which is not persisted, we cannot persist their tags either.
+		if(this.properties.source_type.equals(MyConstants.FeatureStrings.INSTAGRAM.toString())) {
+			for (String tag : tags) {
+					Tag newTag = new Tag(tag);
+					instaTags.add(newTag);
+		    }
+		}
+		else {
 			for(Tag tag : featureTags) {
 				tag.tagFeatures.remove(this);
 				tag.save();
@@ -419,6 +435,7 @@ public class Feature extends Model implements Comparator<Feature>
 		    }
 		    this.save();
 		   // this.saveManyToManyAssociations("featureTags");
+		}
 	}
 	
 	public void removeTag(Long tagId) {
@@ -495,14 +512,15 @@ public class Feature extends Model implements Comparator<Feature>
 		// Temporary variables inside 'properties' need to be initialised before serialisation
 		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString())) {
 			properties.setId(String.valueOf(this._id));
+			properties.setTags(this.featureTags);
 		}
-		else
+		else {
 			properties.setId(this.origin.id);
-		
+			properties.setTags(this.instaTags);
+		}
 		properties.setUser(this.origin);
 		properties.setMapper(this.featureUser);
 		properties.setSession(this.featureSession);
-		properties.setTags(this.featureTags);
 		properties.setImages(this.images);
 
 		

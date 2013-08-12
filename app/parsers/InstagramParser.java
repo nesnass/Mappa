@@ -23,14 +23,15 @@ import play.Logger;
 
 public class InstagramParser
 {
-	private static final Token EMPTY_TOKEN = null;
+
+	/*	private static final Token EMPTY_TOKEN = null;
 	
 		private static InstagramService service =  new InstagramAuthService()
     	.apiKey(MyConstants.INSTAGRAM_CLIENT_ID)
     	.apiSecret(MyConstants.INSTAGRAM_SECRET_ID)
     	.callback(MyConstants.INSTAGRAM_CALLBACK)     
     	.build();
-	 	
+*/	 	
 	
 
 	
@@ -48,12 +49,15 @@ public class InstagramParser
 	public static List<Feature> getQuery(MyConstants.QueryStrings queryType, double latitude, double longitude, int radius)
 	{
 //		String authorizationUrl = service.getAuthorizationUrl(EMPTY_TOKEN);
+		
 //		Verifier verifier = new Verifier(controllers.Authorisation.getInstagramCode());
 
 		MediaFeed feed = null;
 		try {
 //			Token accessToken = service.getAccessToken(EMPTY_TOKEN, verifier);
-			Instagram instagram = new Instagram(MyConstants.INSTAGRAM_CLIENT_ID);
+			Token accessToken = new Token(MyConstants.INSTAGRAM_ACCESS_TOKEN, MyConstants.INSTAGRAM_SECRET_ID);
+			Instagram instagram = new Instagram(accessToken);
+
 			switch (queryType)
 			{
 			case RADIUS:

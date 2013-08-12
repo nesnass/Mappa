@@ -1,5 +1,7 @@
 package helpers;
 
+import org.jinstagram.auth.model.Token;
+
 public class MyConstants
 {
 	public enum FeatureStrings
@@ -58,10 +60,12 @@ public class MyConstants
 	public final static String OLD_FEATURE_SERVER_NAME_PORT = "http://intermedia-prod03.uio.no:9010";
 	public final static String NEW_FEATURE_SERVER_NAME_PORT = "http://mappa.uio.im";
 	public final static String AMAZON_SERVER_NAME_PORT = "https://s3.amazonaws.com/";
-	public final static String INSTAGRAM_CLIENT_ID = "f652d47c088c48f8b7920af970760a49";
-	public final static String INSTAGRAM_SECRET_ID = "2888f73f0bc14e66b5245fcdec52d483";
+	
+	public final static String INSTAGRAM_CLIENT_ID = "452b5fe7bad74ccdb9f0aa7860939aaf";
+	public final static String INSTAGRAM_SECRET_ID = "529ba305dafb480aa6c83bea34b12bae";
 	public final static String INSTAGRAM_CALLBACK = "http://mappa.uio.im/instagramAuthorisation/";
-	public final static String INSTAGRAM_PASSWORD = "";
+	public final static String INSTAGRAM_ACCESS_TOKEN = "391112889.452b5fe.e4348987b6454d57a6dfe41c278c2285";
+	
 	public final static String KML_MAPPA_ICON = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_orange.png";
 	
 	

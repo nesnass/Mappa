@@ -1,8 +1,10 @@
 package org.jinstagram;
 
-import com.google.gson.Gson;
+import java.io.IOException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-import com.google.gson.JsonSyntaxException;
 import org.apache.commons.lang3.StringUtils;
 import org.jinstagram.auth.model.OAuthConstants;
 import org.jinstagram.auth.model.OAuthRequest;
@@ -25,16 +27,13 @@ import org.jinstagram.entity.users.feed.UserFeed;
 import org.jinstagram.exceptions.InstagramException;
 import org.jinstagram.http.Response;
 import org.jinstagram.http.Verbs;
-import org.jinstagram.model.Constants;
 import org.jinstagram.model.Methods;
 import org.jinstagram.model.QueryParam;
 import org.jinstagram.model.Relationship;
 import org.jinstagram.utils.Preconditions;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * Instagram
@@ -45,10 +44,18 @@ import java.util.Map;
 public class Instagram {
 	private Token accessToken;
     private final String clientId;
+    private final InstagramConfig config;
 
 	public Instagram(Token accessToken) {
 		this.accessToken = accessToken;
 		clientId = null;
+		config = new InstagramConfig();
+	}
+	
+	public Instagram(Token accessToken, InstagramConfig config) {
+		this.accessToken = accessToken;
+		clientId = null;
+		this.config = config;
 	}
 
 	/**
@@ -58,9 +65,19 @@ public class Instagram {
 	public Instagram(String clientId) {
 	    this.accessToken = null;
 	    this.clientId = clientId;
+	    config = new InstagramConfig();
+	}
+	
+	public Instagram(String clientId, InstagramConfig config) {
+	    this.accessToken = null;
+	    this.clientId = clientId;
+	    this.config = config;
 	}
 
-
+	public InstagramConfig getInstagramConfig() {
+		return config;
+	}
+	
 	/**
 	 * @return the accessToken
 	 */
@@ -203,8 +220,27 @@ public class Instagram {
      * @throws InstagramException
      */
     public MediaFeed getRecentMediaNextPage(Pagination pagination) throws InstagramException {
-        return createInstagramObject(Verbs.GET, MediaFeed.class, StringUtils.removeStart(pagination.getNextUrl(), Constants.API_URL), null);
+        return createInstagramObject(Verbs.GET, MediaFeed.class, StringUtils.removeStart(pagination.getNextUrl(), config.getApiURL()), null);
     }
+    
+	    /**
+     * Get the next page of user feed objects from a previously executed request
+     * @param pagination
+     * @throws InstagramException
+     */
+    public UserFeed getUserFeedInfoNextPage(Pagination pagination) throws InstagramException {
+    	return createInstagramObject(Verbs.GET, UserFeed.class, StringUtils.removeStart(pagination.getNextUrl(), config.getApiURL()), null);
+    }
+    
+	    /**
+     * Get the next page of tagged media objects from a previously executed request
+     * @param pagination
+     * @throws InstagramException
+     */
+    public TagMediaFeed getTagMediaInfoNextPage(Pagination pagination) throws InstagramException {
+    	return createInstagramObject(Verbs.GET, TagMediaFeed.class, StringUtils.removeStart(pagination.getNextUrl(), config.getApiURL()), null);
+    }
+
 
 	/**
 	 * Get the authenticated user's list of media they've liked.
@@ -212,7 +248,7 @@ public class Instagram {
 	 * @return a MediaFeed object.
 	 * @throws InstagramException if any error occurs.
 	 */
-	public MediaFeed getUserLikedMediaFeed() throws InstagramException {
+    public MediaFeed getUserLikedMediaFeed() throws InstagramException {
 		MediaFeed userLikedMedia = createInstagramObject(Verbs.GET, MediaFeed.class,
 				Methods.USERS_SELF_LIKED_MEDIA, null);
 
@@ -416,11 +452,11 @@ public class Instagram {
         params.put(QueryParam.LONGITUDE, Double.toString(longitude));
 
         if(maxTimeStamp != null) {
-            params.put(QueryParam.MAX_TIMESTAMP, String.valueOf(maxTimeStamp.getTime()/1000));
+            params.put(QueryParam.MAX_TIMESTAMP, String.valueOf(maxTimeStamp.getTime()));
         }
 
         if(minTimeStamp != null) {
-            params.put(QueryParam.MIN_TIMESTAMP, String.valueOf(minTimeStamp.getTime()/1000));
+            params.put(QueryParam.MIN_TIMESTAMP, String.valueOf(minTimeStamp.getTime()));
         }
 
         params.put(QueryParam.DISTANCE, String.valueOf(distance));
@@ -570,17 +606,17 @@ public class Instagram {
      * @return a TagMediaFeed object.
      * @throws InstagramException if any error occurs.
      */
-    public TagMediaFeed getRecentMediaTags(String tagName, int minId, int maxId) throws InstagramException {
+    public TagMediaFeed getRecentMediaTags(String tagName, String minId, String maxId) throws InstagramException {
         Map<String, String> params = new HashMap<String, String>();
 
-        if(minId > 0)
+        if(!StringUtils.isEmpty(minId))
         params.put(QueryParam.MIN_ID, String.valueOf(minId));
 
-        if(maxId > 0)
+        if(!StringUtils.isEmpty(maxId))
         params.put(QueryParam.MAX_ID, String.valueOf(maxId));
 
         String apiMethod = String.format(Methods.TAGS_RECENT_MEDIA, tagName);
-        TagMediaFeed feed = createInstagramObject(Verbs.GET, TagMediaFeed.class, apiMethod, null);
+        TagMediaFeed feed = createInstagramObject(Verbs.GET, TagMediaFeed.class, apiMethod, params);
 
         return feed;
     }
@@ -756,16 +792,21 @@ public class Instagram {
         }
 
     private InstagramException handleInstagramError(Response response) throws InstagramException {
-        if (response.getCode() == 400) {
-            Gson gson = new Gson();
-            final InstagramErrorResponse error;
-            try {
-                System.out.println(response.getBody());
+        Gson gson = new Gson();
+        final InstagramErrorResponse error;
+        try {
+            if (response.getCode() == 400) {
                 error = gson.fromJson(response.getBody(), InstagramErrorResponse.class);
-            } catch (JsonSyntaxException e) {
-                throw new InstagramException("Failed to decode error response " + response.getBody(), e);
+                error.throwException();
             }
-            error.throwException();
+            //sending too many requests too quickly;
+            //limited to 5000 requests per hour per access_token or client_id overall.  (according to spec)
+            else if (response.getCode() == 503) {
+                error = gson.fromJson(response.getBody(), InstagramErrorResponse.class);
+                error.throwException();
+            }
+        } catch (JsonSyntaxException e) {
+            throw new InstagramException("Failed to decode error response " + response.getBody(), e);
         }
         throw new InstagramException("Unknown error response code: " + response.getCode() + " " + response.getBody());
     }
@@ -780,7 +821,7 @@ public class Instagram {
 	 */
 	private Response getApiResponse(Verbs verb, String methodName, Map<String, String> params) throws IOException {
 		Response response = null;
-		String apiResourceUrl = Constants.API_URL + methodName;
+		String apiResourceUrl = config.getApiURL() + methodName;
 		OAuthRequest request = new OAuthRequest(verb, apiResourceUrl);
 
 		// Additional parameters in url

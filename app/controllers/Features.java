@@ -252,10 +252,10 @@ public class Features extends Controller
 	}
 
 	
-	// GET /geo/box/?...&...
+	// GET geo/box/?lng1=[lng1]&lat1=[lat1]&lng2=[lng2]&lat2=[lat2]&sessions=[sessions]
 	// ******* Needs further testing to confirm reliable results ********
 	public static Result getGeoFeaturesInBoundingBox(String ln1, String la1, String ln2, String la2, String sessionIDs)
-	{	
+	{
 		double lng1 = Double.parseDouble(ln1);
 		double lat1 = Double.parseDouble(la1);
 		double lng2 = Double.parseDouble(ln2);
