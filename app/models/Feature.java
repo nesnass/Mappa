@@ -376,6 +376,10 @@ public class Feature extends Model implements Comparator<Feature>
 		long tt = Long.parseLong(jInstagramMedia.getCreatedTime());
 		properties.created_time.setTime(tt);
 		this.origin.id = jInstagramMedia.getId();
+		
+		this.origin.full_name = jInstagramMedia.getUser().getFullName();
+		this.origin.setLocation(jInstagramMedia.getLocation().getLongitude(), jInstagramMedia.getLocation().getLatitude());
+		this.origin.username = jInstagramMedia.getUser().getUserName();
 
 		// New set to contain tags
 		Set<String> foundTags = new HashSet<String>();
