@@ -27,7 +27,7 @@ import play.db.ebean.Model;
 
 @Entity
 @Table(name="s_feature")
-public class Feature extends Model implements Comparator<Feature>
+public class Feature extends Model // implements Comparator<Feature>
 {
 	private static final long serialVersionUID = 6285870362122377542L;
 	
@@ -264,6 +264,10 @@ public class Feature extends Model implements Comparator<Feature>
 		else
 			return this.origin.id;
 	}
+	
+	public Date getDate() {
+		return properties.created_time;
+	}
 
 /*	@JSON(include=false)
 	public String getOrigin_id() {
@@ -419,7 +423,7 @@ public class Feature extends Model implements Comparator<Feature>
 			featureTags.clear();
 			
 			if(tags == null) {
-			
+				this.save();
 				return;
 			}
 			
@@ -431,10 +435,9 @@ public class Feature extends Model implements Comparator<Feature>
 		    	Tag newTag = Tag.find.where().eq("tag", tag).findUnique();
 				if(newTag == null) {
 					newTag = new Tag(tag);
-					newTag.tagFeatures.add(this);
-					newTag.save();
-		            
 				}
+				newTag.tagFeatures.add(this);
+				newTag.save();
 				featureTags.add(newTag);
 		    }
 		    this.save();
@@ -482,11 +485,20 @@ public class Feature extends Model implements Comparator<Feature>
 		properties.setImages(images);
 	}
 	
-	public static Model.Finder<Long, Feature> find = new Model.Finder<Long, Feature>(Long.class, Feature.class);
 	
-	public String toString()
-	{
-		return properties.description;
+	// Comparing Features using distance
+	public class DistanceComparator implements Comparator<Feature> {
+		public int compare(Feature arg0, Feature arg1){
+			final double distanceDelta = getHaversineDistance(arg0) - getHaversineDistance(arg1); 
+	        return distanceDelta < 0 ? -1 : 1; 
+		}
+	}
+	
+	// Comparing Features using timestamp
+	public class TimeStampComparator implements Comparator<Feature> {
+		public int compare(Feature arg0, Feature arg1){
+			return arg0.getDate().compareTo(arg1.getDate());
+		}
 	}
 	
 	// Uses Pythagoras to calculate the distance apart in terms of coordinates 
@@ -499,15 +511,14 @@ public class Feature extends Model implements Comparator<Feature>
 	// Uses Haversine formula to calculate the distance apart in terms of coordinates 
 	public double getHaversineDistance(Feature other)
 	{
-		return GeoCalculations.haversine(geometry.getLat(), geometry.getLng(),
-										other.geometry.getLat(), other.geometry.getLng());
+		return GeoCalculations.haversine(geometry.getLat(), geometry.getLng(), other.geometry.getLat(), other.geometry.getLng());
 	}
-
-	// Currently using Haversine formula for comparison
-	@Override
-	public int compare(Feature arg0, Feature arg1) {
-		final double distanceDelta = getHaversineDistance(arg0) - getHaversineDistance(arg1); 
-        return distanceDelta < 0 ? -1 : 1; 
+	
+	public static Model.Finder<Long, Feature> find = new Model.Finder<Long, Feature>(Long.class, Feature.class);
+	
+	public String toString()
+	{
+		return properties.description;
 	}
 	
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)

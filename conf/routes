@@ -36,7 +36,8 @@
 #POST	/userfeatures												controllers.TestController.getUserFeatures()
 #GET     /s3image													controllers.S3Controller.index()
 #POST    /s3image													controllers.S3Controller.upload()
-
+#GET	/user/:userID												controllers.Features.getGeoFeaturesByUserId(userID:String)
+#GET	/user/id/:userID											controllers.Features.getGeoFeaturesByUserId(userID:String)
 
 #####	Home page
 GET    			/													controllers.Application.index()
@@ -53,13 +54,18 @@ GET     		/resources/*file               						controllers.Assets.at(path="/publ
 POST			/geo												controllers.Features.createGeoFeature()
 PUT				/geo												controllers.Features.updateGeoFeature()
 DELETE			/geo												controllers.Features.deleteGeoFeature(id:String, user_id:String, sessions:String)
-GET				/user/:userID										controllers.Features.getGeoFeaturesByUserId(userID:String)
-GET				/user/id/:userID									controllers.Features.getGeoFeaturesByUserId(userID:String)
-GET				/user/username/:userName							controllers.Features.getGeoFeaturesByUserName(userName:String)
-GET				/search/:hashTag/:sessions							controllers.Features.getGeoFeaturesByTag(hashTag:String, sessions:String)
+GET				/user/username/:userName/:sessions					controllers.Features.getGeoFeaturesByUserName(userName:String, sessions:String)
+GET				/search/:hashTag//:sessions							controllers.Features.getGeoFeaturesByTag(hashTag:String, sessions:String)
+
+# sessions supplied as parameter in this call
 GET				/geo/												controllers.Features.getAllGeoFeatures(sessions:String)
-GET				/geo/:id/:sessions									controllers.Features.getFeatureById(id:String, sessions:String)															
+
+# sessions supplied as parameter in this call
+GET				/geo/:id											controllers.Features.getFeatureById(id:String, sessions:String)															
+
+# sessions supplied as parameter in this call
 GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:String, lat1:String, lng2:String, lat2:String, sessions:String)
+
 GET				/geo/radius/:lng/:lat/:radiusInMeters/:sessions		controllers.Features.getFeaturesInRadius(lng:String, lat:String, radiusInMeters:String, sessions:String)
 GET				/geo/recent/:lng/:lat/:sessions						controllers.Features.getMostRecentGeoFeatures(lng:String, lat:String, sessions:String)
 GET				/geo/session/kml/:sessionId							controllers.Features.getKmlBySessionId(sessionId:String)

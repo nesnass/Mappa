@@ -1,0 +1,45 @@
+{
+    "geometry": {
+        "coordinates": [
+            10.730667,
+            59.914667
+        ],
+        "type": "Point"
+    },
+    "id": "538054964778999608_187934710",
+    "properties": {
+        "description": "Gott om plats e de ont om! #biffDaniel",
+        "images": {
+            "standard_resolution": "http://distilleryimage8.s3.amazonaws.com/43ade48e15f111e3a61722000a1f9d6d_7.jpg",
+            "thumbnail": "http://distilleryimage8.s3.amazonaws.com/43ade48e15f111e3a61722000a1f9d6d_5.jpg"
+        },
+        "mapper": {
+            "id": "808270471",
+            "full_name": "Martin Havn00f8r",
+            "location": [
+                10.726804,
+                59.914679
+            ],
+            "username": "rodskjegg"
+        },
+        "mapper_description": "Mapped this Instagram entry.",
+        "session_id": "none",
+        "sessions": [
+            {
+                "administrator": "1",
+                "id": "245718548833281",
+                "name": "MAPPA1"
+            }
+        ],
+        "source_type": "mapped_instagram",
+        "user": {
+            "full_name": "stojan81",
+            "id": "538054964778999608_187934710",
+            "location": [
+                10.726804,
+                59.914679
+            ]
+        }
+    },
+    "type": "Feature"
+}

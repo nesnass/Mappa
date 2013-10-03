@@ -32,6 +32,9 @@ import org.jinstagram.model.QueryParam;
 import org.jinstagram.model.Relationship;
 import org.jinstagram.utils.Preconditions;
 
+import scala.Console;
+
+import com.apple.crypto.provider.Debug;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 
@@ -851,7 +854,6 @@ public class Instagram {
 		        request.addBodyParameter(OAuthConstants.ACCESS_TOKEN, accessToken.getToken());
 		    }
 		}
-
 		response = request.send();
 
 		return response;

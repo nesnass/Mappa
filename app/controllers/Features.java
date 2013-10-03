@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -45,7 +46,7 @@ public class Features extends Controller
 {
 
 	// get Features by User ID
-	public static Result getGeoFeaturesByUserId(String userID)
+/*	public static Result getGeoFeaturesByUserId(String userID)
 	{
 		MUser user = MUser.find.where().eq("id", userID).findUnique();
 		if (user == null) {
@@ -58,20 +59,33 @@ public class Features extends Controller
 		String s = features.toJson(); 
 		return ok(s);
 	}
-	
+*/	
 	// get Features by User Name
-	public static Result getGeoFeaturesByUserName(String userName)
+	public static Result getGeoFeaturesByUserName(String userName, String sessionIDs)
 	{
-		MUser user = MUser.find.where().eq("username", userName).findUnique();
+		MUser user = MUser.find.fetch("userFeatures").fetch("userFeatures.featureSession").where().eq("username", userName).findUnique();
 		if (user == null) {
 			List<String> empty = new ArrayList<String>();
 			return ok(toJson(empty));
 		}
-		FeatureCollection features = new FeatureCollection(user.userFeatures);
-		
-		response().setContentType("application/json; charset=utf-8");
-		String s = features.toJson(); 
-		return ok(s);
+		else {
+			List<String> sessions = Arrays.asList(sessionIDs.split(","));
+			FeatureCollection featureCollection = new FeatureCollection(user.userFeatures);
+			
+			Iterator<Feature> it = featureCollection.iterator();
+			while(it.hasNext())
+			{
+				Feature fit = it.next();
+				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
+				{
+					it.remove();
+				}
+			}
+			
+			response().setContentType("application/json; charset=utf-8");
+			String s = featureCollection.toJson(); 
+			return ok(s);
+		}
 	}
 
 	// Get a Feature list for a facebook group ID
@@ -172,7 +186,7 @@ public class Features extends Controller
 
 	//  DELETE /geo/?...&...
 	public static Result deleteGeoFeature(String id, String user_id, String sessionID) {
-		String str = "POI not found"; 
+		String str = "POI not found";
 		Feature f = Feature.find.fetch("featureUser").fetch("featureSession").where().idEq(Long.valueOf(id)).findUnique();
 		if(f != null) {
 			String uid = f.featureUser.getId();
@@ -191,10 +205,16 @@ public class Features extends Controller
 	
 	// Return a list of the maxItem closest Features to the given source Feature
 	private static List<Feature> sortAndLimitClosestFeaturesToSource(final Feature source, final List<Feature> others, int maxItems) {
-        Collections.sort(others, source);
+        Collections.sort(others, source.new DistanceComparator());
         return others.subList(0, Math.min(maxItems, others.size()));
     }
 	
+	// Return a list of the maxItem recent Features to the given source Feature
+	private static List<Feature> sortAndLimitRecentFeaturesToSource(final Feature source, final List<Feature> others, int maxItems) {
+        Collections.sort(others, source.new TimeStampComparator());
+        return others.subList(0, Math.min(maxItems, others.size()));
+    }
+
 	
 	// Given bounding coordinates, return all MAPPA Features within
 	private static List<Feature> getFeaturesClosestToSource(double lat1, double lng1, double lat2, double lng2, double[] midpoint, String sessionIDs)
@@ -359,21 +379,23 @@ public class Features extends Controller
 			}
 		}
 		List<Feature> instaPOIs = new ArrayList<Feature>();
+
 		try {
 			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RECENT, lat, lng, MyConstants.DEFAULT_INSTAGRAM_DISTANCE);
 			features.addAll(instaPOIs);
+			FeatureCollection collection = new FeatureCollection(sortAndLimitClosestFeaturesToSource(features.get(0), features, MyConstants.MAX_FEATURES_TO_GET));
+			if(instaPOIs.size() == 0) {
+				collection.meta.code = "204";
+				collection.meta.error_message = "No response from Instagram. Refresh to try again";
+			}
+			response().setContentType("application/json; charset=utf-8");
+			String s = collection.toJson();
+			return ok(s);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		FeatureCollection collection = new FeatureCollection(features);
-		if(instaPOIs.size() == 0) {
-			collection.meta.code = "204";
-			collection.meta.error_message = "No response from Instagram. Refresh to try again";
-		}
-		response().setContentType("application/json; charset=utf-8");
-		String s = collection.toJson();
-		return ok(s);
+		return ok();
 	}
 	
 	// PUT /geo

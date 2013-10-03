@@ -1,5 +1,7 @@
 package models.geometry;
 
+import helpers.GeoCalculations;
+
 import javax.persistence.Embeddable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -111,5 +113,5 @@ public class Point extends Model {
 
 	public static Model.Finder<Long, Geometry> find = new Model.Finder<Long, Geometry>(
 			Long.class, Geometry.class);
-
+	
 }

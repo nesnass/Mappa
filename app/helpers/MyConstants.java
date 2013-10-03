@@ -64,7 +64,7 @@ public class MyConstants
 	public final static String INSTAGRAM_CLIENT_ID = "452b5fe7bad74ccdb9f0aa7860939aaf";
 	public final static String INSTAGRAM_SECRET_ID = "529ba305dafb480aa6c83bea34b12bae";
 	public final static String INSTAGRAM_CALLBACK = "http://mappa.uio.im/instagramAuthorisation/";
-	public final static String INSTAGRAM_ACCESS_TOKEN = "391112889.452b5fe.e4348987b6454d57a6dfe41c278c2285";
+	public final static String INSTAGRAM_ACCESS_TOKEN = "391112889.152cc8f.2ab2fd2bbea64a6aa5a31a0733ec25c6";
 	
 	public final static String KML_MAPPA_ICON = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_orange.png";
 	
