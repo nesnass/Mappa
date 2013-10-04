@@ -383,13 +383,19 @@ public class Features extends Controller
 		try {
 			instaPOIs = InstagramParser.getQuery(MyConstants.QueryStrings.RECENT, lat, lng, MyConstants.DEFAULT_INSTAGRAM_DISTANCE);
 			features.addAll(instaPOIs);
-			FeatureCollection collection = new FeatureCollection(sortAndLimitClosestFeaturesToSource(features.get(0), features, MyConstants.MAX_FEATURES_TO_GET));
-			if(instaPOIs.size() == 0) {
-				collection.meta.code = "204";
-				collection.meta.error_message = "No response from Instagram. Refresh to try again";
+			FeatureCollection collection;
+			String s = "";
+			if(features.size() > 0) {
+				collection = new FeatureCollection(sortAndLimitRecentFeaturesToSource(features.get(0), features, MyConstants.MAX_FEATURES_TO_GET));
+				if(instaPOIs.size() == 0) {
+					collection.meta.code = "204";
+					collection.meta.error_message = "No response from Instagram. Refresh to try again";
+				}
+				s = collection.toJson();
 			}
+			else
+				s = "No POIs found";
 			response().setContentType("application/json; charset=utf-8");
-			String s = collection.toJson();
 			return ok(s);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

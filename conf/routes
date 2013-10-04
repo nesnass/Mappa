@@ -55,7 +55,7 @@ POST			/geo												controllers.Features.createGeoFeature()
 PUT				/geo												controllers.Features.updateGeoFeature()
 DELETE			/geo												controllers.Features.deleteGeoFeature(id:String, user_id:String, sessions:String)
 GET				/user/username/:userName/:sessions					controllers.Features.getGeoFeaturesByUserName(userName:String, sessions:String)
-GET				/search/:hashTag//:sessions							controllers.Features.getGeoFeaturesByTag(hashTag:String, sessions:String)
+GET				/search/:hashTag/:sessions							controllers.Features.getGeoFeaturesByTag(hashTag:String, sessions:String)
 
 # sessions supplied as parameter in this call
 GET				/geo/												controllers.Features.getAllGeoFeatures(sessions:String)

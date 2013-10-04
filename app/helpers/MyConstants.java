@@ -61,8 +61,8 @@ public class MyConstants
 	public final static String NEW_FEATURE_SERVER_NAME_PORT = "http://mappa.uio.im";
 	public final static String AMAZON_SERVER_NAME_PORT = "https://s3.amazonaws.com/";
 	
-	public final static String INSTAGRAM_CLIENT_ID = "452b5fe7bad74ccdb9f0aa7860939aaf";
-	public final static String INSTAGRAM_SECRET_ID = "529ba305dafb480aa6c83bea34b12bae";
+	public final static String INSTAGRAM_CLIENT_ID = "152cc8fa38114577936854c2e7538c30";
+	public final static String INSTAGRAM_SECRET_ID = "5047b05fcd8c4abe8445f3b1ddcbdf43";
 	public final static String INSTAGRAM_CALLBACK = "http://mappa.uio.im/instagramAuthorisation/";
 	public final static String INSTAGRAM_ACCESS_TOKEN = "391112889.152cc8f.2ab2fd2bbea64a6aa5a31a0733ec25c6";
 	
