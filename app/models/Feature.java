@@ -195,10 +195,10 @@ public class Feature extends Model // implements Comparator<Feature>
 		
 		// Convert Date to Unix timestamp in seconds
 		public long getCreated_time() {
-			if(this.source_type == MyConstants.FeatureStrings.INSTAGRAM.toString())
-				return created_time.getTime();
-			else
+		//	if(this.source_type == MyConstants.FeatureStrings.INSTAGRAM.toString())
 				return created_time.getTime()/1000;
+		//	else
+		//		return created_time.getTime()/1000;
 		}
 
 		@Constraints.MaxLength(255)
@@ -372,7 +372,7 @@ public class Feature extends Model // implements Comparator<Feature>
 		
 		// Instagram created time
 		// long tt = Long.parseLong(jInstagramMedia.getCreatedTime());
-		properties.created_time = new Date();
+		properties.created_time = new Date(Long.valueOf(jInstagramMedia.getCreatedTime())*1000);
 		this.origin.id = jInstagramMedia.getId();
 		
 		this.origin.full_name = jInstagramMedia.getUser().getFullName();

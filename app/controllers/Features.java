@@ -386,7 +386,7 @@ public class Features extends Controller
 			FeatureCollection collection;
 			String s = "";
 			if(features.size() > 0) {
-				collection = new FeatureCollection(sortAndLimitRecentFeaturesToSource(features.get(0), features, MyConstants.MAX_FEATURES_TO_GET));
+				collection = new FeatureCollection(sortAndLimitRecentFeaturesToSource(features.get(0), features, MyConstants.MAX_FEATURES_TO_GET ));
 				if(instaPOIs.size() == 0) {
 					collection.meta.code = "204";
 					collection.meta.error_message = "No response from Instagram. Refresh to try again";

@@ -70,6 +70,6 @@ public class MyConstants
 	
 	
 	public final static int DEFAULT_INSTAGRAM_DISTANCE = 5000;
-	public final static int MAX_FEATURES_TO_GET = 18;
+	public final static int MAX_FEATURES_TO_GET = 30;
 	public final static int RADIUS_MULTIPLIER = 5;  // Used to obtain more or less results, for testing purposes
 }
