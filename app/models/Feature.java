@@ -224,7 +224,7 @@ public class Feature extends Model // implements Comparator<Feature>
 			return description.length() < 22 ? description : description.substring(0, 22);
 		}
 		
-		@Constraints.MaxLength(255)
+//		@Constraints.MaxLength(255)
 		public String description = "";
 		
 //		@Constraints.MaxLength(255)
@@ -301,9 +301,7 @@ public class Feature extends Model // implements Comparator<Feature>
 			featureSession = newSession;
 		}
 
-		// Set regular parameters
-		properties.description = featureNode.get("properties").get("description").asText();
-
+		
 		String source = featureNode.get("properties").get("source_type").asText();
 		if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
 			properties.source_type = MyConstants.FeatureStrings.MAPPA.toString();
@@ -312,25 +310,19 @@ public class Feature extends Model // implements Comparator<Feature>
 		//this.name = featureNode.get("properties").path("name").getTextValue();
 
 		Set<String> foundTags = new HashSet<String>();
+		foundTags = TwitterParser.searchHashTags(properties.description);
 		// Set source dependent parameters
-		if(properties.source_type.toString().equals(MyConstants.FeatureStrings.MAPPA.toString()))
-		{
-			foundTags = TwitterParser.searchHashTags(properties.description);
-		}
-		else if(properties.source_type.toString().equals(MyConstants.FeatureStrings.INSTAGRAM.toString()))
+		if(properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()))
 		{
 			;
 		}
-		else if(properties.source_type.toString().equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-		{	
-			images.standard_resolution = featureNode.get("properties").get("images").path("standard_resolution").asText();
-			images.thumbnail = featureNode.get("properties").get("images").path("thumbnail").getTextValue();
-			// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
-			properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
-			properties.icon_url = MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mapped_instagram.png";
-			foundTags = TwitterParser.searchHashTags(properties.mapper_description);
-
-			// ******** Image URLs should be added here. Are they included in the MAPPED_INSTAGRAM JSON request?
+		else if(properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
+		{
+			foundTags.addAll(TwitterParser.searchHashTags(properties.mapper_description));
+		}
+		else if(properties.source_type.equals(MyConstants.FeatureStrings.INSTAGRAM.toString()))
+		{
+			;
 		}
 		origin.full_name = featureNode.get("properties").get("user").get("full_name").asText();
 		origin.setLocation(featureNode.get("properties").get("user").get("location").get(0).asDouble(), featureNode.get("properties").get("user").get("location").get(1).asDouble());
@@ -377,8 +369,10 @@ public class Feature extends Model // implements Comparator<Feature>
 		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();
 		images.thumbnail = jInstagramMedia.getImages().getThumbnail().getImageUrl();
 		images.standard_resolution = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
-		long tt = Long.parseLong(jInstagramMedia.getCreatedTime());
-		properties.created_time.setTime(tt);
+		
+		// Instagram created time
+		// long tt = Long.parseLong(jInstagramMedia.getCreatedTime());
+		properties.created_time = new Date();
 		this.origin.id = jInstagramMedia.getId();
 		
 		this.origin.full_name = jInstagramMedia.getUser().getFullName();
@@ -494,10 +488,13 @@ public class Feature extends Model // implements Comparator<Feature>
 		}
 	}
 	
-	// Comparing Features using timestamp
+	// Comparing Features using timestamp - reverse order - newest to oldest
 	public class TimeStampComparator implements Comparator<Feature> {
 		public int compare(Feature arg0, Feature arg1){
-			return arg0.getDate().compareTo(arg1.getDate());
+			long t1 = arg0.getDate().getTime();
+		    long t2 = arg1.getDate().getTime();
+		    return t1 == t2 ? 0 : t1 < t2 ? 1 : -1;
+			//return arg0.getDate().compareTo(arg1.getDate());
 		}
 	}
 	

@@ -1,0 +1,31 @@
+{
+    "id": "361",
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            15.2,
+            45.5
+        ]
+    },
+    "properties": {
+        "description": "one big modification  #finalTag2!",
+        "source_type": "mapped_instagram",
+		"sessions": [
+			{
+				"id" : "201969126621175",
+				"owner" : "808270471",
+				"privacy" : "private",
+				"name" : "Test Session",
+				"description" : "This is a new session created for testing"
+			}
+		],
+		"user":
+		{
+			"id":"122808270471",
+			"full_name":"Martin Havnør",
+			"location":[10.756731033325195,59.9238826969285],
+			"username" : "martinhavnør"
+		}
+    }
+}

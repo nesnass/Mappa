@@ -430,7 +430,26 @@ public class Features extends Controller
 				result.put("message", "Feature does not exist");
 			    return badRequest(result);
 			}
-				
+			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
+			{
+				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
+				{
+					FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
+					
+					// Assuming a feature always has an image attached
+					updatedFeature.deleteImages();
+					// Set regular parameters
+					updatedFeature.properties.description = featureNode.get("properties").get("description").asText();
+					updatedFeature.imageStandardResolutionFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
+					updatedFeature.imageThumbnailFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolutionFile.getUuid());
+					updatedFeature.retrieveImages().standard_resolution = updatedFeature.imageStandardResolutionFile.getUrlAsString();
+					updatedFeature.retrieveImages().thumbnail = updatedFeature.imageThumbnailFile.getUrlAsString();
+				}
+			}
+			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
+			{
+				updatedFeature.properties.mapper_description = featureNode.get("properties").path("description").getTextValue();
+			}
 			// Update the properties
 			// extract properties from node and then set
 			updatedFeature.assignProperties(featureNode);
@@ -445,24 +464,7 @@ public class Features extends Controller
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
-		{
-			if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
-			{
-				FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
-				
-				// Assuming a feature always has an image attached
-				updatedFeature.deleteImages();
-				updatedFeature.imageStandardResolutionFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
-				updatedFeature.imageThumbnailFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolutionFile.getUuid());
-				updatedFeature.retrieveImages().standard_resolution = updatedFeature.imageStandardResolutionFile.getUrlAsString();
-				updatedFeature.retrieveImages().thumbnail = updatedFeature.imageThumbnailFile.getUrlAsString();
-			}
-		}
-		else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
-		{
-			;
-		}
+
 		Ebean.save(updatedFeature);
 		response().setContentType("application/json; charset=utf-8");
 		String s = updatedFeature.toJson();
@@ -530,8 +532,8 @@ public class Features extends Controller
 
 		try {
 			// Setup a new feature, including geometry
-			newFeature = new Feature(featureNode);
-
+			newFeature = new Feature();
+			newFeature.properties.description = featureNode.get("properties").get("description").asText();
 			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
 			{
 				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
@@ -543,7 +545,16 @@ public class Features extends Controller
 					newFeature.retrieveImages().thumbnail = newFeature.imageThumbnailFile.getUrlAsString();
 				}
 			}
-
+			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
+			{
+				newFeature.retrieveImages().standard_resolution = featureNode.get("properties").get("images").path("standard_resolution").asText();
+				newFeature.retrieveImages().thumbnail = featureNode.get("properties").get("images").path("thumbnail").getTextValue();
+				// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
+				newFeature.properties.icon_url = MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mapped_instagram.png";
+			}
+			
+			// Assign remaining general properties
+			newFeature.assignProperties(featureNode);
 			// Set the user reference
 			newFeature.featureUser = user;
 			// Add the feature to the user
