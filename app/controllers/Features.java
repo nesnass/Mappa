@@ -380,7 +380,7 @@ public class Features extends Controller
 			}
 			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			{
-				updatedFeature.properties.mapper_description = featureNode.get("properties").path("description").getTextValue();
+				updatedFeature.properties.mapper_description = featureNode.get("properties").path("mapper_description").getTextValue();
 			}
 			// Update the properties
 			// extract properties from node and then set
@@ -467,9 +467,9 @@ public class Features extends Controller
 		try {
 			// Setup a new feature, including geometry
 			newFeature = new Feature();
-			newFeature.properties.description = featureNode.get("properties").get("description").asText();
 			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
 			{
+				newFeature.properties.description = featureNode.get("properties").get("description").asText();
 				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
 				{
 					FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
@@ -481,6 +481,7 @@ public class Features extends Controller
 			}
 			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			{
+				newFeature.properties.description = featureNode.get("properties").get("mapper_description").asText();
 				newFeature.retrieveImages().standard_resolution = featureNode.get("properties").get("images").path("standard_resolution").asText();
 				newFeature.retrieveImages().thumbnail = featureNode.get("properties").get("images").path("thumbnail").getTextValue();
 				// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
