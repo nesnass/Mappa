@@ -9,6 +9,7 @@ import java.util.Set;
 import javax.persistence.*;
 
 import org.codehaus.jackson.JsonNode;
+import org.jinstagram.entity.common.Location;
 import org.jinstagram.entity.users.feed.MediaFeedData;
 
 import flexjson.JSON;
@@ -33,8 +34,10 @@ public class Feature extends Model // implements Comparator<Feature>
 	
 	@Id
 	@GeneratedValue
-	private long _id;
+	private long id;
 
+	private String original_id = "";
+	
 	@Constraints.MaxLength(30)
 	public String type = "Feature";
 
@@ -84,12 +87,12 @@ public class Feature extends Model // implements Comparator<Feature>
 	}
 	
 	@Embedded
-	private Origin origin;
+	private OriginalUser origin;
 	
 	@Embeddable
-	public class Origin {
-		
-		public String id;
+	public class OriginalUser {
+		public String service;
+		private String user_id;
 		public String full_name;
 		public String username;
 		private double lngOrigin;
@@ -112,8 +115,12 @@ public class Feature extends Model // implements Comparator<Feature>
 			this.latOrigin = lat;
 		}
 
-		
-		
+		public String getId() {
+			return user_id;
+		}
+		public void setId(String user_id) {
+			this.user_id = user_id;
+		}
 		@JSON(include=true)
 		public double[] getLocation() {
 			double[] location = new double[2];
@@ -137,6 +144,7 @@ public class Feature extends Model // implements Comparator<Feature>
 /****************************************************
  * 		These non-persisted variables are mapped to the ones above for JSON printing ^
  */
+		/*
 		@Transient
 		private String idProperties;
 		
@@ -151,16 +159,16 @@ public class Feature extends Model // implements Comparator<Feature>
 		public void setId(String id) {
 			idProperties = id;
 		}
-		
+		*/
 		@Transient
 		private Images images;
 		public Images getImages() { return images; }
 		public void setImages(Images images) { this.images = images; }
 
 		@Transient
-		private Origin user;
-		public Origin getUser() { return user; }
-		public void setUser(Origin u) { user = u; }
+		private OriginalUser user;
+		public OriginalUser getUser() { return user; }
+		public void setUser(OriginalUser u) { user = u; }
 		
 		@Transient
 		private MUser mapper;	
@@ -186,6 +194,7 @@ public class Feature extends Model // implements Comparator<Feature>
 			}
 			return stringTags;
 		}
+		
 		public void setTags(Set<Tag> t) { taglist = t; }
 
 // ***************************************************
@@ -195,10 +204,7 @@ public class Feature extends Model // implements Comparator<Feature>
 		
 		// Convert Date to Unix timestamp in seconds
 		public long getCreated_time() {
-		//	if(this.source_type == MyConstants.FeatureStrings.INSTAGRAM.toString())
 				return created_time.getTime()/1000;
-		//	else
-		//		return created_time.getTime()/1000;
 		}
 
 		@Constraints.MaxLength(255)
@@ -217,17 +223,17 @@ public class Feature extends Model // implements Comparator<Feature>
 		
 		// Retrieve the description URL
 		public String getDescription_url() {
-			return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/content/" + user.id;
+			return MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/content/" + user.getId();
 		}
 		
 		public String getName() {
 			return description.length() < 22 ? description : description.substring(0, 22);
 		}
 		
-//		@Constraints.MaxLength(255)
+		@Column(columnDefinition = "TEXT")
 		public String description = "";
 		
-//		@Constraints.MaxLength(255)
+		@Column(columnDefinition = "TEXT")
 		public String mapper_description = "";
 
 		@Constraints.MaxLength(255)
@@ -241,7 +247,7 @@ public class Feature extends Model // implements Comparator<Feature>
 		images = this.new Images();
 		properties = this.new Properties();
 		properties.created_time = new Date();
-		origin = this.new Origin();
+		origin = this.new OriginalUser();
 	}
 	
 	// Construct a new feature given Geometry
@@ -251,61 +257,43 @@ public class Feature extends Model // implements Comparator<Feature>
 	}
 	
 	// Construct a new feature given a JSON node
-	public Feature(JsonNode featureNode) {
+	public Feature(JsonNode featureNode, String source_type) {
 		this();
-		assignProperties(featureNode);
+		assignProperties(featureNode, source_type);
 	}
 	
 	@JSON(include=true)
 	public String getId() {
-		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString())) {
-			return String.valueOf(this._id);
-		}
+		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()))
+			return String.valueOf(this.id);
 		else
-			return this.origin.id;
+			return this.original_id;
 	}
 	
 	public Date getDate() {
 		return properties.created_time;
 	}
 
-/*	@JSON(include=false)
-	public String getOrigin_id() {
-		return origin.id;
-	}
-*/
 	// Setup by JsonNode object
-	public void assignProperties(JsonNode featureNode)
-	{
+	public void assignProperties(JsonNode featureNode, String source_type) {
 		// Set relations
 		if(geometry == null)
-		{
-			//this.featureGeometry = new Geometry(featureNode.get("geometry"));
-			
 			geometry = new Point(featureNode.get("geometry"));
-		}
 		else
 			geometry.assignProperties(featureNode.get("geometry"));
 		featureSession = Session.find.where().eq("facebook_group_id", featureNode.get("properties").path("sessions").path(0).path("id").asText()).findUnique();
 
-// *************  Session should always be supplied in the JSON
+		// Session with Multi Sessions iteration of Mappa - should never be needed..  sessions should be created before any POIs are added
 		if(featureSession == null) {
-			Session newSession = new Session();
-
-			newSession.setFacebook_group_id( featureNode.get("properties").path("sessions").path(0).path("id").asText() );
-			newSession.setTitle( featureNode.get("properties").path("sessions").path(0).path("name").asText() );
-		//	newSession.setDescription( featureNode.get("properties").path("session").path(0).path("description").asText() );
-		//	newSession.setPrivacy(featureNode.get("properties").path("session").path(0).path("description").asText() );
-			newSession.save();
-
+			Session newSession = new Session(featureNode, source_type);
 			featureSession = newSession;
 		}
-
+		featureSession.sessionFeatures.add(this);
+		featureSession.save();
 		
-		String source = featureNode.get("properties").get("source_type").asText();
-		if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
+		if (source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
 			properties.source_type = MyConstants.FeatureStrings.MAPPA.toString();
-		else if (source.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
+		else if (source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			properties.source_type = MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString();
 		//this.name = featureNode.get("properties").path("name").getTextValue();
 
@@ -314,19 +302,17 @@ public class Feature extends Model // implements Comparator<Feature>
 		// Set source dependent parameters
 		if(properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()))
 		{
-			;
+			origin.service = "mappa";
 		}
 		else if(properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 		{
+			origin.service = "instagram";
 			foundTags.addAll(TwitterParser.searchHashTags(properties.mapper_description));
-		}
-		else if(properties.source_type.equals(MyConstants.FeatureStrings.INSTAGRAM.toString()))
-		{
-			;
+			this.original_id = featureNode.path("id").asText();
 		}
 		origin.full_name = featureNode.get("properties").get("user").get("full_name").asText();
 		origin.setLocation(featureNode.get("properties").get("user").get("location").get(0).asDouble(), featureNode.get("properties").get("user").get("location").get(1).asDouble());
-		origin.id = featureNode.get("properties").get("user").get("id").asText();
+		origin.setId(featureNode.get("properties").get("user").get("id").asText());
 		origin.username = featureNode.get("properties").get("user").get("username").asText();
 		
 		// Set the Tag references, if any tags exist
@@ -358,10 +344,11 @@ public class Feature extends Model // implements Comparator<Feature>
 	public void assignProperties(MediaFeedData jInstagramMedia)
 	{
 		// Set regular parameters
-		if(geometry == null)
-			geometry = new Point(jInstagramMedia.getLocation());
-		else
-			geometry.assignProperties(jInstagramMedia.getLocation());
+		Location location = jInstagramMedia.getLocation();
+		if(geometry == null && location != null)
+			geometry = new Point(location);
+		else if(location != null)
+			geometry.assignProperties(location);
 
 		if(jInstagramMedia.getCaption() != null)
 			properties.description = jInstagramMedia.getCaption().getText();
@@ -369,14 +356,14 @@ public class Feature extends Model // implements Comparator<Feature>
 		properties.source_type = MyConstants.FeatureStrings.INSTAGRAM.toString();
 		images.thumbnail = jInstagramMedia.getImages().getThumbnail().getImageUrl();
 		images.standard_resolution = jInstagramMedia.getImages().getStandardResolution().getImageUrl();
-		
+		this.original_id = jInstagramMedia.getId();
 		// Instagram created time
 		// long tt = Long.parseLong(jInstagramMedia.getCreatedTime());
 		properties.created_time = new Date(Long.valueOf(jInstagramMedia.getCreatedTime())*1000);
-		this.origin.id = jInstagramMedia.getId();
-		
+		this.origin.setId(String.valueOf(jInstagramMedia.getUser().getId()));
 		this.origin.full_name = jInstagramMedia.getUser().getFullName();
-		this.origin.setLocation(jInstagramMedia.getLocation().getLongitude(), jInstagramMedia.getLocation().getLatitude());
+		if(location != null)
+			this.origin.setLocation(location.getLongitude(), location.getLatitude());
 		this.origin.username = jInstagramMedia.getUser().getUserName();
 
 		// New set to contain tags
@@ -523,11 +510,9 @@ public class Feature extends Model // implements Comparator<Feature>
 	{
 		// Temporary variables inside 'properties' need to be initialised before serialisation
 		if(this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPA.toString()) || this.properties.source_type.equals(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString())) {
-			properties.setId(String.valueOf(this._id));
 			properties.setTags(this.featureTags);
 		}
 		else {
-			properties.setId(this.origin.id);
 			properties.setTags(this.instaTags);
 		}
 		properties.setUser(this.origin);

@@ -54,8 +54,8 @@ GET     		/resources/*file               						controllers.Assets.at(path="/publ
 POST			/geo												controllers.Features.createGeoFeature()
 PUT				/geo												controllers.Features.updateGeoFeature()
 DELETE			/geo												controllers.Features.deleteGeoFeature(id:String, user_id:String, sessions:String)
-GET				/user/username/:userName/:sessions					controllers.Features.getGeoFeaturesByUserName(userName:String, sessions:String)
-GET				/search/:hashTag/:sessions							controllers.Features.getGeoFeaturesByTag(hashTag:String, sessions:String)
+GET				/user/username/:userName/:session					controllers.Features.getGeoFeaturesByUserName(userName:String, session:String)
+GET				/search/:hashTag/:session							controllers.Features.getGeoFeaturesByTag(hashTag:String, session:String)
 
 # sessions supplied as parameter in this call
 GET				/geo/												controllers.Features.getAllGeoFeatures(sessions:String)
@@ -66,9 +66,9 @@ GET				/geo/:id											controllers.Features.getFeatureById(id:String, session
 # sessions supplied as parameter in this call
 GET				/geo/box/											controllers.Features.getGeoFeaturesInBoundingBox(lng1:String, lat1:String, lng2:String, lat2:String, sessions:String)
 
-GET				/geo/radius/:lng/:lat/:radiusInMeters/:sessions		controllers.Features.getFeaturesInRadius(lng:String, lat:String, radiusInMeters:String, sessions:String)
-GET				/geo/recent/:lng/:lat/:sessions						controllers.Features.getMostRecentGeoFeatures(lng:String, lat:String, sessions:String)
-GET				/geo/session/kml/:sessionId							controllers.Features.getKmlBySessionId(sessionId:String)
+GET				/geo/radius/:lng/:lat/:radiusInMeters/:session		controllers.Features.getFeaturesInRadius(lng:String, lat:String, radiusInMeters:String, session:String)
+GET				/geo/recent/:lng/:lat/:session						controllers.Features.getMostRecentGeoFeatures(lng:String, lat:String, session:String)
+GET				/geo/session/kml/:session							controllers.Features.getKmlBySessionId(session:String)
 GET				/geo/user/kml/:userId								controllers.Features.getKmlByUserId(userId:String)
 
 #####	Geo Content
@@ -78,14 +78,11 @@ GET				/instagram/:id										controllers.Contents.contentOfInstaPOI(id:String)
 GET				/instagramAuthorisation/							controllers.Authorisation.instagram(code:String)
 
 ##### Mapping Sessions ######
-# Add Session														create a new session with admin_id
-POST     		/session/new          						    	controllers.Sessions.create()
-GET				/session/:id										controllers.Sessions.getSessionById(id:String)
-
-#POST     		/session                 						 	controllers.Sessions.save()
-#DELETE			/session/:id/:user_id								controllers.Sessions.delete(id:String, user_id:String)
-#GET			/session/:listing/:group_id							return a listing of groups that have been MAPPA associated
-
+POST     		/session          						    		controllers.Sessions.createSession()
+GET				/sessionlist										controllers.Sessions.getSessionList(status:String)
+GET				/session											controllers.Sessions.getSessionByFBId(id:String)
+DELETE			/session											controllers.Sessions.deleteSession(id:String)
+PUT				/session											controllers.Sessions.updateSession(id:String, status:String)
 
 
 #### image post to S3 ####

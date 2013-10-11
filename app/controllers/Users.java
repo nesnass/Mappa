@@ -13,9 +13,9 @@ import play.mvc.Result;
  */
 public class Users extends Controller
 {
-	public static Result fetchGeoFeaturesByUser(String userID)
-	{
-		MUser user = MUser.find.byId(userID);
+	/*
+	public static Result fetchGeoFeaturesByUser(String facebook_id) {
+		MUser user = MUser.find.where().eq("facebook_id", facebook_id).findUnique();
 		if (user == null) {
 			return ok(toJson(new String[0]));
 		}
@@ -29,7 +29,7 @@ public class Users extends Controller
 		String s = features.toJson();
 		return ok(s);
 	}
-
+*/
 /*	
 	public static void saveFeatureRefForUser(String userID, String full_name, Feature feature)
 	{

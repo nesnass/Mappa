@@ -1,0 +1,36 @@
+{
+    "type": "Feature",
+    "id": "23",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            "10.737593",
+            "59.956631"
+        ]
+    },
+    "properties": {
+        "description": "Last try",
+        "user": {
+          "location" : [
+            10.756731033325195,
+            59.9238826969285
+          ],
+          "service" : "instagram",
+          "username" : "elingranstrand",
+          "id" : "30308715",
+          "full_name" : "Elin Granstrand"
+        },
+        "images": {},
+        "source_type": "mappa",
+        "sessions": [
+            {
+          "blacklisted" : false,
+          "id" : "201969126621175",
+          "privacy" : "private",
+          "facebook_creator_id" : "122808270471",
+          "description" : "This is a new session created for testing",
+          "created_time" : 1381480245336
+            }
+        ]
+    }
+}

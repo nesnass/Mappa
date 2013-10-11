@@ -1,0 +1,45 @@
+POST    /session   [content-type: application/json - as shown below]
+Create a new session by a user
+
+{
+    "session": {
+        "id": "1234567",
+        "name": "my session",
+        "description": "This is a new session created for testing",
+        "privacy": "open"
+    },
+    "user": {
+        "id": "122808270471",
+        "full_name": "Martin Havnør",
+        "username": "martinhavnør",
+	"profile_picture" : ""
+    }
+}
+
+Returns successful JSON Session response, including both database ID and Facebook ID:
+
+{
+    "id": "1",
+    "facebook_group_id": "1234567",
+    "title": "my session",
+    "description": "This is a new session created for testing"
+}
+
+
+GET	/sessionlist?status=...
+Returns a list of all sessions that are not blacklisted (status=false)
+Status determines whether clear or blacklisted sessions are retrieved
+
+GET	/session?id=...
+Returns a single Session as JSON matching the database ID
+
+DELETE	/session?id=...
+Delete the session with given Facebook group ID and all associated Feature POIs
+
+PUT	/session?id=...&status=...   (more parameters?)
+Update a session with given Facebook group ID and with supplied parameters
+For blacklist -> status == "true" | "false"
+
+
+Questions:
+	Should delete be made more secure?

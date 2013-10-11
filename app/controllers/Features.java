@@ -1,7 +1,5 @@
 package controllers;
 
-//http://flexjson.sourceforge.net/
-import static play.libs.Json.toJson;
 import helpers.FeatureCollection;
 import helpers.GeoCalculations;
 
@@ -14,7 +12,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -44,154 +41,89 @@ import models.geometry.Point;
  */
 public class Features extends Controller
 {
-
-	// get Features by User ID
-/*	public static Result getGeoFeaturesByUserId(String userID)
-	{
-		MUser user = MUser.find.where().eq("id", userID).findUnique();
-		if (user == null) {
-			List<String> empty = new ArrayList<String>();
-			return ok(toJson(empty));
-		}
-		FeatureCollection features = new FeatureCollection(user.userFeatures);
-		
-		response().setContentType("application/json; charset=utf-8");
-		String s = features.toJson(); 
-		return ok(s);
-	}
-*/	
 	// get Features by User Name
-	public static Result getGeoFeaturesByUserName(String userName, String sessionIDs)
+	public static Result getGeoFeaturesByUserName(String userName, String sessionID)
 	{
-		MUser user = MUser.find.fetch("userFeatures").fetch("userFeatures.featureSession").where().eq("username", userName).findUnique();
-		if (user == null) {
-			List<String> empty = new ArrayList<String>();
-			return ok(toJson(empty));
-		}
-		else {
-			List<String> sessions = Arrays.asList(sessionIDs.split(","));
+		MUser user = MUser.find.fetch("userFeatures").fetch("userFeatures.featureSession").where().eq("username", userName).eq("userFeatures.featureSession.facebook_group_id", sessionID).findUnique();
+		if (user != null) {
 			FeatureCollection featureCollection = new FeatureCollection(user.userFeatures);
-			
-			Iterator<Feature> it = featureCollection.iterator();
-			while(it.hasNext())
-			{
-				Feature fit = it.next();
-				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
-				{
-					it.remove();
-				}
-			}
-			
 			response().setContentType("application/json; charset=utf-8");
 			String s = featureCollection.toJson(); 
 			return ok(s);
 		}
+		return ok("No Item Found");
 	}
-
-	// Get a Feature list for a facebook group ID
+	
+	// Get a KML for a facebook group ID
 	public static Result getKmlBySessionId(String sessionID)
 	{
 		File kmlFile = new File(sessionID+".kml");
 		KmlParser.getKmlForSession(sessionID, kmlFile);
-		
 		response().setContentType("application/x-download"); 
-	//	response().setContentType("application/vnd.google-earth.kml+xml");
+		//	response().setContentType("application/vnd.google-earth.kml+xml");
 		response().setHeader("Content-disposition","attachment; filename="+sessionID+".kml"); 
 		return ok(kmlFile);
 	}
-	// Get a Feature list for a facebook user ID
+	
+	// Get a KML for a facebook user ID
 	public static Result getKmlByUserId(String userID)
 	{
 		File kmlFile = new File(userID+".kml");
 		KmlParser.getKmlForUser(userID, kmlFile);
-		
 		response().setContentType("application/x-download"); 
-	//	response().setContentType("application/vnd.google-earth.kml+xml");
+		//	response().setContentType("application/vnd.google-earth.kml+xml");
 		response().setHeader("Content-disposition","attachment; filename="+userID+".kml"); 
 		return ok(kmlFile);
 	}
 	
 	// GET /search/:hashTag
-	public static Result getGeoFeaturesByTag(String hashTag, String sessionIDs)
+	public static Result getGeoFeaturesByTag(String hashTag, String sessionID)
 	{
-		Tag foundTag = Tag.find.fetch("tagFeatures").fetch("tagFeatures.featureSession").where().eq("tag", hashTag).findUnique();
-		if(foundTag != null) {
-			List<String> sessions = Arrays.asList(sessionIDs.split(","));
+		Tag foundTag = Tag.find.fetch("tagFeatures").fetch("tagFeatures.featureSession").where().eq("tag", hashTag).eq("tagFeatures.featureSession.facebook_group_id", sessionID).findUnique();
+		if(foundTag != null && foundTag.tagFeatures != null) {
 			FeatureCollection featureCollection = new FeatureCollection(foundTag.tagFeatures);
-			
-			Iterator<Feature> it = featureCollection.iterator();
-			while(it.hasNext())
-			{
-				Feature fit = it.next();
-				if(!sessions.contains(fit.featureSession.getFacebook_group_id()))
-				{
-					it.remove();
-				}
-			}
-
 			response().setContentType("application/json; charset=utf-8");
 			String s = featureCollection.toJson();
-			return ok(s);
+			return ok(s);			
 		}
-		else
-			return ok("POI Not Found");
+		return ok("No Item Found");
 	}
 	
 	
-	// GET /geo?sessions=1234567
-	public static Result getAllGeoFeatures(String sessionIDs)
-	{
-		FeatureCollection featureCollection = new FeatureCollection();
-		List<Feature> featureList;
-		List<String> sessions = Arrays.asList(sessionIDs.split(","));
-		
-		if(sessions.size() == 0) {
-			featureList = Feature.find.fetch("featureSession").where().eq("featureSession.privacy", "open").findList();
-			featureCollection.add(featureList);
+	// GET /geo?sessions=...
+	public static Result getAllGeoFeatures(String sessionID) {
+		Session s = Session.find.fetch("sessionFeatures").where().eq("facebook_group_id", sessionID).findUnique();
+		if(s != null) {
+			List<Feature> featureList = s.sessionFeatures;
+			FeatureCollection featureCollection = new FeatureCollection(featureList);
+			response().setContentType("application/json; charset=utf-8");
+			String js = featureCollection.toJson();
+			return ok(js);
 		}
-		else {
-			featureList = Feature.find.fetch("featureSession").findList();
-			Iterator<Feature> it = featureList.iterator();
-			while(it.hasNext())
-			{
-				Feature fit = it.next();
-				Session fs = fit.featureSession;
-				if(fs != null && !sessions.contains(fit.featureSession.getFacebook_group_id()))
-				{
-					it.remove();
-				}
-			}
-			featureCollection.add(featureList);
-		}
-		
-		response().setContentType("application/json; charset=utf-8");
-		String s = featureCollection.toJson();
-		return ok(s);
+		return ok("No Item Found");
 	}
 	
 	
 	//  GET /geo/:id/:sessionIDs
 	public static Result getFeatureById(String id, String sessionID) {
 		Feature feature = Feature.find.fetch("featureSession").where().idEq(Long.valueOf(id)).findUnique();
-		Session s = feature.featureSession;
-		if (feature == null || !s.getFacebook_group_id().equalsIgnoreCase(sessionID)) {
-			return ok("POI Not Found");
+		if (feature != null && feature.featureSession.getFacebook_group_id().equalsIgnoreCase(sessionID)) {
+			response().setContentType("application/json; charset=utf-8");
+			String js = feature.toJson(); 
+			return ok(js);
 		}
-		
-		response().setContentType("application/json; charset=utf-8");
-		String str = feature.toJson(); 
-		return ok(str);
+		return ok("POI Not Found");
 	}
 	
 
 	//  DELETE /geo/?...&...
-	public static Result deleteGeoFeature(String id, String user_id, String sessionID) {
+	public static Result deleteGeoFeature(String id, String user_id, String session) {
 		String str = "POI not found";
 		Feature f = Feature.find.fetch("featureUser").fetch("featureSession").where().idEq(Long.valueOf(id)).findUnique();
 		if(f != null) {
 			String uid = f.featureUser.getId();
 			String sid = f.featureSession.getFacebook_group_id();
-			if(uid.equalsIgnoreCase(user_id) && sid.equalsIgnoreCase(sessionID)) {
+			if(uid.equalsIgnoreCase(user_id) && sid.equalsIgnoreCase(session)) {
 				f.updateTags(null);
 				Ebean.delete(f);
 				str = "POI Deleted";
@@ -421,7 +353,7 @@ public class Features extends Controller
 			featureNode = mapper.readTree(fileReader);
 			source_type = featureNode.get("properties").get("source_type").asText();
 			long fid = featureNode.get("id").asLong();
-			updatedFeature = Feature.find.fetch("featureTags").where().eq("_id", fid).findUnique();
+			updatedFeature = Feature.find.fetch("featureTags").where().eq("id", fid).findUnique();
 
 			if(updatedFeature == null)
 			{
@@ -432,6 +364,7 @@ public class Features extends Controller
 			}
 			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString()))
 			{
+				updatedFeature.properties.description = featureNode.get("properties").get("description").asText();
 				if (ctx().request().body().asMultipartFormData().getFile("picture") != null) 
 				{
 					FilePart filePart = ctx().request().body().asMultipartFormData().getFile("picture");
@@ -439,7 +372,6 @@ public class Features extends Controller
 					// Assuming a feature always has an image attached
 					updatedFeature.deleteImages();
 					// Set regular parameters
-					updatedFeature.properties.description = featureNode.get("properties").get("description").asText();
 					updatedFeature.imageStandardResolutionFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_ORIGINAL, null);
 					updatedFeature.imageThumbnailFile = uploadFeatureImages(filePart.getFile(), MyConstants.S3Strings.SIZE_THUMBNAIL, updatedFeature.imageStandardResolutionFile.getUuid());
 					updatedFeature.retrieveImages().standard_resolution = updatedFeature.imageStandardResolutionFile.getUrlAsString();
@@ -452,7 +384,7 @@ public class Features extends Controller
 			}
 			// Update the properties
 			// extract properties from node and then set
-			updatedFeature.assignProperties(featureNode);
+			updatedFeature.assignProperties(featureNode, source_type);
 			
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
@@ -494,7 +426,7 @@ public class Features extends Controller
 				id = featureNode.get("properties").get("user").get("id").asText();
 			else
 				id = featureNode.get("properties").get("mapper").get("id").asText();
-			user = MUser.find.where().eq("id", id).findUnique();
+			user = MUser.find.where().eq("facebook_id", id).findUnique();
 		} catch (FileNotFoundException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -506,26 +438,28 @@ public class Features extends Controller
 			e1.printStackTrace();
 		}
 		
-		// User is the facebook user. does not exist in DB, then create it
+		// User is the facebook user. If it does not exist in DB, then create it
 		// Current client supplied JSON needs refactoring to provide an 'origin' section. At present user and mapper are mixing up types depending on source_type..
 		if(user == null && !id.equals(""))
 		{
-			String fn, un;
-			double ln, la;
+			String fn = "", un = "", pp = "";
+			double ln = 0, la = 0;
 			if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPA.toString())) {
 				fn = featureNode.get("properties").get("user").get("full_name").asText();
 				un = featureNode.get("properties").get("user").path("username").asText();
 				ln = featureNode.get("properties").get("user").get("location").get(0).asDouble();
 				la = featureNode.get("properties").get("user").get("location").get(1).asDouble();
+				pp = featureNode.get("properties").get("user").path("profile_picture").asText();
 			}
-			else {
+			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString())) {
 				fn = featureNode.get("properties").get("mapper").get("full_name").asText();
-				// Username currently not being sent in JSON?
+				// Username and mapper's profile pic currently not being sent in JSON?
 				un = featureNode.get("properties").get("mapper").path("username").asText();
 				ln = featureNode.get("properties").get("mapper").get("location").get(0).asDouble();
 				la = featureNode.get("properties").get("mapper").get("location").get(1).asDouble();
+				pp = featureNode.get("properties").get("mapper").path("profile_picture").asText();
 			}
-			user = new MUser(id, fn, un);
+			user = new MUser(id, fn, un, pp);
 			user.setLng(ln);
 			user.setLat(la);
 		}
@@ -552,15 +486,14 @@ public class Features extends Controller
 				// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
 				newFeature.properties.icon_url = MyConstants.NEW_FEATURE_SERVER_NAME_PORT + "/resources/images/mapped_instagram.png";
 			}
-			
-			// Assign remaining general properties
-			newFeature.assignProperties(featureNode);
-			// Set the user reference
-			newFeature.featureUser = user;
-			// Add the feature to the user
 			user.userFeatures.add(newFeature);
 			// Save the feature in DB, the feature and tag save will cascade from user due to mapping settings
 			Ebean.save(user);
+			// Assign remaining general properties
+			newFeature.assignProperties(featureNode, source_type);
+			// Set the user reference
+			newFeature.featureUser = user;
+			// Add the feature to the user
 			Ebean.save(newFeature);
 		}
 		catch (javax.persistence.PersistenceException e)

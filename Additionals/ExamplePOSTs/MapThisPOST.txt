@@ -1,0 +1,41 @@
+{
+    "type": "Feature",
+    "id": "563137145621596561_244246681",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [
+            "10.735541",
+            "59.958349"
+        ]
+    },
+    "properties": {
+        "description": "#house#autumn#leaves#omsluttet av høsten",
+        "mapper": {
+            "id": "100002559434149",
+            "username": "morten.iversen.378",
+            "location": [
+                "10.737533",
+                "59.956701"
+            ],
+            "full_name": "Morten Iversen"
+        },
+        "user": {
+            "id": "563137145621596561_244246681",
+            "username": "tangvald",
+            "location": [
+                "10.737533",
+                "59.956701"
+            ],
+            "full_name": "tangvald"
+        },
+        "mapper_description": "Testing map this",
+        "source_type": "mapped_instagram",
+        "sessions": [
+            {
+                "id": "245718548833281",
+                "name": "MAPPA1",
+                "administrator": true
+            }
+        ]
+    }
+}

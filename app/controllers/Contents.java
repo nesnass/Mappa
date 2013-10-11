@@ -36,7 +36,7 @@ public class Contents extends Controller
 			
 			if (feature.featureUser != null)
 			{
-				user.setId( feature.featureUser.getId() );
+				user.setFacebook_id( feature.featureUser.getFacebook_id() );
 				user.full_name = feature.featureUser.full_name;	
 			}
 			
@@ -51,7 +51,7 @@ public class Contents extends Controller
 		Feature feature;
 		feature = InstagramParser.getInstaByMediaId(id);
 		if(feature != null) {
-			response().setContentType("text/html; charset=utf-8");
+			response().setContentType("application/json; charset=utf-8");
 			String s = feature.toJson();
 			return ok(s);
 		}

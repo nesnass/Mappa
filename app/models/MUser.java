@@ -16,12 +16,15 @@ import play.db.ebean.Model;
 
 @Entity
 @Table(name="s_user")
-public class MUser extends Model
-{
+public class MUser extends Model {
 	private static final long serialVersionUID = 7448411543574042349L;
 
 	@Id
-	private String id;
+	@GeneratedValue
+	private long id;
+	
+	@Constraints.MaxLength(255)
+	private String facebook_id;
 	
 	@Constraints.MaxLength(255)
 	public String full_name;
@@ -45,35 +48,18 @@ public class MUser extends Model
 		// TODO Auto-generated constructor stub
 	}
 	
-	public MUser(String full_name) {
+	public MUser(String facebook_id, String full_name, String username, String profile_picture) {	
 		this();
+		this.facebook_id = facebook_id;
 		this.full_name = full_name;
-	}
-	
-	public MUser(String id, String full_name) {	
-		this();
-		this.id = id;
-		this.full_name = full_name;
-	}
-	
-	public MUser(String id, String full_name, String profile_picture, String username) {	
-		this(id, full_name);
-		this.profile_picture = profile_picture;
-		this.username = username;
-	}
-	
-	public MUser(String id, String full_name, String username) {	
-		this(id, full_name);
-		if (username != null)
+		if(username != null)
 			this.username = username;
+		if(profile_picture != null)
+			this.profile_picture = profile_picture;
 	}
 	
 	public String getId() {
-		return id;
-	}
-
-	public void setId(String id) {
-		this.id = id;
+		return String.valueOf(id);
 	}
 
 	@JSON(include=true)
@@ -110,20 +96,26 @@ public class MUser extends Model
 		this.username = username;
 	}
 
-	public static Model.Finder<String, MUser> find =  new Model.Finder<String, MUser>(String.class, MUser.class);
+	public String getFacebook_id() {
+		return facebook_id;
+	}
+
+	public void setFacebook_id(String facebook_id) {
+		this.facebook_id = facebook_id;
+	}
+
+	public static Model.Finder<Long, MUser> find =  new Model.Finder<Long, MUser>(Long.class, MUser.class);
 	
 	public static List<MUser> all() {
 		return find.all();
 	}
 	
-	public String toString()
-	{
+	public String toString() {
 		return this.full_name + " #features: " + userFeatures.size();
 	}
 	
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
-	public String toJson()
-	{
+	public String toJson() {
 		return "";
 	}
 }

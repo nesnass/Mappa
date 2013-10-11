@@ -9,11 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.jinstagram.Instagram;
-import org.jinstagram.auth.InstagramAuthService;
 import org.jinstagram.auth.exceptions.OAuthException;
 import org.jinstagram.auth.model.Token;
-import org.jinstagram.auth.model.Verifier;
-import org.jinstagram.auth.oauth.InstagramService;
 import org.jinstagram.entity.media.MediaInfoFeed;
 import org.jinstagram.entity.users.feed.MediaFeed;
 import org.jinstagram.entity.users.feed.MediaFeedData;
@@ -96,7 +93,7 @@ public class InstagramParser
 			while(feedIterator.hasNext())
 			{
 				MediaFeedData mdata = feedIterator.next();
-				MUser user = new MUser(Long.toString(mdata.getUser().getId()), mdata.getUser().getFullName(), mdata.getUser().getProfilePictureUrl(), mdata.getUser().getUserName());
+				MUser user = new MUser(Long.toString(mdata.getUser().getId()), mdata.getUser().getFullName(), mdata.getUser().getUserName(), mdata.getUser().getProfilePictureUrl());
 				user.setUsername(mdata.getUser().getUserName());
 				Feature f = new Feature();
 				f.featureUser = user;
@@ -123,7 +120,7 @@ public class InstagramParser
 		{
 			Feature f = new Feature();
 			MediaFeedData feeddata = feed.getData();
-			MUser user = new MUser(Long.toString(feeddata.getUser().getId()), feeddata.getUser().getFullName(), feeddata.getUser().getProfilePictureUrl(), feeddata.getUser().getUserName());
+			MUser user = new MUser(Long.toString(feeddata.getUser().getId()), feeddata.getUser().getFullName(), feeddata.getUser().getUserName(), feeddata.getUser().getProfilePictureUrl());
 			user.setUsername(feeddata.getUser().getUserName());
 			f.featureUser = user;
 			f.assignProperties(feeddata);

@@ -1,7 +1,5 @@
 package helpers;
 
-import org.jinstagram.auth.model.Token;
-
 public class MyConstants
 {
 	public enum FeatureStrings
@@ -67,7 +65,6 @@ public class MyConstants
 	public final static String INSTAGRAM_ACCESS_TOKEN = "391112889.152cc8f.2ab2fd2bbea64a6aa5a31a0733ec25c6";
 	
 	public final static String KML_MAPPA_ICON = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_orange.png";
-	
 	
 	public final static int DEFAULT_INSTAGRAM_DISTANCE = 5000;
 	public final static int MAX_FEATURES_TO_GET = 30;

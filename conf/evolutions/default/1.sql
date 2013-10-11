@@ -4,9 +4,10 @@
 # --- !Ups
 
 create table s_feature (
-  _id                       bigint not null,
+  id                        bigint not null,
+  original_id               varchar(255),
   type                      varchar(255),
-  feature_user_id           varchar(255),
+  feature_user_id           bigint,
   feature_session_id        bigint,
   gtype                     varchar(255),
   lng                       float,
@@ -15,22 +16,24 @@ create table s_feature (
   image_thumbnail_file_id   bigint,
   created_time              timestamp,
   descr_url                 varchar(255),
-  description               varchar(255),
-  mapper_description        varchar(255),
+  description               TEXT,
+  mapper_description        TEXT,
   icon_url                  varchar(255),
   source_type               varchar(255),
   standard_resolution       varchar(255),
   thumbnail                 varchar(255),
-  id                        varchar(255),
+  service                   varchar(255),
+  user_id                   varchar(255),
   full_name                 varchar(255),
   username                  varchar(255),
   lng_origin                float,
   lat_origin                float,
-  constraint pk_s_feature primary key (_id))
+  constraint pk_s_feature primary key (id))
 ;
 
 create table s_user (
-  id                        varchar(255) not null,
+  id                        bigint not null,
+  facebook_id               varchar(255),
   full_name                 varchar(255),
   profile_picture           varchar(255),
   username                  varchar(255),
@@ -51,9 +54,11 @@ create table s_session (
   id                        bigint not null,
   facebook_group_id         varchar(255),
   facebook_creator_id       varchar(255),
-  stitle                    varchar(255),
-  sdescription              varchar(255),
+  stitle                    TEXT,
+  sdescription              TEXT,
   privacy                   varchar(255),
+  blacklisted               boolean,
+  created_time              timestamp,
   constraint pk_s_session primary key (id))
 ;
 
@@ -66,15 +71,15 @@ create table s_tag (
 
 
 create table s_feature_tag (
-  s_feature__id                  bigint not null,
+  s_feature_id                   bigint not null,
   s_tag_id                       bigint not null,
-  constraint pk_s_feature_tag primary key (s_feature__id, s_tag_id))
+  constraint pk_s_feature_tag primary key (s_feature_id, s_tag_id))
 ;
 
 create table s_tag_feature (
   s_tag_id                       bigint not null,
-  s_feature__id                  bigint not null,
-  constraint pk_s_tag_feature primary key (s_tag_id, s_feature__id))
+  s_feature_id                   bigint not null,
+  constraint pk_s_tag_feature primary key (s_tag_id, s_feature_id))
 ;
 create sequence s_feature_seq;
 
@@ -97,13 +102,13 @@ create index ix_s_feature_imageThumbnailFil_4 on s_feature (image_thumbnail_file
 
 
 
-alter table s_feature_tag add constraint fk_s_feature_tag_s_feature_01 foreign key (s_feature__id) references s_feature (_id);
+alter table s_feature_tag add constraint fk_s_feature_tag_s_feature_01 foreign key (s_feature_id) references s_feature (id);
 
 alter table s_feature_tag add constraint fk_s_feature_tag_s_tag_02 foreign key (s_tag_id) references s_tag (id);
 
 alter table s_tag_feature add constraint fk_s_tag_feature_s_tag_01 foreign key (s_tag_id) references s_tag (id);
 
-alter table s_tag_feature add constraint fk_s_tag_feature_s_feature_02 foreign key (s_feature__id) references s_feature (_id);
+alter table s_tag_feature add constraint fk_s_tag_feature_s_feature_02 foreign key (s_feature_id) references s_feature (id);
 
 # --- !Downs
 
