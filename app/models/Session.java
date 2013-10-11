@@ -12,6 +12,7 @@ import org.codehaus.jackson.JsonNode;
 import com.avaje.ebean.Ebean;
 
 import flexjson.JSON;
+import flexjson.JSONSerializer;
 import play.db.ebean.Model;
 
 /**
@@ -157,12 +158,19 @@ public class Session extends Model {
 	
 	// Created to map the json output matching the implementation currently running on client (client cannot be changed at this time)
 	public String toJson() {
+		
 		String jsonString = 
 			"{ 	\"id\" : \"" + String.valueOf(this.id) +
 				"\",\"facebook_group_id\" : \"" + this.facebook_group_id +
 				"\",\"title\" : \"" + this.stitle +
-				"\",\"created_time\" : \"" + this.created_time +
+				"\",\"created_time\" : \"" + this.getCreated_timeUNIX() +
 				"\",\"description\" : \"" + this.sdescription + "\"}";
 		return jsonString;
+		
+	/*	JSONSerializer serializer = new JSONSerializer();
+        return serializer
+        		.exclude("*.class")
+        		.serialize( this );
+        		*/
 	}
 }
