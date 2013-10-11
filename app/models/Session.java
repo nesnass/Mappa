@@ -161,6 +161,7 @@ public class Session extends Model {
 			"{ 	\"id\" : \"" + String.valueOf(this.id) +
 				"\",\"facebook_group_id\" : \"" + this.facebook_group_id +
 				"\",\"title\" : \"" + this.stitle +
+				"\",\"created_time\" : \"" + this.created_time +
 				"\",\"description\" : \"" + this.sdescription + "\"}";
 		return jsonString;
 	}

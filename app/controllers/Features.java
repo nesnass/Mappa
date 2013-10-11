@@ -121,7 +121,7 @@ public class Features extends Controller
 		String str = "POI not found";
 		Feature f = Feature.find.fetch("featureUser").fetch("featureSession").where().idEq(Long.valueOf(id)).findUnique();
 		if(f != null) {
-			String uid = f.featureUser.getId();
+			String uid = f.featureUser.getFacebook_id();
 			String sid = f.featureSession.getFacebook_group_id();
 			if(uid.equalsIgnoreCase(user_id) && sid.equalsIgnoreCase(session)) {
 				f.updateTags(null);
@@ -481,7 +481,8 @@ public class Features extends Controller
 			}
 			else if(source_type.equalsIgnoreCase(MyConstants.FeatureStrings.MAPPED_INSTAGRAM.toString()))
 			{
-				newFeature.properties.description = featureNode.get("properties").get("mapper_description").asText();
+				newFeature.properties.description = featureNode.get("properties").get("description").asText();
+				newFeature.properties.mapper_description = featureNode.get("properties").get("mapper_description").asText();
 				newFeature.retrieveImages().standard_resolution = featureNode.get("properties").get("images").path("standard_resolution").asText();
 				newFeature.retrieveImages().thumbnail = featureNode.get("properties").get("images").path("thumbnail").getTextValue();
 				// 'name' not included in regular 'Overlay' feature??  '.path' call is used to return a 'missing node' instead of null if node not found
