@@ -13,7 +13,7 @@ import flexjson.JSON;
 import play.db.ebean.Model;
 
 @Embeddable
-public class Point extends Model {
+public class LineString extends Model {
 
 	@Id
 	@GeneratedValue
@@ -28,11 +28,11 @@ public class Point extends Model {
 
 	private static final long serialVersionUID = 3913464290289955353L;
 
-	public Point() {
+	public LineString() {
 		coordinates = new double[2];
 	}
 
-	public Point(double lng, double lat) {
+	public LineString(double lng, double lat) {
 		this();
 		this.lng = lng;
 		this.lat = lat;
@@ -41,12 +41,12 @@ public class Point extends Model {
 		coordinates[1] = lat;
 	}
 
-	public Point(JsonNode pointNode) {
+	public LineString(JsonNode pointNode) {
 		this();
 		assignProperties(pointNode);
 	}
 
-	public Point(Location location) {
+	public LineString(Location location) {
 		this();
 		assignProperties(location);
 	}
