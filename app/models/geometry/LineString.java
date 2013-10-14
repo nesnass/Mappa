@@ -1,112 +1,90 @@
 package models.geometry;
 
+import java.io.IOException;
+
 import javax.persistence.Embeddable;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Transient;
 
 import org.codehaus.jackson.JsonNode;
-import org.jinstagram.entity.common.Location;
-
-import flexjson.JSON;
+import org.codehaus.jackson.JsonProcessingException;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import play.db.ebean.Model;
 
 @Embeddable
 public class LineString extends Model {
 
+	private static final long serialVersionUID = -6321118276175787909L;
+
 	@Id
 	@GeneratedValue
 	private long id;
 	
-	private String gtype = "Point";
-	private double lng;
-	private double lat;
+	private String gtype = "LineString";
 	
 	@Transient
-	private double[] coordinates;
-
-	private static final long serialVersionUID = 3913464290289955353L;
-
-	public LineString() {
-		coordinates = new double[2];
+	private Point[] lineString;
+	
+	public LineString(int length) {
+		lineString = new Point[length];
 	}
 
-	public LineString(double lng, double lat) {
-		this();
-		this.lng = lng;
-		this.lat = lat;
-
-		coordinates[0] = lng;
-		coordinates[1] = lat;
-	}
-
-	public LineString(JsonNode pointNode) {
-		this();
-		assignProperties(pointNode);
-	}
-
-	public LineString(Location location) {
-		this();
-		assignProperties(location);
+	/**
+	 * @return set a point somewhere along the lineString
+	 */
+	public void setPoint(Point p, int index) {
+		if(lineString.length > 0 && index < lineString.length) {
+			lineString[index] = p;
+		}
 	}
 
 	public String getType() {
 		return gtype;
 	}
+
+	/**
+	 * @return assign a lineString from a JSON String node
+	 */
+	public void assignProperties(String lineNodeString) {
+		ObjectMapper mapper = new ObjectMapper();
+		JsonNode coordinates;
+		try {
+			coordinates = mapper.readTree(lineNodeString).get("coordinates");
+			if(coordinates.isArray())
+				lineString = mapper.readValue(coordinates, Point[].class);
+		} catch (JsonProcessingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	
-	@JSON(include=false)
-	public double getLng() {
-		return lng;
-	}
-
-	public void setLng(double lng) {
-		this.lng = lng;
-	}
-
-	@JSON(include=false)
-	public double getLat() {
-		return lat;
-	}
-
-	public void setLat(double lat) {
-		this.lat = lat;
-	}
-
-	public void assignProperties(JsonNode pointNode) {
-		coordinates = new double[pointNode.get("coordinates").size()];
-		lng = pointNode.get("coordinates").path(0).asDouble();
-		lat = pointNode.get("coordinates").path(1).asDouble();
-		coordinates[0] = lng;
-		coordinates[1] = lat;
-	}
-
-	// Setup by jInstagram Location object
-	public void assignProperties(Location location)
-	{
-		coordinates = new double[2];
-		lng = location.getLongitude();
-		lat = location.getLatitude();
-		coordinates[0] = lng;
-		coordinates[1] = lat;
+	/**
+	 * @return determine whether this is a linear ring by the GeoJSON definition      http://geojson.org/geojson-spec.html#id16
+	 */
+	public boolean isLinearRing() {
+		if(this.lineString.length > 3 && lineString[0].equals(lineString[lineString.length-1]))
+			return true;
+		else
+			return false;
 	}
 
 	/**
-	 * @return the coordinates
+	 * @return the lineString
 	 */
-	public double[] getCoordinates() {
-		this.coordinates[0] = lng;
-		this.coordinates[1] = lat;
-		return coordinates;
+	public Point[] getLineString() {
+		return lineString;
 	}
 
 	/**
-	 * @param coordinates the coordinates to set
+	 * @param set the lineString
 	 */
-	public void setCoordinates(double[] coordinates) {
-		this.coordinates[0] = lng;
-		this.coordinates[1] = lat;
-		this.coordinates = coordinates;
+	public void setLineString(Point[] newLineString) {
+		this.lineString = newLineString;
 	}
 
 }

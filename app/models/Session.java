@@ -12,7 +12,6 @@ import org.codehaus.jackson.JsonNode;
 import com.avaje.ebean.Ebean;
 
 import flexjson.JSON;
-import flexjson.JSONSerializer;
 import play.db.ebean.Model;
 
 /**

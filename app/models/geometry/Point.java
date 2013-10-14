@@ -108,5 +108,15 @@ public class Point extends Model {
 		this.coordinates[1] = lat;
 		this.coordinates = coordinates;
 	}
+	
+	/**
+	 * @param determine equal to another Point?
+	 */
+	public boolean equals(Point otherPoint) {
+		if(this.lng == otherPoint.coordinates[0] && this.lat == otherPoint.coordinates[1])
+			return true;
+		else
+			return false;
+	}
 
 }
